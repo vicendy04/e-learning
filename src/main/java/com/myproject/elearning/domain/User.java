@@ -1,6 +1,5 @@
 package com.myproject.elearning.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -26,10 +25,9 @@ public class User {
     @Column(name = "username", length = 50)
     private String username;
 
-    @JsonIgnore
     @NotNull
     @Size(min = 4, message = "Password must be at least 4 characters long.")
-    @Column(name = "password_hash", nullable = false)
+    @Column(name = "password", nullable = false)
     private String password;
 
     @Column(name = "image_url")

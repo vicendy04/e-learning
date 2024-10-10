@@ -1,8 +1,8 @@
 package com.myproject.elearning.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import java.util.Set;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,7 +24,13 @@ public class Course {
     @Column(name = "overview", columnDefinition = "MEDIUMTEXT")
     private String overview;
 
-    @JsonIgnore
+    /**
+     * The {@link JsonIgnoreProperties} annotation is used to create an empty course (without modules).
+     * It also resolves the response issue for the "get module" API.
+     */
+    @JsonIgnoreProperties(
+            value = {"course"},
+            allowSetters = true)
     @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
-    private Set<Module> modules;
+    private List<Module> modules;
 }

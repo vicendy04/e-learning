@@ -1,5 +1,6 @@
 package com.myproject.elearning.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -30,6 +31,12 @@ public class Module {
     @Column(name = "module_order")
     private Integer order;
 
+    /**
+     * The {@link JsonIgnoreProperties} annotation is used to resolve the response issue for the "get module" API.
+     */
+    @JsonIgnoreProperties(
+            value = {"modules"},
+            allowSetters = true)
     @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;

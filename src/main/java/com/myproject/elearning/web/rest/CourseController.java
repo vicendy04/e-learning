@@ -20,10 +20,14 @@ public class CourseController {
         this.courseService = courseService;
     }
 
+    /**
+     * @param course the blank course to create.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new blank course.
+     */
     @PostMapping("/courses")
-    public ResponseEntity<Course> createCourse(@Valid @RequestBody Course course) {
-        Course newCourse = courseService.createCourse(course);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newCourse);
+    public ResponseEntity<Course> createBlankCourse(@Valid @RequestBody Course course) {
+        Course blankCourse = courseService.createBlankCourse(course);
+        return ResponseEntity.status(HttpStatus.CREATED).body(blankCourse);
     }
 
     @GetMapping("/courses/{id}")
@@ -38,8 +42,13 @@ public class CourseController {
         return ResponseEntity.status(HttpStatus.OK).body(courses);
     }
 
+    /**
+     * @param course The course which contains the updated information. It should not have any modules.
+     *               This API can not edit modules.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with the body.
+     */
     @PutMapping("/courses")
-    public ResponseEntity<Course> updateUser(@RequestBody Course course) {
+    public ResponseEntity<Course> updateCourse(@RequestBody Course course) {
         Course updatedCourse = courseService.updateCourse(course);
         return ResponseEntity.status(HttpStatus.OK).body(updatedCourse);
     }

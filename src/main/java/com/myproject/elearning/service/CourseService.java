@@ -16,7 +16,7 @@ public class CourseService {
         this.courseRepository = courseRepository;
     }
 
-    public Course createCourse(Course course) {
+    public Course createBlankCourse(Course course) {
         return courseRepository.save(course);
     }
 
@@ -28,7 +28,6 @@ public class CourseService {
         Course currentCourse = courseRepository.findById(course.getId()).orElseThrow();
         currentCourse.setTitle(course.getTitle());
         currentCourse.setOverview(course.getOverview());
-        currentCourse.setModules(course.getModules());
         return courseRepository.save(currentCourse);
     }
 

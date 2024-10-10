@@ -3,8 +3,8 @@ package com.myproject.elearning.service;
 import com.myproject.elearning.domain.User;
 import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.service.dto.UserDTO;
+import com.myproject.elearning.service.mapper.UserMapper;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 /**
@@ -14,9 +14,11 @@ import org.springframework.stereotype.Service;
 // @Transactional
 public class UserService {
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
+        this.userMapper = userMapper;
     }
 
     public User createUser(User user) {
@@ -33,7 +35,7 @@ public class UserService {
         user.setUsername(userDTO.getUsername());
         user.setImageUrl(userDTO.getImageUrl());
         userRepository.save(user);
-        return UserDTO.from(user);
+        return userMapper.userToUserDTO(user);
     }
 
     public void deleteUser(Long id) {
@@ -42,6 +44,7 @@ public class UserService {
     }
 
     public List<UserDTO> getAllUsers() {
-        return userRepository.findAll().stream().map(UserDTO::from).collect(Collectors.toList());
+        List<User> users = userRepository.findAll();
+        return userMapper.usersToUserDTOs(users);
     }
 }
