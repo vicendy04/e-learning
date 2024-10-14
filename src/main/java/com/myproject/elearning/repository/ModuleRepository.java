@@ -11,4 +11,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ModuleRepository extends JpaRepository<Module, Long> {
     List<Module> findByCourseId(Long courseId);
+
+    void deleteByCourseId(Long courseId);
 }

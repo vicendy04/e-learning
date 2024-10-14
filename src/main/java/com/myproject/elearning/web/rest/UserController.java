@@ -2,6 +2,7 @@ package com.myproject.elearning.web.rest;
 
 import com.myproject.elearning.domain.User;
 import com.myproject.elearning.service.UserService;
+import com.myproject.elearning.service.dto.ApiResponse;
 import com.myproject.elearning.service.dto.UserDTO;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -10,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * REST controller for users
+ * REST controller for managing users
  */
 @RestController
 @RequestMapping("/api/v1/")
@@ -22,32 +23,51 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
+    public ResponseEntity<ApiResponse<User>> createUser(@Valid @RequestBody User user) {
         User newUser = userService.createUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+        ApiResponse<User> response = new ApiResponse<>();
+        response.setSuccess(true);
+        response.setMessage("User created successfully");
+        response.setData(newUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUser(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<ApiResponse<User>> getUser(@PathVariable(name = "id") Long id) {
         User user = userService.getUser(id);
-        return ResponseEntity.status(HttpStatus.OK).body(user);
+        ApiResponse<User> response = new ApiResponse<>();
+        response.setSuccess(true);
+        response.setMessage("User retrieved successfully");
+        response.setData(user);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("/users")
-    public ResponseEntity<List<UserDTO>> getAllUsers() {
+    public ResponseEntity<ApiResponse<List<UserDTO>>> getAllUsers() {
         List<UserDTO> users = userService.getAllUsers();
-        return ResponseEntity.status(HttpStatus.OK).body(users);
+        ApiResponse<List<UserDTO>> response = new ApiResponse<>();
+        response.setSuccess(true);
+        response.setMessage("Users retrieved successfully");
+        response.setData(users);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PutMapping("/users")
-    public ResponseEntity<UserDTO> updateUser(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<ApiResponse<UserDTO>> updateUser(@RequestBody UserDTO userDTO) {
         UserDTO updatedUser = userService.updateUser(userDTO);
-        return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
+        ApiResponse<UserDTO> response = new ApiResponse<>();
+        response.setSuccess(true);
+        response.setMessage("User updated successfully");
+        response.setData(updatedUser);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable(name = "id") Long id) {
         userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
+        ApiResponse<Void> response = new ApiResponse<>();
+        response.setSuccess(true);
+        response.setMessage("User deleted successfully");
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
     }
 }
