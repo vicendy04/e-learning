@@ -1,8 +1,10 @@
 package com.myproject.elearning.web.rest;
 
+import static com.myproject.elearning.web.rest.utils.ResponseUtil.wrapSuccessResponse;
+
 import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.service.CourseService;
-import com.myproject.elearning.service.dto.ApiResponse;
+import com.myproject.elearning.service.dto.response.ApiResponse;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -28,30 +30,21 @@ public class CourseController {
     @PostMapping("/courses")
     public ResponseEntity<ApiResponse<Course>> createBlankCourse(@Valid @RequestBody Course course) {
         Course blankCourse = courseService.createBlankCourse(course);
-        ApiResponse<Course> response = new ApiResponse<>();
-        response.setSuccess(true);
-        response.setMessage("Course created successfully");
-        response.setData(blankCourse);
+        ApiResponse<Course> response = wrapSuccessResponse("Course created successfully", blankCourse);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/courses/{id}")
     public ResponseEntity<ApiResponse<Course>> getCourse(@PathVariable(name = "id") Long id) {
         Course course = courseService.getCourse(id);
-        ApiResponse<Course> response = new ApiResponse<>();
-        response.setSuccess(true);
-        response.setMessage("Course retrieved successfully");
-        response.setData(course);
+        ApiResponse<Course> response = wrapSuccessResponse("Course retrieved successfully", course);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("/courses")
     public ResponseEntity<ApiResponse<List<Course>>> getAllCourses() {
         List<Course> courses = courseService.getAllCourses();
-        ApiResponse<List<Course>> response = new ApiResponse<>();
-        response.setSuccess(true);
-        response.setMessage("All courses retrieved successfully");
-        response.setData(courses);
+        ApiResponse<List<Course>> response = wrapSuccessResponse("All courses retrieved successfully", courses);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -63,19 +56,14 @@ public class CourseController {
     @PutMapping("/courses")
     public ResponseEntity<ApiResponse<Course>> updateCourse(@RequestBody Course course) {
         Course updatedCourse = courseService.updateCourse(course);
-        ApiResponse<Course> response = new ApiResponse<>();
-        response.setSuccess(true);
-        response.setMessage("Course updated successfully");
-        response.setData(updatedCourse);
+        ApiResponse<Course> response = wrapSuccessResponse("Course updated successfully", updatedCourse);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/courses/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteCourse(@PathVariable(name = "id") Long id) {
         courseService.deleteCourse(id);
-        ApiResponse<Void> response = new ApiResponse<>();
-        response.setSuccess(true);
-        response.setMessage("Course deleted successfully");
+        ApiResponse<Void> response = wrapSuccessResponse("Course deleted successfully", null);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
     }
 }

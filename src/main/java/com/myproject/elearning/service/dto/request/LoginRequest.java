@@ -1,4 +1,4 @@
-package com.myproject.elearning.service.dto;
+package com.myproject.elearning.service.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class LoginDTO {
+public class LoginRequest {
     @NotBlank
     private String usernameOrEmail;
 

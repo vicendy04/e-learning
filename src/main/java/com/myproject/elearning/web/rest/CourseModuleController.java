@@ -1,9 +1,11 @@
 package com.myproject.elearning.web.rest;
 
+import static com.myproject.elearning.web.rest.utils.ResponseUtil.wrapSuccessResponse;
+
 import com.myproject.elearning.domain.Module;
 import com.myproject.elearning.service.ModuleService;
-import com.myproject.elearning.service.dto.ApiResponse;
-import com.myproject.elearning.service.dto.ModuleReorderDTO;
+import com.myproject.elearning.service.dto.request.ModuleReorderRequest;
+import com.myproject.elearning.service.dto.response.ApiResponse;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,19 +26,14 @@ public class CourseModuleController {
     @GetMapping("/modules")
     public ResponseEntity<ApiResponse<List<Module>>> getModulesByCourseId(@PathVariable Long courseId) {
         List<Module> modules = moduleService.getModulesByCourseId(courseId);
-        ApiResponse<List<Module>> response = new ApiResponse<>();
-        response.setSuccess(true);
-        response.setMessage("Modules retrieved successfully");
-        response.setData(modules);
+        ApiResponse<List<Module>> response = wrapSuccessResponse("Modules retrieved successfully", modules);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/modules")
     public ResponseEntity<ApiResponse<Void>> deleteModulesOfCourse(@PathVariable Long courseId) {
         moduleService.deleteModulesOfCourse(courseId);
-        ApiResponse<Void> response = new ApiResponse<>();
-        response.setSuccess(true);
-        response.setMessage("Modules deleted successfully");
+        ApiResponse<Void> response = wrapSuccessResponse("Modules deleted successfully", null);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
     }
 
@@ -44,28 +41,22 @@ public class CourseModuleController {
     public ResponseEntity<ApiResponse<Module>> addModuleToCourse(
             @PathVariable Long courseId, @RequestBody Module module) {
         Module createdModule = moduleService.addModuleToCourse(courseId, module);
-        ApiResponse<Module> response = new ApiResponse<>();
-        response.setSuccess(true);
-        response.setMessage("Module added successfully");
-        response.setData(createdModule);
+        ApiResponse<Module> response = wrapSuccessResponse("Module added successfully", createdModule);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     /**
      * Reorders the modules of a specific course.
      *
-     * @param courseId   The ID of the course whose modules will be reordered.
-     * @param reorderDTO The new order of modules.
+     * @param courseId             The ID of the course whose modules will be reordered.
+     * @param moduleReorderRequest The new order of modules.
      * @return The {@link ResponseEntity} with status {@code 200 (OK)} and the reordered modules wrapped in {@link ApiResponse}.
      */
     @PostMapping("/modules/reorder")
     public ResponseEntity<ApiResponse<List<Module>>> reorderModules(
-            @PathVariable Long courseId, @RequestBody ModuleReorderDTO reorderDTO) {
-        List<Module> reorderedModules = moduleService.reorderModules(courseId, reorderDTO.getOrderMapping());
-        ApiResponse<List<Module>> response = new ApiResponse<>();
-        response.setSuccess(true);
-        response.setMessage("Modules reordered successfully");
-        response.setData(reorderedModules);
+            @PathVariable Long courseId, @RequestBody ModuleReorderRequest moduleReorderRequest) {
+        List<Module> reorderedModules = moduleService.reorderModules(courseId, moduleReorderRequest.getOrderMapping());
+        ApiResponse<List<Module>> response = wrapSuccessResponse("Modules reordered successfully", reorderedModules);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

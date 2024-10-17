@@ -1,7 +1,9 @@
 package com.myproject.elearning.security;
 
+import static com.myproject.elearning.web.rest.utils.ResponseUtil.wrapErrorResponse;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.myproject.elearning.service.dto.ApiResponse;
+import com.myproject.elearning.service.dto.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -33,13 +35,10 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
             throws IOException {
         bearerTokenAuthEntryPointDelegate.commence(request, response, authException);
 
-        ApiResponse<ProblemDetail> apiResponse = new ApiResponse<>();
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
         problemDetail.setTitle("Authentication Failed");
         problemDetail.setDetail(authException.getMessage());
-        apiResponse.setSuccess(false);
-        apiResponse.setMessage("Unauthorized access");
-        apiResponse.setData(problemDetail);
+        ApiResponse<ProblemDetail> apiResponse = wrapErrorResponse("Unauthorized access", problemDetail);
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         objectMapper.writeValue(response.getOutputStream(), apiResponse);

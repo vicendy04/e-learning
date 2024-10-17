@@ -1,18 +1,21 @@
 package com.myproject.elearning.web.rest;
 
+import static com.myproject.elearning.web.rest.utils.ResponseUtil.wrapErrorResponse;
+import static com.myproject.elearning.web.rest.utils.ResponseUtil.wrapSuccessResponse;
+
 import com.myproject.elearning.service.AuthenticateService;
-import com.myproject.elearning.service.dto.ApiResponse;
-import com.myproject.elearning.service.dto.JwtAuthenticationResponse;
-import com.myproject.elearning.service.dto.LoginDTO;
+import com.myproject.elearning.service.dto.request.LoginRequest;
+import com.myproject.elearning.service.dto.response.ApiResponse;
+import com.myproject.elearning.service.dto.response.JwtAuthenticationResponse;
+import java.security.Principal;
+import java.util.Objects;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -27,10 +30,10 @@ public class AuthenticateController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<ApiResponse<JwtAuthenticationResponse>> authorize(@RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<ApiResponse<JwtAuthenticationResponse>> authorize(@RequestBody LoginRequest loginRequest) {
         // Load username/password to Security
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(loginDTO.getUsernameOrEmail(), loginDTO.getPassword());
+                new UsernamePasswordAuthenticationToken(loginRequest.getUsernameOrEmail(), loginRequest.getPassword());
         // This requires writing a loadUserByUsername method
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         // Load authentication information into SecurityContext (if authentication is successful)
@@ -38,11 +41,26 @@ public class AuthenticateController {
 
         String jwtToken = authenticateService.createToken(authentication);
         JwtAuthenticationResponse authenticationResponse = new JwtAuthenticationResponse(jwtToken);
-        ApiResponse<JwtAuthenticationResponse> body = new ApiResponse<>();
-        body.setSuccess(true);
-        body.setMessage("Success");
-        body.setData(authenticationResponse);
+        ApiResponse<JwtAuthenticationResponse> response = wrapSuccessResponse("Success", authenticationResponse);
 
-        return ResponseEntity.ok().body(body);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    /**
+     * REST request to check if the current user is authenticated.
+     *
+     * @param principal the authentication principal.
+     * @return the login name if the user is authenticated.
+     */
+    @GetMapping(value = "/authenticate")
+    public ResponseEntity<ApiResponse<String>> isAuthenticated(Principal principal) {
+        ApiResponse<String> response;
+        if (Objects.isNull(principal)) {
+            response = wrapErrorResponse("Not authenticated", "GUEST");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        } else {
+            response = wrapSuccessResponse("Authenticated", principal.getName());
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
     }
 }

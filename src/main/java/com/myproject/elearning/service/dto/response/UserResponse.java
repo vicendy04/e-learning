@@ -1,4 +1,4 @@
-package com.myproject.elearning.service.dto;
+package com.myproject.elearning.service.dto.response;
 
 import com.myproject.elearning.domain.User;
 import lombok.AllArgsConstructor;
@@ -13,25 +13,25 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDTO {
+public class UserResponse {
     private Long id;
     private String email;
     private String username;
     private String imageUrl;
 
-    public UserDTO(User user) {
+    public UserResponse(User user) {
         this.id = user.getId();
         this.email = user.getEmail();
         this.username = user.getUsername();
         this.imageUrl = user.getImageUrl();
     }
 
-    public static UserDTO from(User user) {
-        UserDTO userDTO = new UserDTO();
-        userDTO.setId(user.getId());
-        userDTO.setEmail(user.getEmail());
-        userDTO.setUsername(user.getUsername());
-        userDTO.setImageUrl(user.getImageUrl());
-        return userDTO;
+    public static UserResponse from(User user) {
+        UserResponse userResponse = new UserResponse();
+        userResponse.setId(user.getId());
+        userResponse.setEmail(user.getEmail());
+        userResponse.setUsername(user.getUsername());
+        userResponse.setImageUrl(user.getImageUrl());
+        return userResponse;
     }
 }

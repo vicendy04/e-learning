@@ -2,7 +2,7 @@ package com.myproject.elearning.service;
 
 import com.myproject.elearning.domain.User;
 import com.myproject.elearning.repository.UserRepository;
-import com.myproject.elearning.service.dto.UserDTO;
+import com.myproject.elearning.service.dto.response.UserResponse;
 import com.myproject.elearning.service.mapper.UserMapper;
 import java.util.List;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,11 +34,11 @@ public class UserService {
         return userRepository.findById(id).orElseThrow();
     }
 
-    public UserDTO updateUser(UserDTO userDTO) {
-        User user = userRepository.findById(userDTO.getId()).orElseThrow();
-        user.setEmail(userDTO.getEmail().toLowerCase());
-        user.setUsername(userDTO.getUsername());
-        user.setImageUrl(userDTO.getImageUrl());
+    public UserResponse updateUser(UserResponse userResponse) {
+        User user = userRepository.findById(userResponse.getId()).orElseThrow();
+        user.setEmail(userResponse.getEmail().toLowerCase());
+        user.setUsername(userResponse.getUsername());
+        user.setImageUrl(userResponse.getImageUrl());
         userRepository.save(user);
         return userMapper.userToUserDTO(user);
     }
@@ -48,7 +48,7 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    public List<UserDTO> getAllUsers() {
+    public List<UserResponse> getAllUsers() {
         List<User> users = userRepository.findAll();
         return userMapper.usersToUserDTOs(users);
     }

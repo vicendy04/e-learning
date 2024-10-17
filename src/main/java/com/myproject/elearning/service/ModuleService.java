@@ -83,10 +83,9 @@ public class ModuleService {
      * This method should be used with caution.
      * When modules have relationships with multiple other entities.
      */
-    public void deleteModulesInCourse1(Long courseId) {
-        moduleRepository.deleteByCourseId(courseId);
-    }
-
+    //    public void deleteModulesInCourse1(Long courseId) {
+    //        moduleRepository.deleteByCourseId(courseId);
+    //    }
     public void deleteModulesOfCourse(Long courseId) {
         //        when orphanRemoval = true
         Course course = courseRepository.findById(courseId).orElseThrow();
