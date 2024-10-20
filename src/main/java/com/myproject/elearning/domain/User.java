@@ -1,5 +1,6 @@
 package com.myproject.elearning.domain;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -32,4 +33,12 @@ public class User {
 
     @Column(name = "image_url")
     private String imageUrl;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private RefreshToken refreshToken;
+
+    @Nullable
+    public String getRefreshTokenValue() {
+        return this.refreshToken != null ? this.refreshToken.getToken() : null;
+    }
 }

@@ -1,5 +1,6 @@
 package com.myproject.elearning.service;
 
+import com.myproject.elearning.domain.RefreshToken;
 import com.myproject.elearning.domain.User;
 import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.service.dto.response.UserResponse;
@@ -32,6 +33,19 @@ public class UserService {
 
     public User getUser(Long id) {
         return userRepository.findById(id).orElseThrow();
+    }
+
+    public void updateUserWithRefreshToken(String email, String newRefreshToken) {
+        User user = userRepository.findByEmail(email).orElseThrow();
+        RefreshToken refreshToken = user.getRefreshToken();
+        if (refreshToken == null) {
+            refreshToken = new RefreshToken();
+            refreshToken.setUser(user);
+            user.setRefreshToken(refreshToken);
+        }
+        refreshToken.setToken(newRefreshToken);
+        user.setRefreshToken(refreshToken);
+        userRepository.save(user);
     }
 
     public UserResponse updateUser(UserResponse userResponse) {

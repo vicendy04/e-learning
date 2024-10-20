@@ -5,7 +5,9 @@ import com.myproject.elearning.service.dto.response.ApiResponse;
 /**
  * Util class for wrapping response.
  */
-public class ResponseUtil {
+public final class ResponseUtils {
+    private ResponseUtils() {}
+
     public static <T> ApiResponse<T> wrapSuccessResponse(String message, T data) {
         ApiResponse<T> response = new ApiResponse<>();
         response.setSuccess(Boolean.TRUE);

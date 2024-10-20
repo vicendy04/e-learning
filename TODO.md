@@ -1,16 +1,12 @@
 handle exception
 
-paged response
+paged response, tạo dto cho blank, template, tạo dto để sort response cho api re-order, tạo module cùng với course
 
-tạo dto cho blank, template
+refresh token (không cần gửi kèm refresh token + refactor + tìm cách verify tốt hơn)
 
-tạo dto để sort response cho api re-order
-
-tạo module cùng với course
+csrf token
 
 format date time
-
-refresh token
 
 ## future:
 

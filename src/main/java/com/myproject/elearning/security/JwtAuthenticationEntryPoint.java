@@ -1,6 +1,6 @@
 package com.myproject.elearning.security;
 
-import static com.myproject.elearning.web.rest.utils.ResponseUtil.wrapErrorResponse;
+import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapErrorResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.myproject.elearning.service.dto.response.ApiResponse;

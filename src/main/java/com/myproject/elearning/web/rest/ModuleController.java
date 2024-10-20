@@ -1,6 +1,6 @@
 package com.myproject.elearning.web.rest;
 
-import static com.myproject.elearning.web.rest.utils.ResponseUtil.wrapSuccessResponse;
+import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
 
 import com.myproject.elearning.domain.Module;
 import com.myproject.elearning.service.ModuleService;

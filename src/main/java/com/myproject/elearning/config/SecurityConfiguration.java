@@ -42,7 +42,7 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authz ->
                         // prettier-ignore
-                        authz.requestMatchers("/api/v1/authenticate")
+                        authz.requestMatchers("/api/v1/authenticate", "api/v1/refresh")
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated())
