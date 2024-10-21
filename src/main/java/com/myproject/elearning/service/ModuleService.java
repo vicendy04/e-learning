@@ -2,6 +2,7 @@ package com.myproject.elearning.service;
 
 import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.domain.Module;
+import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.repository.CourseRepository;
 import com.myproject.elearning.repository.ModuleRepository;
 import java.util.List;
@@ -31,14 +32,16 @@ public class ModuleService {
     }
 
     public Module getModule(Long id) {
-        return moduleRepository.findById(id).orElseThrow();
+        return moduleRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
     }
 
     public Module updateModule(Module module) {
-        Module currentModule = moduleRepository.findById(module.getId()).orElseThrow();
+        Module currentModule =
+                moduleRepository.findById(module.getId()).orElseThrow(() -> new InvalidIdException(module.getId()));
         if (module.getCourse() != null && module.getCourse().getId() != null) {
-            Course course =
-                    courseRepository.findById(module.getCourse().getId()).orElseThrow();
+            Course course = courseRepository
+                    .findById(module.getCourse().getId())
+                    .orElseThrow(() -> new InvalidIdException(module.getCourse().getId()));
             module.setCourse(course);
         }
         currentModule.setTitle(module.getTitle());
@@ -49,7 +52,7 @@ public class ModuleService {
     }
 
     public void deleteModule(Long id) {
-        Module module = moduleRepository.findById(id).orElseThrow();
+        Module module = moduleRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
         moduleRepository.delete(module);
     }
 
@@ -62,13 +65,13 @@ public class ModuleService {
     }
 
     public Module addModuleToCourse(Long courseId, Module module) {
-        Course course = courseRepository.findById(courseId).orElseThrow();
+        Course course = courseRepository.findById(courseId).orElseThrow(() -> new InvalidIdException(courseId));
         module.setCourse(course);
         return moduleRepository.save(module);
     }
 
     public List<Module> reorderModules(Long courseId, Map<Long, Integer> orderMapping) {
-        Course course = courseRepository.findById(courseId).orElseThrow();
+        Course course = courseRepository.findById(courseId).orElseThrow(() -> new InvalidIdException(courseId));
         List<Module> modules = course.getModules();
         modules.forEach(module -> {
             Integer newOrder = orderMapping.get(module.getId());
@@ -81,7 +84,7 @@ public class ModuleService {
 
     public void deleteModulesOfCourse(Long courseId) {
         //        when orphanRemoval = true
-        Course course = courseRepository.findById(courseId).orElseThrow();
+        Course course = courseRepository.findById(courseId).orElseThrow(() -> new InvalidIdException(courseId));
         course.getModules().clear();
         courseRepository.save(course);
     }

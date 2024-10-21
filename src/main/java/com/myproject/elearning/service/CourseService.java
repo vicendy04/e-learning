@@ -1,6 +1,7 @@
 package com.myproject.elearning.service;
 
 import com.myproject.elearning.domain.Course;
+import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.repository.CourseRepository;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -21,18 +22,19 @@ public class CourseService {
     }
 
     public Course getCourse(Long id) {
-        return courseRepository.findById(id).orElseThrow();
+        return courseRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
     }
 
     public Course updateCourse(Course course) {
-        Course currentCourse = courseRepository.findById(course.getId()).orElseThrow();
+        Course currentCourse =
+                courseRepository.findById(course.getId()).orElseThrow(() -> new InvalidIdException(course.getId()));
         currentCourse.setTitle(course.getTitle());
         currentCourse.setOverview(course.getOverview());
         return courseRepository.save(currentCourse);
     }
 
     public void deleteCourse(Long id) {
-        Course course = courseRepository.findById(id).orElseThrow();
+        Course course = courseRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
         courseRepository.delete(course);
     }
 

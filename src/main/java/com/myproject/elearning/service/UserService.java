@@ -2,6 +2,7 @@ package com.myproject.elearning.service;
 
 import com.myproject.elearning.domain.RefreshToken;
 import com.myproject.elearning.domain.User;
+import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.service.dto.response.UserResponse;
 import com.myproject.elearning.service.mapper.UserMapper;
@@ -32,7 +33,7 @@ public class UserService {
     }
 
     public User getUser(Long id) {
-        return userRepository.findById(id).orElseThrow();
+        return userRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
     }
 
     public void updateUserWithRefreshToken(String email, String newRefreshToken) {
@@ -49,7 +50,9 @@ public class UserService {
     }
 
     public UserResponse updateUser(UserResponse userResponse) {
-        User user = userRepository.findById(userResponse.getId()).orElseThrow();
+        User user = userRepository
+                .findById(userResponse.getId())
+                .orElseThrow(() -> new InvalidIdException(userResponse.getId()));
         user.setEmail(userResponse.getEmail().toLowerCase());
         user.setUsername(userResponse.getUsername());
         user.setImageUrl(userResponse.getImageUrl());
@@ -58,7 +61,7 @@ public class UserService {
     }
 
     public void deleteUser(Long id) {
-        User user = userRepository.findById(id).orElseThrow();
+        User user = userRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
         userRepository.delete(user);
     }
 

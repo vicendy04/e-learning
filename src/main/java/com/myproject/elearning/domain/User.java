@@ -1,5 +1,6 @@
 package com.myproject.elearning.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -34,9 +35,11 @@ public class User {
     @Column(name = "image_url")
     private String imageUrl;
 
+    @JsonIgnore
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private RefreshToken refreshToken;
 
+    @JsonIgnore
     @Nullable
     public String getRefreshTokenValue() {
         return this.refreshToken != null ? this.refreshToken.getToken() : null;
