@@ -1,6 +1,7 @@
 package com.myproject.elearning.security;
 
 import com.myproject.elearning.domain.User;
+import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.repository.UserRepository;
 import java.util.Collections;
 import java.util.List;
@@ -25,7 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(username).orElseThrow();
+        User user = userRepository.findByEmail(username).orElseThrow(() -> new InvalidIdException("Email not found!"));
         return createSpringSecurityUser(user);
     }
 

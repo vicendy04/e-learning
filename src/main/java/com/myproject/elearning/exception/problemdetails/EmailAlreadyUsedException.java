@@ -6,28 +6,28 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.ErrorResponseException;
 
-public class InvalidIdException extends ErrorResponseException {
-    private static final HttpStatus HTTP_STATUS = HttpStatus.NOT_FOUND;
+public class EmailAlreadyUsedException extends ErrorResponseException {
+    private static final HttpStatus HTTP_STATUS = HttpStatus.BAD_REQUEST;
 
-    public InvalidIdException(Long id) {
-        super(HTTP_STATUS, problemDetailFrom("Id " + id + " not found"), null);
+    public EmailAlreadyUsedException() {
+        super(HTTP_STATUS, problemDetailFrom("Email is already in use!"), null);
     }
 
-    public InvalidIdException(Long id, Throwable cause) {
-        super(HTTP_STATUS, problemDetailFrom("Id " + id + " not found"), cause);
+    public EmailAlreadyUsedException(Throwable cause) {
+        super(HTTP_STATUS, problemDetailFrom("Email is already in use!"), cause);
     }
 
-    public InvalidIdException(String message) {
+    public EmailAlreadyUsedException(String message) {
         super(HTTP_STATUS, problemDetailFrom(message), null);
     }
 
-    public InvalidIdException(String message, Throwable cause) {
+    public EmailAlreadyUsedException(String message, Throwable cause) {
         super(HTTP_STATUS, problemDetailFrom(message), cause);
     }
 
     public static ProblemDetail problemDetailFrom(String message) {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HTTP_STATUS);
-        problemDetail.setType(ErrorConstants.INVALID_ID_URI);
+        problemDetail.setType(ErrorConstants.EMAIL_ALREADY_USED_URI);
         problemDetail.setTitle(message);
         problemDetail.setProperty("timestamp", Instant.now());
         return problemDetail;

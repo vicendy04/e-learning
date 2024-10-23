@@ -5,9 +5,12 @@ import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessRe
 import com.myproject.elearning.domain.User;
 import com.myproject.elearning.service.UserService;
 import com.myproject.elearning.service.dto.response.ApiResponse;
+import com.myproject.elearning.service.dto.response.PagedResponse;
 import com.myproject.elearning.service.dto.response.UserResponse;
 import jakarta.validation.Valid;
-import java.util.List;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,9 +42,10 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<ApiResponse<List<UserResponse>>> getAllUsers() {
-        List<UserResponse> users = userService.getAllUsers();
-        ApiResponse<List<UserResponse>> response = wrapSuccessResponse("Users retrieved successfully", users);
+    public ResponseEntity<ApiResponse<PagedResponse<UserResponse>>> getAllUsers(
+            @PageableDefault(size = 5, page = 0, sort = "title", direction = Sort.Direction.ASC) Pageable pageable) {
+        PagedResponse<UserResponse> users = userService.getAllUsers(pageable);
+        ApiResponse<PagedResponse<UserResponse>> response = wrapSuccessResponse("Users retrieved successfully", users);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

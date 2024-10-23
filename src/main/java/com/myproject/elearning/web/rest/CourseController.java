@@ -5,8 +5,11 @@ import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessRe
 import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.service.CourseService;
 import com.myproject.elearning.service.dto.response.ApiResponse;
+import com.myproject.elearning.service.dto.response.PagedResponse;
 import jakarta.validation.Valid;
-import java.util.List;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,9 +45,11 @@ public class CourseController {
     }
 
     @GetMapping("/courses")
-    public ResponseEntity<ApiResponse<List<Course>>> getAllCourses() {
-        List<Course> courses = courseService.getAllCourses();
-        ApiResponse<List<Course>> response = wrapSuccessResponse("All courses retrieved successfully", courses);
+    public ResponseEntity<ApiResponse<PagedResponse<Course>>> getAllCourses(
+            @PageableDefault(size = 5, page = 0, sort = "title", direction = Sort.Direction.ASC) Pageable pageable) {
+        PagedResponse<Course> courses = courseService.getAllCourses(pageable);
+        ApiResponse<PagedResponse<Course>> response =
+                wrapSuccessResponse("All courses retrieved successfully", courses);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

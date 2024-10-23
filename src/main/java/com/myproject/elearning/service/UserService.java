@@ -4,9 +4,11 @@ import com.myproject.elearning.domain.RefreshToken;
 import com.myproject.elearning.domain.User;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.repository.UserRepository;
+import com.myproject.elearning.service.dto.response.PagedResponse;
 import com.myproject.elearning.service.dto.response.UserResponse;
 import com.myproject.elearning.service.mapper.UserMapper;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +39,7 @@ public class UserService {
     }
 
     public void updateUserWithRefreshToken(String email, String newRefreshToken) {
-        User user = userRepository.findByEmail(email).orElseThrow();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new InvalidIdException("Email not found!"));
         RefreshToken refreshToken = user.getRefreshToken();
         if (refreshToken == null) {
             refreshToken = new RefreshToken();
@@ -65,8 +67,8 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    public List<UserResponse> getAllUsers() {
-        List<User> users = userRepository.findAll();
-        return userMapper.usersToUserDTOs(users);
+    public PagedResponse<UserResponse> getAllUsers(Pageable pageable) {
+        Page<UserResponse> users = userRepository.findAll(pageable).map(UserResponse::from);
+        return PagedResponse.from(users);
     }
 }

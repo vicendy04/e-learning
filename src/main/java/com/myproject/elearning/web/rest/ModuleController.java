@@ -5,8 +5,11 @@ import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessRe
 import com.myproject.elearning.domain.Module;
 import com.myproject.elearning.service.ModuleService;
 import com.myproject.elearning.service.dto.response.ApiResponse;
+import com.myproject.elearning.service.dto.response.PagedResponse;
 import jakarta.validation.Valid;
-import java.util.List;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -44,9 +47,10 @@ public class ModuleController {
     }
 
     @GetMapping("/modules")
-    public ResponseEntity<ApiResponse<List<Module>>> getAllModules() {
-        List<Module> modules = moduleService.getAllModules();
-        ApiResponse<List<Module>> response = wrapSuccessResponse("Modules retrieved successfully", modules);
+    public ResponseEntity<ApiResponse<PagedResponse<Module>>> getAllModules(
+            @PageableDefault(size = 5, page = 0, sort = "title", direction = Sort.Direction.ASC) Pageable pageable) {
+        PagedResponse<Module> modules = moduleService.getAllModules(pageable);
+        ApiResponse<PagedResponse<Module>> response = wrapSuccessResponse("Modules retrieved successfully", modules);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

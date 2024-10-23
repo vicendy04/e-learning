@@ -4,6 +4,7 @@ import static com.myproject.elearning.security.SecurityUtils.AUTHORITIES_KEY;
 import static com.myproject.elearning.security.SecurityUtils.JWT_ALGORITHM;
 
 import com.myproject.elearning.domain.User;
+import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.service.dto.request.LoginRequest;
 import java.time.Instant;
@@ -125,7 +126,7 @@ public class AuthenticateService {
         if (email == null || refreshToken == null) {
             return false;
         }
-        User user = userRepository.findByEmail(email).orElseThrow();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new InvalidIdException("Email not found!"));
         return refreshToken.equals(user.getRefreshTokenValue());
     }
 }

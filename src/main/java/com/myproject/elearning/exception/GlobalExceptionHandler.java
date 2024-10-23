@@ -1,7 +1,10 @@
 package com.myproject.elearning.exception;
 
+import com.myproject.elearning.exception.problemdetails.EmailAlreadyUsedException;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
+import java.net.URI;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -30,11 +33,20 @@ public class GlobalExceptionHandler {
     private ProblemDetail getProblemDetail(Throwable ex) {
         if (ex instanceof InvalidIdException iie) {
             return iie.getBody();
+        } else if (ex instanceof EmailAlreadyUsedException eaue) {
+            return eaue.getBody();
         } else if (ex instanceof MethodArgumentNotValidException manve) {
             manve.getBody().setProperty("errors", getFieldErrors(manve));
             return manve.getBody();
         }
-        return null;
+        return getDefaultProblemDetail(ex);
+    }
+
+    private ProblemDetail getDefaultProblemDetail(Throwable ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        problemDetail.setType(URI.create("about:blank"));
+        problemDetail.setTitle("An error occurred");
+        return problemDetail;
     }
 
     private List<String> getFieldErrors(MethodArgumentNotValidException ex) {

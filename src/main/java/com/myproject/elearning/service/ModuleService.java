@@ -5,8 +5,11 @@ import com.myproject.elearning.domain.Module;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.repository.CourseRepository;
 import com.myproject.elearning.repository.ModuleRepository;
+import com.myproject.elearning.service.dto.response.PagedResponse;
 import java.util.List;
 import java.util.Map;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 /**
@@ -56,12 +59,14 @@ public class ModuleService {
         moduleRepository.delete(module);
     }
 
-    public List<Module> getAllModules() {
-        return moduleRepository.findAll();
+    public PagedResponse<Module> getAllModules(Pageable pageable) {
+        Page<Module> modules = moduleRepository.findAll(pageable);
+        return PagedResponse.from(modules);
     }
 
-    public List<Module> getModulesByCourseId(Long courseId) {
-        return moduleRepository.findByCourseId(courseId);
+    public PagedResponse<Module> getModulesByCourseId(Long courseId, Pageable pageable) {
+        Page<Module> modules = moduleRepository.findByCourseId(courseId, pageable);
+        return PagedResponse.from(modules);
     }
 
     public Module addModuleToCourse(Long courseId, Module module) {
