@@ -3,10 +3,11 @@ package com.myproject.elearning.web.rest;
 import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapErrorResponse;
 import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
 
+import com.myproject.elearning.dto.request.LoginRequest;
+import com.myproject.elearning.dto.response.ApiResponse;
+import com.myproject.elearning.dto.response.JwtAuthenticationResponse;
+import com.myproject.elearning.security.CustomUserDetailsService;
 import com.myproject.elearning.service.AuthenticateService;
-import com.myproject.elearning.service.dto.request.LoginRequest;
-import com.myproject.elearning.service.dto.response.ApiResponse;
-import com.myproject.elearning.service.dto.response.JwtAuthenticationResponse;
 import com.myproject.elearning.web.rest.utils.CookieUtils;
 import jakarta.validation.Valid;
 import java.security.Principal;
@@ -16,7 +17,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,8 +32,12 @@ public class AuthenticateController {
     @Value("${jwt.refresh-token-expiration}")
     private long refreshTokenValidityInSeconds;
 
-    public AuthenticateController(AuthenticateService authenticateService) {
+    private final CustomUserDetailsService userDetailsService;
+
+    public AuthenticateController(
+            AuthenticateService authenticateService, CustomUserDetailsService userDetailsService) {
         this.authenticateService = authenticateService;
+        this.userDetailsService = userDetailsService;
     }
 
     @PostMapping("/authenticate")
@@ -37,7 +45,7 @@ public class AuthenticateController {
             @Valid @RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticateService.authenticate(loginRequest);
 
-        String accessToken = authenticateService.generateAccessToken(authentication.getName());
+        String accessToken = authenticateService.generateAccessToken(authentication);
         String refreshToken = authenticateService.generateAndStoreNewRefreshToken(authentication.getName());
 
         JwtAuthenticationResponse authenticationResponse = new JwtAuthenticationResponse(accessToken, refreshToken);
@@ -73,7 +81,14 @@ public class AuthenticateController {
             @CookieValue(name = "refresh_token") String refreshToken) {
         Jwt jwt = authenticateService.parseAndValidateRefreshToken(refreshToken);
         if (authenticateService.isRefreshTokenValidForUser(jwt)) {
-            String newAccessToken = authenticateService.generateAccessToken(jwt.getSubject());
+            UserDetails userDetails = userDetailsService.loadUserByUsername(jwt.getSubject());
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                    userDetails,
+                    null, // credentials
+                    userDetails.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
+            String newAccessToken = authenticateService.generateAccessToken(authenticationToken);
             String newRefreshToken = authenticateService.generateAndStoreNewRefreshToken(jwt.getSubject());
 
             JwtAuthenticationResponse authenticationResponse =

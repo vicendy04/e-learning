@@ -1,6 +1,6 @@
 package com.myproject.elearning.aop.wrapper;
 
-import com.myproject.elearning.service.dto.response.ApiResponse;
+import com.myproject.elearning.dto.response.ApiResponse;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;

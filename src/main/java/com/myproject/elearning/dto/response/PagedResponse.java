@@ -1,4 +1,4 @@
-package com.myproject.elearning.service.dto.response;
+package com.myproject.elearning.dto.response;
 
 import java.util.Collections;
 import java.util.List;

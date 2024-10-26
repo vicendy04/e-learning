@@ -3,9 +3,9 @@ package com.myproject.elearning.web.rest;
 import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
 
 import com.myproject.elearning.domain.Course;
+import com.myproject.elearning.dto.response.ApiResponse;
+import com.myproject.elearning.dto.response.PagedResponse;
 import com.myproject.elearning.service.CourseService;
-import com.myproject.elearning.service.dto.response.ApiResponse;
-import com.myproject.elearning.service.dto.response.PagedResponse;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;

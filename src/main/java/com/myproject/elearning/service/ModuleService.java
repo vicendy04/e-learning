@@ -2,10 +2,10 @@ package com.myproject.elearning.service;
 
 import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.domain.Module;
+import com.myproject.elearning.dto.response.PagedResponse;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.repository.CourseRepository;
 import com.myproject.elearning.repository.ModuleRepository;
-import com.myproject.elearning.service.dto.response.PagedResponse;
 import java.util.List;
 import java.util.Map;
 import org.springframework.data.domain.Page;

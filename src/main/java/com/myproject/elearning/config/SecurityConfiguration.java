@@ -3,20 +3,20 @@ package com.myproject.elearning.config;
 import static com.myproject.elearning.security.SecurityUtils.AUTHORITIES_KEY;
 import static org.springframework.security.config.Customizer.withDefaults;
 
+import com.myproject.elearning.security.JwtAccessDeniedHandler;
 import com.myproject.elearning.security.JwtAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
-import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
-import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
@@ -28,7 +28,8 @@ import org.springframework.security.web.SecurityFilterChain;
  * Extracting Authorities Manually {@link #jwtAuthenticationConverter()}
  */
 @Configuration
-@EnableMethodSecurity(securedEnabled = true)
+@EnableMethodSecurity
+@EnableWebSecurity
 public class SecurityConfiguration {
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -36,7 +37,10 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint)
+    public SecurityFilterChain filterChain(
+            HttpSecurity http,
+            JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
+            JwtAccessDeniedHandler jwtAccessDeniedHandler)
             throws Exception {
         http.cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
@@ -47,13 +51,9 @@ public class SecurityConfiguration {
                                 .anyRequest()
                                 .authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                //                This method sets up the resource server to validate incoming requests using JWT
-                // tokens.
-                .oauth2ResourceServer(oauth2 ->
-                        oauth2.jwt(Customizer.withDefaults()).authenticationEntryPoint(jwtAuthenticationEntryPoint))
-                .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
-                        .accessDeniedHandler(new BearerTokenAccessDeniedHandler()));
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                        .accessDeniedHandler(jwtAccessDeniedHandler));
 
         return http.build();
     }

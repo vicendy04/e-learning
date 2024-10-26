@@ -1,10 +1,11 @@
 package com.myproject.elearning.security;
 
+import com.myproject.elearning.domain.Role;
 import com.myproject.elearning.domain.User;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.repository.UserRepository;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,7 +32,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     private org.springframework.security.core.userdetails.User createSpringSecurityUser(User user) {
-        List<GrantedAuthority> grantedAuthorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+        List<GrantedAuthority> grantedAuthorities = user.getRoles().stream()
+                .map(Role::getName)
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(), user.getPassword(), grantedAuthorities);
     }

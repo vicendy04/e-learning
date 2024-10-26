@@ -1,9 +1,9 @@
 package com.myproject.elearning.service;
 
 import com.myproject.elearning.domain.Course;
+import com.myproject.elearning.dto.response.PagedResponse;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.repository.CourseRepository;
-import com.myproject.elearning.service.dto.response.PagedResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

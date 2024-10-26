@@ -4,15 +4,17 @@ import static com.myproject.elearning.security.SecurityUtils.AUTHORITIES_KEY;
 import static com.myproject.elearning.security.SecurityUtils.JWT_ALGORITHM;
 
 import com.myproject.elearning.domain.User;
+import com.myproject.elearning.dto.request.LoginRequest;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.repository.UserRepository;
-import com.myproject.elearning.service.dto.request.LoginRequest;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
@@ -57,10 +59,10 @@ public class AuthenticateService {
         return authentication;
     }
 
-    public String generateAccessToken(String email) {
-        //        String authorities = authentication.getAuthorities().stream()
-        //                .map(GrantedAuthority::getAuthority)
-        //                .collect(Collectors.joining(" "));
+    public String generateAccessToken(Authentication authentication) {
+        String authorities = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(" "));
 
         Instant now = Instant.now();
         Instant expirationTime = now.plus(this.accessTokenValidityInSeconds, ChronoUnit.SECONDS);
@@ -69,8 +71,8 @@ public class AuthenticateService {
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuedAt(now)
                 .expiresAt(expirationTime)
-                .subject(email)
-                .claim(AUTHORITIES_KEY, "ROLE_USER")
+                .subject(authentication.getName())
+                .claim(AUTHORITIES_KEY, authorities)
                 .build();
 
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();

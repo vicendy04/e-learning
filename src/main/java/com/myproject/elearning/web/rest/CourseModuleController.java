@@ -3,10 +3,10 @@ package com.myproject.elearning.web.rest;
 import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
 
 import com.myproject.elearning.domain.Module;
+import com.myproject.elearning.dto.request.ModuleReorderRequest;
+import com.myproject.elearning.dto.response.ApiResponse;
+import com.myproject.elearning.dto.response.PagedResponse;
 import com.myproject.elearning.service.ModuleService;
-import com.myproject.elearning.service.dto.request.ModuleReorderRequest;
-import com.myproject.elearning.service.dto.response.ApiResponse;
-import com.myproject.elearning.service.dto.response.PagedResponse;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;

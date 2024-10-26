@@ -1,5 +1,8 @@
 package com.myproject.elearning.exception;
 
+import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapErrorResponse;
+
+import com.myproject.elearning.dto.response.ApiResponse;
 import com.myproject.elearning.exception.problemdetails.EmailAlreadyUsedException;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import java.net.URI;
@@ -7,6 +10,8 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -40,6 +45,17 @@ public class GlobalExceptionHandler {
             return manve.getBody();
         }
         return getDefaultProblemDetail(ex);
+    }
+
+    @ExceptionHandler({AccessDeniedException.class, AuthorizationDeniedException.class})
+    public ResponseEntity<ApiResponse<ProblemDetail>> handleSecurityException(Exception ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+        problemDetail.setTitle("Access Denied");
+        problemDetail.setDetail(ex.getMessage());
+
+        ApiResponse<ProblemDetail> response = wrapErrorResponse("Access denied to this resource", problemDetail);
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
     private ProblemDetail getDefaultProblemDetail(Throwable ex) {

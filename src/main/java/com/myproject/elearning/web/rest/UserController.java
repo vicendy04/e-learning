@@ -3,16 +3,19 @@ package com.myproject.elearning.web.rest;
 import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
 
 import com.myproject.elearning.domain.User;
+import com.myproject.elearning.dto.request.RegisterRequest;
+import com.myproject.elearning.dto.request.UserRequest;
+import com.myproject.elearning.dto.response.ApiResponse;
+import com.myproject.elearning.dto.response.PagedResponse;
+import com.myproject.elearning.dto.response.UserResponse;
 import com.myproject.elearning.service.UserService;
-import com.myproject.elearning.service.dto.response.ApiResponse;
-import com.myproject.elearning.service.dto.response.PagedResponse;
-import com.myproject.elearning.service.dto.response.UserResponse;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -28,9 +31,9 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<ApiResponse<User>> createUser(@Valid @RequestBody User user) {
-        User newUser = userService.createUser(user);
-        ApiResponse<User> response = wrapSuccessResponse("User created successfully", newUser);
+    public ResponseEntity<ApiResponse<UserResponse>> createUser(@Valid @RequestBody RegisterRequest registerRequest) {
+        UserResponse newUser = userService.createUser(registerRequest);
+        ApiResponse<UserResponse> response = wrapSuccessResponse("User created successfully", newUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -42,16 +45,17 @@ public class UserController {
     }
 
     @GetMapping("/users")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<ApiResponse<PagedResponse<UserResponse>>> getAllUsers(
-            @PageableDefault(size = 5, page = 0, sort = "title", direction = Sort.Direction.ASC) Pageable pageable) {
+            @PageableDefault(size = 5, page = 0, sort = "username", direction = Sort.Direction.ASC) Pageable pageable) {
         PagedResponse<UserResponse> users = userService.getAllUsers(pageable);
         ApiResponse<PagedResponse<UserResponse>> response = wrapSuccessResponse("Users retrieved successfully", users);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PutMapping("/users")
-    public ResponseEntity<ApiResponse<UserResponse>> updateUser(@RequestBody UserResponse userResponse) {
-        UserResponse updatedUser = userService.updateUser(userResponse);
+    public ResponseEntity<ApiResponse<UserResponse>> updateUser(@RequestBody UserRequest userRequest) {
+        UserResponse updatedUser = userService.updateUser(userRequest);
         ApiResponse<UserResponse> response = wrapSuccessResponse("User updated successfully", updatedUser);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

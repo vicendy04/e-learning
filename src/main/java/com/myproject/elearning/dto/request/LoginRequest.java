@@ -1,4 +1,4 @@
-package com.myproject.elearning.service.dto.request;
+package com.myproject.elearning.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

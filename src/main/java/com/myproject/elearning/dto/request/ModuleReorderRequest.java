@@ -1,4 +1,4 @@
-package com.myproject.elearning.service.dto.request;
+package com.myproject.elearning.dto.request;
 
 import java.util.Map;
 import lombok.Getter;
