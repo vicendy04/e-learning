@@ -4,6 +4,7 @@ import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapErrorResp
 import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
 
 import com.myproject.elearning.dto.request.LoginRequest;
+import com.myproject.elearning.dto.request.LogoutRequest;
 import com.myproject.elearning.dto.response.ApiResponse;
 import com.myproject.elearning.dto.response.JwtAuthenticationResponse;
 import com.myproject.elearning.security.CustomUserDetailsService;
@@ -56,6 +57,13 @@ public class AuthenticateController {
         return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
                 .body(response);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout(@RequestBody LogoutRequest logoutRequest) {
+        authenticateService.revoke(logoutRequest);
+        ApiResponse<Void> response = wrapSuccessResponse("Log out successfully", null);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
     }
 
     /**

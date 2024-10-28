@@ -15,15 +15,12 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class UserMapper {
-    public List<UserResponse> usersToUserDTOs(List<User> users) {
-        return users.stream()
-                .filter(Objects::nonNull)
-                .map(this::userToUserResponse)
-                .toList();
+    public List<UserResponse> toUserDTOList(List<User> users) {
+        return users.stream().filter(Objects::nonNull).map(this::toUserDTO).toList();
     }
 
-    public UserResponse userToUserResponse(User user) {
-        return new UserResponse(user);
+    public UserResponse toUserDTO(User user) {
+        return UserResponse.from(user);
     }
 
     public User registerRequestToUser(RegisterRequest registerRequest) {

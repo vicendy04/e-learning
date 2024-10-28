@@ -1,6 +1,6 @@
 package com.myproject.elearning.exception.problemdetails;
 
-import com.myproject.elearning.config.ErrorConstants;
+import com.myproject.elearning.exception.ErrorConstants;
 import java.time.Instant;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;

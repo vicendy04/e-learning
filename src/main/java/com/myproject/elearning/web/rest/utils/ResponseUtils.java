@@ -9,18 +9,18 @@ public final class ResponseUtils {
     private ResponseUtils() {}
 
     public static <T> ApiResponse<T> wrapSuccessResponse(String message, T data) {
-        ApiResponse<T> response = new ApiResponse<>();
-        response.setSuccess(Boolean.TRUE);
-        response.setMessage(message);
-        response.setData(data);
-        return response;
+        return ApiResponse.<T>builder()
+                .success(Boolean.TRUE)
+                .message(message)
+                .data(data)
+                .build();
     }
 
     public static <T> ApiResponse<T> wrapErrorResponse(String message, T data) {
-        ApiResponse<T> response = new ApiResponse<>();
-        response.setSuccess(Boolean.FALSE);
-        response.setMessage(message);
-        response.setData(data);
-        return response;
+        return ApiResponse.<T>builder()
+                .success(Boolean.FALSE)
+                .message(message)
+                .data(data)
+                .build();
     }
 }

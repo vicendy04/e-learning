@@ -1,7 +1,7 @@
 package com.myproject.elearning.dto.response;
 
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 /**
  * A generic API response wrapper.
@@ -9,7 +9,7 @@ import lombok.Setter;
  * @param <T> The type of the response data.
  */
 @Getter
-@Setter
+@Builder
 public class ApiResponse<T> {
     private Boolean success;
     private String message;

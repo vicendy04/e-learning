@@ -5,10 +5,12 @@ import static com.myproject.elearning.security.SecurityUtils.JWT_ALGORITHM;
 
 import com.myproject.elearning.domain.User;
 import com.myproject.elearning.dto.request.LoginRequest;
+import com.myproject.elearning.dto.request.LogoutRequest;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.repository.UserRepository;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,27 +36,27 @@ public class AuthenticateService {
 
     private final UserService userService;
     private final UserRepository userRepository;
+    private final TokenValidationService tokenValidationService;
 
     public AuthenticateService(
             JwtEncoder jwtEncoder,
             JwtDecoder jwtDecoder,
             AuthenticationManagerBuilder authenticationManagerBuilder,
             UserService userService,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            TokenValidationService tokenValidationService) {
         this.jwtEncoder = jwtEncoder;
         this.jwtDecoder = jwtDecoder;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.userService = userService;
         this.userRepository = userRepository;
+        this.tokenValidationService = tokenValidationService;
     }
 
     public Authentication authenticate(LoginRequest loginRequest) {
-        // Load username/password to Security
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsernameOrEmail(), loginRequest.getPassword());
-        // This requires writing a loadUserByUsername method
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        // Load authentication information into SecurityContext (if authentication is successful)
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return authentication;
     }
@@ -72,6 +74,7 @@ public class AuthenticateService {
                 .issuedAt(now)
                 .expiresAt(expirationTime)
                 .subject(authentication.getName())
+                .id((UUID.randomUUID().toString()))
                 .claim(AUTHORITIES_KEY, authorities)
                 .build();
 
@@ -98,6 +101,20 @@ public class AuthenticateService {
         String newRefreshToken = generateRefreshToken(email);
         userService.updateUserWithRefreshToken(email, newRefreshToken);
         return newRefreshToken;
+    }
+
+    /**
+     * Add revoked tokens to blocklist.
+     */
+    public void revoke(LogoutRequest logoutRequest) {
+        String token = logoutRequest.getToken();
+        if (token == null || token.isEmpty()) {
+            throw new JwtException("Token is null or empty");
+        }
+        Jwt decode = jwtDecoder.decode(token);
+        String jti = decode.getId();
+        Instant expireTime = decode.getExpiresAt();
+        tokenValidationService.revokeToken(jti, expireTime);
     }
 
     /**

@@ -1,4 +1,4 @@
-package com.myproject.elearning.config;
+package com.myproject.elearning.exception;
 
 import java.net.URI;
 

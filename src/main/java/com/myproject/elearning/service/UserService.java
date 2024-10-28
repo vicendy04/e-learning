@@ -62,7 +62,7 @@ public class UserService {
 
         user.setRoles(roles);
         userRepository.save(user);
-        return userMapper.userToUserResponse(user);
+        return userMapper.toUserDTO(user);
     }
 
     public User getUser(Long id) {
@@ -90,7 +90,7 @@ public class UserService {
         user.setUsername(userRequest.getUsername());
         user.setImageUrl(userRequest.getImageUrl());
         userRepository.save(user);
-        return userMapper.userToUserResponse(user);
+        return userMapper.toUserDTO(user);
     }
 
     public void deleteUser(Long id) {
