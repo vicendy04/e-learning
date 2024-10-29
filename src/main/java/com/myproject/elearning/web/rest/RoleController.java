@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
  * REST controller for managing roles.
  */
 @RestController
-@RequestMapping("/api/v1/")
+@RequestMapping("/api/v1/roles")
 public class RoleController {
     private final RoleService roleService;
 
@@ -26,21 +26,21 @@ public class RoleController {
         this.roleService = roleService;
     }
 
-    @PostMapping("/roles")
+    @PostMapping("")
     public ResponseEntity<ApiResponse<Role>> createRole(@Valid @RequestBody Role role) {
         Role newRole = roleService.createRole(role);
         ApiResponse<Role> response = wrapSuccessResponse("Role created successfully", newRole);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/roles/{name}")
+    @GetMapping("/{name}")
     public ResponseEntity<ApiResponse<Role>> getRole(@PathVariable String name) {
         Role role = roleService.getRole(name);
         ApiResponse<Role> response = wrapSuccessResponse("Role retrieved successfully", role);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @GetMapping("/roles")
+    @GetMapping("")
     public ResponseEntity<ApiResponse<PagedResponse<Role>>> getAllRoles(
             @PageableDefault(size = 5, page = 0, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
         PagedResponse<Role> roles = roleService.getAllRoles(pageable);
@@ -48,14 +48,14 @@ public class RoleController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @PutMapping("/roles")
+    @PutMapping("")
     public ResponseEntity<ApiResponse<Role>> updateRole(@RequestBody Role role) {
         Role updatedRole = roleService.updateRole(role);
         ApiResponse<Role> response = wrapSuccessResponse("Role updated successfully", updatedRole);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @DeleteMapping("/roles/{name}")
+    @DeleteMapping("/{name}")
     public ResponseEntity<ApiResponse<Void>> deleteRole(@PathVariable String name) {
         roleService.deleteRole(name);
         ApiResponse<Void> response = wrapSuccessResponse("Role deleted successfully", null);

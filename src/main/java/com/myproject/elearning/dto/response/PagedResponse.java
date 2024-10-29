@@ -1,9 +1,8 @@
 package com.myproject.elearning.dto.response;
 
-import java.util.Collections;
 import java.util.List;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.springframework.data.domain.Page;
 
 /**
@@ -12,7 +11,7 @@ import org.springframework.data.domain.Page;
  * @param <T> the type of the content in the page
  */
 @Getter
-@Setter
+@Builder
 public class PagedResponse<T> {
     private int page;
     private int size;
@@ -20,16 +19,13 @@ public class PagedResponse<T> {
     private int totalPages;
     private List<T> content;
 
-    private PagedResponse() {}
-
     public static <T> PagedResponse<T> from(Page<T> page) {
-        PagedResponse<T> response = new PagedResponse<>();
-        response.setPage(page.getNumber());
-        response.setSize(page.getSize());
-        response.setTotalElements(page.getTotalElements());
-        response.setTotalPages(page.getTotalPages());
-        List<T> contentInPage = page.getNumberOfElements() > 0 ? page.getContent() : Collections.emptyList();
-        response.setContent(contentInPage);
-        return response;
+        return PagedResponse.<T>builder()
+                .page(page.getNumber())
+                .size(page.getSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .content(page.getContent())
+                .build();
     }
 }

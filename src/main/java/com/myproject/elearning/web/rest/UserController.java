@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
  * REST controller for managing users
  */
 @RestController
-@RequestMapping("/api/v1/")
+@RequestMapping("/api/v1/users")
 public class UserController {
     private final UserService userService;
 
@@ -30,21 +30,21 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/users")
+    @PostMapping("")
     public ResponseEntity<ApiResponse<UserResponse>> createUser(@Valid @RequestBody RegisterRequest registerRequest) {
         UserResponse newUser = userService.createUser(registerRequest);
         ApiResponse<UserResponse> response = wrapSuccessResponse("User created successfully", newUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/users/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<User>> getUser(@PathVariable(name = "id") Long id) {
         User user = userService.getUser(id);
         ApiResponse<User> response = wrapSuccessResponse("User retrieved successfully", user);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @GetMapping("/users")
+    @GetMapping("")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<ApiResponse<PagedResponse<UserResponse>>> getAllUsers(
             @PageableDefault(size = 5, page = 0, sort = "username", direction = Sort.Direction.ASC) Pageable pageable) {
@@ -53,14 +53,14 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @PutMapping("/users")
+    @PutMapping("")
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(@RequestBody UserRequest userRequest) {
         UserResponse updatedUser = userService.updateUser(userRequest);
         ApiResponse<UserResponse> response = wrapSuccessResponse("User updated successfully", updatedUser);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @DeleteMapping("/users/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable(name = "id") Long id) {
         userService.deleteUser(id);
         ApiResponse<Void> response = wrapSuccessResponse("User deleted successfully", null);

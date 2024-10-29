@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
  * REST controller for managing modules.
  */
 @RestController
-@RequestMapping("/api/v1/")
+@RequestMapping("/api/v1/modules")
 public class ModuleController {
     private final ModuleService moduleService;
 
@@ -32,21 +32,21 @@ public class ModuleController {
      * @param module The template module to create.
      * @return A {@link ResponseEntity} with status {@code 201 (Created)} and the created template module wrapped in {@link ApiResponse}.
      */
-    @PostMapping("/modules")
+    @PostMapping("")
     public ResponseEntity<ApiResponse<Module>> createModule(@Valid @RequestBody Module module) {
         Module newModule = moduleService.createModule(module);
         ApiResponse<Module> response = wrapSuccessResponse("Module created successfully", newModule);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/modules/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<Module>> getModule(@PathVariable(name = "id") Long id) {
         Module module = moduleService.getModule(id);
         ApiResponse<Module> response = wrapSuccessResponse("Module retrieved successfully", module);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @GetMapping("/modules")
+    @GetMapping("")
     public ResponseEntity<ApiResponse<PagedResponse<Module>>> getAllModules(
             @PageableDefault(size = 5, page = 0, sort = "title", direction = Sort.Direction.ASC) Pageable pageable) {
         PagedResponse<Module> modules = moduleService.getAllModules(pageable);
@@ -54,14 +54,14 @@ public class ModuleController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @PutMapping("/modules")
+    @PutMapping("")
     public ResponseEntity<ApiResponse<Module>> updateModule(@RequestBody Module module) {
         Module updatedModule = moduleService.updateModule(module);
         ApiResponse<Module> response = wrapSuccessResponse("Module updated successfully", updatedModule);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @DeleteMapping("/modules/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteModule(@PathVariable(name = "id") Long id) {
         moduleService.deleteModule(id);
         ApiResponse<Void> response = wrapSuccessResponse("Module deleted successfully", null);

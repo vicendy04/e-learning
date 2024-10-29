@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
  * REST controller for courses
  */
 @RestController
-@RequestMapping("/api/v1/")
+@RequestMapping("/api/v1/courses")
 public class CourseController {
     private final CourseService courseService;
 
@@ -30,21 +30,21 @@ public class CourseController {
      * @param course the blank course to create.
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and the new blank course wrapped in {@link ApiResponse}.
      */
-    @PostMapping("/courses")
+    @PostMapping("")
     public ResponseEntity<ApiResponse<Course>> createBlankCourse(@Valid @RequestBody Course course) {
         Course blankCourse = courseService.createBlankCourse(course);
         ApiResponse<Course> response = wrapSuccessResponse("Course created successfully", blankCourse);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/courses/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<Course>> getCourse(@PathVariable(name = "id") Long id) {
         Course course = courseService.getCourse(id);
         ApiResponse<Course> response = wrapSuccessResponse("Course retrieved successfully", course);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @GetMapping("/courses")
+    @GetMapping("")
     public ResponseEntity<ApiResponse<PagedResponse<Course>>> getAllCourses(
             @PageableDefault(size = 5, page = 0, sort = "title", direction = Sort.Direction.ASC) Pageable pageable) {
         PagedResponse<Course> courses = courseService.getAllCourses(pageable);
@@ -58,14 +58,14 @@ public class CourseController {
      *               This API can not edit modules.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with the body.
      */
-    @PutMapping("/courses")
+    @PutMapping("")
     public ResponseEntity<ApiResponse<Course>> updateCourse(@RequestBody Course course) {
         Course updatedCourse = courseService.updateCourse(course);
         ApiResponse<Course> response = wrapSuccessResponse("Course updated successfully", updatedCourse);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @DeleteMapping("/courses/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteCourse(@PathVariable(name = "id") Long id) {
         courseService.deleteCourse(id);
         ApiResponse<Void> response = wrapSuccessResponse("Course deleted successfully", null);

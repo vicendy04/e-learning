@@ -10,6 +10,7 @@ import com.myproject.elearning.dto.response.JwtAuthenticationResponse;
 import com.myproject.elearning.security.CustomUserDetailsService;
 import com.myproject.elearning.service.AuthenticateService;
 import com.myproject.elearning.web.rest.utils.CookieUtils;
+import com.myproject.elearning.web.rest.utils.JwtTokenUtil;
 import jakarta.validation.Valid;
 import java.security.Principal;
 import java.util.Objects;
@@ -18,41 +19,34 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/auth")
 public class AuthenticateController {
     private final AuthenticateService authenticateService;
 
     @Value("${jwt.refresh-token-expiration}")
     private long refreshTokenValidityInSeconds;
 
-    private final CustomUserDetailsService userDetailsService;
+    private final JwtTokenUtil jwtTokenUtil;
 
     public AuthenticateController(
-            AuthenticateService authenticateService, CustomUserDetailsService userDetailsService) {
+            AuthenticateService authenticateService,
+            JwtTokenUtil jwtTokenUtil,
+            CustomUserDetailsService userDetailsService) {
         this.authenticateService = authenticateService;
-        this.userDetailsService = userDetailsService;
+        this.jwtTokenUtil = jwtTokenUtil;
     }
 
-    @PostMapping("/authenticate")
+    @PostMapping("/login")
     public ResponseEntity<ApiResponse<JwtAuthenticationResponse>> authorize(
             @Valid @RequestBody LoginRequest loginRequest) {
-        Authentication authentication = authenticateService.authenticate(loginRequest);
-
-        String accessToken = authenticateService.generateAccessToken(authentication);
-        String refreshToken = authenticateService.generateAndStoreNewRefreshToken(authentication.getName());
-
-        JwtAuthenticationResponse authenticationResponse = new JwtAuthenticationResponse(accessToken, refreshToken);
+        JwtAuthenticationResponse authenticationResponse = authenticateService.authenticate(loginRequest);
         ApiResponse<JwtAuthenticationResponse> response = wrapSuccessResponse("Success", authenticationResponse);
-        ResponseCookie refreshTokenCookie =
-                CookieUtils.createRefreshTokenCookie(refreshToken, refreshTokenValidityInSeconds);
+        ResponseCookie refreshTokenCookie = CookieUtils.createRefreshTokenCookie(
+                authenticationResponse.getRefreshToken(), refreshTokenValidityInSeconds);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
@@ -72,7 +66,7 @@ public class AuthenticateController {
      * @param principal the authentication principal.
      * @return the login name if the user is authenticated.
      */
-    @GetMapping(value = "/authenticate")
+    @GetMapping(value = "/info")
     public ResponseEntity<ApiResponse<String>> isAuthenticated(Principal principal) {
         ApiResponse<String> response;
         if (Objects.isNull(principal)) {
@@ -87,23 +81,12 @@ public class AuthenticateController {
     @PostMapping(value = "/refresh")
     public ResponseEntity<ApiResponse<JwtAuthenticationResponse>> refreshToken(
             @CookieValue(name = "refresh_token") String refreshToken) {
-        Jwt jwt = authenticateService.parseAndValidateRefreshToken(refreshToken);
-        if (authenticateService.isRefreshTokenValidForUser(jwt)) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(jwt.getSubject());
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    userDetails,
-                    null, // credentials
-                    userDetails.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-
-            String newAccessToken = authenticateService.generateAccessToken(authenticationToken);
-            String newRefreshToken = authenticateService.generateAndStoreNewRefreshToken(jwt.getSubject());
-
-            JwtAuthenticationResponse authenticationResponse =
-                    new JwtAuthenticationResponse(newAccessToken, newRefreshToken);
+        Jwt jwt = jwtTokenUtil.parseAndValidateRefreshToken(refreshToken);
+        if (jwtTokenUtil.isRefreshTokenValidForUser(jwt)) {
+            JwtAuthenticationResponse authenticationResponse = authenticateService.refresh(jwt);
             ApiResponse<JwtAuthenticationResponse> response = wrapSuccessResponse("Success", authenticationResponse);
-            ResponseCookie refreshTokenCookie =
-                    CookieUtils.createRefreshTokenCookie(newRefreshToken, refreshTokenValidityInSeconds);
+            ResponseCookie refreshTokenCookie = CookieUtils.createRefreshTokenCookie(
+                    authenticationResponse.getRefreshToken(), refreshTokenValidityInSeconds);
             return ResponseEntity.status(HttpStatus.OK)
                     .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
                     .body(response);

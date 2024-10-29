@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
  * REST controller for managing modules within courses
  */
 @RestController
-@RequestMapping("/api/v1/courses/{courseId}/")
+@RequestMapping("/api/v1/courses/{courseId}/modules")
 public class CourseModuleController {
     private final ModuleService moduleService;
 
@@ -27,7 +27,7 @@ public class CourseModuleController {
         this.moduleService = moduleService;
     }
 
-    @GetMapping("/modules")
+    @GetMapping("")
     public ResponseEntity<ApiResponse<PagedResponse<Module>>> getModulesByCourseId(
             @PathVariable Long courseId,
             @PageableDefault(size = 5, page = 0, sort = "title", direction = Sort.Direction.ASC) Pageable pageable) {
@@ -36,14 +36,14 @@ public class CourseModuleController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @DeleteMapping("/modules")
+    @DeleteMapping("")
     public ResponseEntity<ApiResponse<Void>> deleteModulesOfCourse(@PathVariable Long courseId) {
         moduleService.deleteModulesOfCourse(courseId);
         ApiResponse<Void> response = wrapSuccessResponse("Modules deleted successfully", null);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
     }
 
-    @PostMapping("/modules")
+    @PostMapping("")
     public ResponseEntity<ApiResponse<Module>> addModuleToCourse(
             @PathVariable Long courseId, @RequestBody Module module) {
         Module createdModule = moduleService.addModuleToCourse(courseId, module);
@@ -58,7 +58,7 @@ public class CourseModuleController {
      * @param moduleReorderRequest The new order of modules.
      * @return The {@link ResponseEntity} with status {@code 200 (OK)} and the reordered modules wrapped in {@link ApiResponse}.
      */
-    @PostMapping("/modules/reorder")
+    @PostMapping("/reorder")
     public ResponseEntity<ApiResponse<List<Module>>> reorderModules(
             @PathVariable Long courseId, @RequestBody ModuleReorderRequest moduleReorderRequest) {
         List<Module> reorderedModules = moduleService.reorderModules(courseId, moduleReorderRequest.getOrderMapping());

@@ -1,6 +1,6 @@
 package com.myproject.elearning.config;
 
-import static com.myproject.elearning.security.SecurityUtils.AUTHORITIES_KEY;
+import static com.myproject.elearning.security.SecurityUtils.CLAIM_KEY_AUTHORITIES;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 import com.myproject.elearning.security.JwtAccessDeniedHandler;
@@ -53,7 +53,7 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authz ->
                         // prettier-ignore
-                        authz.requestMatchers("/api/v1/authenticate", "api/v1/refresh", "api/v1/logout")
+                        authz.requestMatchers("/api/v1/auth/login", "api/v1/auth/refresh", "api/v1/auth/logout")
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated())
@@ -69,7 +69,7 @@ public class SecurityConfiguration {
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
         grantedAuthoritiesConverter.setAuthorityPrefix("");
-        grantedAuthoritiesConverter.setAuthoritiesClaimName(AUTHORITIES_KEY);
+        grantedAuthoritiesConverter.setAuthoritiesClaimName(CLAIM_KEY_AUTHORITIES);
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
         return jwtAuthenticationConverter;
