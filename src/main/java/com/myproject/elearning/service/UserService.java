@@ -12,6 +12,8 @@ import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.repository.RoleRepository;
 import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.security.AuthoritiesConstants;
+import jakarta.transaction.Transactional;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import org.springframework.data.domain.Page;
@@ -69,16 +71,20 @@ public class UserService {
         return userRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
     }
 
-    public void updateUserWithRefreshToken(String email, String newRefreshToken) {
+    @Transactional
+    public void updateUserWithRefreshToken(String email, String newRefreshToken, Instant expirationDate) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new InvalidIdException("Email not found!"));
-        RefreshToken refreshToken = user.getRefreshToken();
+        RefreshToken refreshToken = user.getRefreshToken().stream()
+                .filter(rt -> "A".equals(rt.getDeviceName())) // hardcode
+                .findFirst()
+                .orElse(null);
         if (refreshToken == null) {
             refreshToken = new RefreshToken();
             refreshToken.setUser(user);
-            user.setRefreshToken(refreshToken);
+            user.getRefreshToken().add(refreshToken);
         }
         refreshToken.setToken(newRefreshToken);
-        user.setRefreshToken(refreshToken);
+        refreshToken.setExpiryDate(expirationDate);
         userRepository.save(user);
     }
 

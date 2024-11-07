@@ -5,6 +5,7 @@ import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapErrorResp
 import com.myproject.elearning.dto.response.ApiResponse;
 import com.myproject.elearning.exception.problemdetails.EmailAlreadyUsedException;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
+import com.myproject.elearning.exception.problemdetails.TokenException;
 import java.net.URI;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -29,14 +30,16 @@ import org.springframework.web.context.request.WebRequest;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler()
+    @ExceptionHandler(value = Exception.class)
     public ResponseEntity<ProblemDetail> handleAnyException(Exception ex, WebRequest request) {
         ProblemDetail problemDetail = getProblemDetail(ex);
         return ResponseEntity.status(problemDetail.getStatus()).body(problemDetail);
     }
 
     private ProblemDetail getProblemDetail(Throwable ex) {
-        if (ex instanceof InvalidIdException iie) {
+        if (ex instanceof TokenException te) {
+            return te.getBody();
+        } else if (ex instanceof InvalidIdException iie) {
             return iie.getBody();
         } else if (ex instanceof EmailAlreadyUsedException eaue) {
             return eaue.getBody();
@@ -62,6 +65,7 @@ public class GlobalExceptionHandler {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         problemDetail.setType(URI.create("about:blank"));
         problemDetail.setTitle("An error occurred");
+        problemDetail.setDetail(ex.getMessage());
         return problemDetail;
     }
 

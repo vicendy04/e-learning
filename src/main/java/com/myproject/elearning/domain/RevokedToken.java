@@ -23,4 +23,11 @@ public class RevokedToken {
 
     @Column(nullable = false)
     private Instant expireTime;
+
+    //    @Column(nullable = false)
+    //    private TokenType tokenType;
+    //
+    //    public enum TokenType {
+    //        ACCESS_TOKEN, REFRESH_TOKEN
+    //    }
 }

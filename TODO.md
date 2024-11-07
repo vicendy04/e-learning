@@ -1,13 +1,17 @@
-refresh token (không cần gửi kèm refresh token + refactor + tìm cách verify tốt hơn)
+refresh AuthentiateService
+
+--> revoke rồi updateuser ở userservice
 
 ## to do
 
-- advanced query: specifications, criteria, custom query, handle exceptions, custom responses, swagger, normalize db,
-  security
+- advanced query: specifications, criteria, custom query, swagger, security
+- redis
 
 csrf token (https://www.baeldung.com/spring-security-csrf#stateless-spring-api)
 
 format date time
+
+handle exception refresh and logout
 
 ## advanced
 

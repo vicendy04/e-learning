@@ -4,22 +4,23 @@ import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapErrorResp
 import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
 
 import com.myproject.elearning.dto.request.LoginRequest;
-import com.myproject.elearning.dto.request.LogoutRequest;
 import com.myproject.elearning.dto.response.ApiResponse;
-import com.myproject.elearning.dto.response.JwtAuthenticationResponse;
-import com.myproject.elearning.security.CustomUserDetailsService;
+import com.myproject.elearning.dto.response.TokenDTO;
 import com.myproject.elearning.service.AuthenticateService;
 import com.myproject.elearning.web.rest.utils.CookieUtils;
-import com.myproject.elearning.web.rest.utils.JwtTokenUtil;
 import jakarta.validation.Valid;
 import java.security.Principal;
+import java.text.ParseException;
 import java.util.Objects;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,34 +31,42 @@ public class AuthenticateController {
     @Value("${jwt.refresh-token-expiration}")
     private long refreshTokenValidityInSeconds;
 
-    private final JwtTokenUtil jwtTokenUtil;
+    private final JwtDecoder refreshTokenDecoder;
+    private final DefaultBearerTokenResolver tokenResolverDelegate;
 
     public AuthenticateController(
             AuthenticateService authenticateService,
-            JwtTokenUtil jwtTokenUtil,
-            CustomUserDetailsService userDetailsService) {
+            @Qualifier("refreshTokenDecoder") JwtDecoder refreshTokenDecoder,
+            DefaultBearerTokenResolver tokenResolverDelegate) {
         this.authenticateService = authenticateService;
-        this.jwtTokenUtil = jwtTokenUtil;
+        this.refreshTokenDecoder = refreshTokenDecoder;
+        this.tokenResolverDelegate = tokenResolverDelegate;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<JwtAuthenticationResponse>> authorize(
-            @Valid @RequestBody LoginRequest loginRequest) {
-        JwtAuthenticationResponse authenticationResponse = authenticateService.authenticate(loginRequest);
-        ApiResponse<JwtAuthenticationResponse> response = wrapSuccessResponse("Success", authenticationResponse);
+    public ResponseEntity<ApiResponse<String>> authorize(@Valid @RequestBody LoginRequest loginRequest) {
+        TokenDTO authenticationResponse = authenticateService.authenticate(loginRequest);
+        ApiResponse<String> response = wrapSuccessResponse("Success", authenticationResponse.getAccessToken());
         ResponseCookie refreshTokenCookie = CookieUtils.createRefreshTokenCookie(
                 authenticationResponse.getRefreshToken(), refreshTokenValidityInSeconds);
-
         return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
                 .body(response);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logout(@RequestBody LogoutRequest logoutRequest) {
-        authenticateService.revoke(logoutRequest);
+    public ResponseEntity<ApiResponse<Void>> logout(
+            @CookieValue(name = "refresh_token", required = false) String refreshTokenCookie) throws ParseException {
+        if (refreshTokenCookie == null) {
+            ApiResponse<Void> response = wrapErrorResponse("Refresh token is missing", null);
+            return ResponseEntity.badRequest().body(response);
+        }
+        authenticateService.revoke(refreshTokenCookie);
         ApiResponse<Void> response = wrapSuccessResponse("Log out successfully", null);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+        ResponseCookie clearCookie = CookieUtils.deleteRefreshTokenCookie();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                .header(HttpHeaders.SET_COOKIE, clearCookie.toString())
+                .body(response);
     }
 
     /**
@@ -79,20 +88,19 @@ public class AuthenticateController {
     }
 
     @PostMapping(value = "/refresh")
-    public ResponseEntity<ApiResponse<JwtAuthenticationResponse>> refreshToken(
-            @CookieValue(name = "refresh_token") String refreshToken) {
-        Jwt jwt = jwtTokenUtil.parseAndValidateRefreshToken(refreshToken);
-        if (jwtTokenUtil.isRefreshTokenValidForUser(jwt)) {
-            JwtAuthenticationResponse authenticationResponse = authenticateService.refresh(jwt);
-            ApiResponse<JwtAuthenticationResponse> response = wrapSuccessResponse("Success", authenticationResponse);
-            ResponseCookie refreshTokenCookie = CookieUtils.createRefreshTokenCookie(
-                    authenticationResponse.getRefreshToken(), refreshTokenValidityInSeconds);
-            return ResponseEntity.status(HttpStatus.OK)
-                    .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
-                    .body(response);
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(wrapErrorResponse("Invalid refresh token", null));
+    public ResponseEntity<ApiResponse<String>> refreshToken(
+            @CookieValue(name = "refresh_token", required = false) String refreshTokenCookie) throws ParseException {
+        if (refreshTokenCookie == null) {
+            ApiResponse<String> response = wrapErrorResponse("Refresh token is missing", null);
+            return ResponseEntity.badRequest().body(response);
         }
+        Jwt jwt = refreshTokenDecoder.decode(refreshTokenCookie);
+        TokenDTO authenticationResponse = authenticateService.refresh(jwt);
+        ApiResponse<String> response = wrapSuccessResponse("Success", authenticationResponse.getAccessToken());
+        ResponseCookie responseCookie = CookieUtils.createRefreshTokenCookie(
+                authenticationResponse.getRefreshToken(), refreshTokenValidityInSeconds);
+        return ResponseEntity.status(HttpStatus.OK)
+                .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
+                .body(response);
     }
 }

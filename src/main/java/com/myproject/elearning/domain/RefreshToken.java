@@ -1,6 +1,7 @@
 package com.myproject.elearning.domain;
 
 import jakarta.persistence.*;
+import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,21 +13,30 @@ import lombok.Setter;
 @Entity
 @Table(name = "refresh_tokens")
 public class RefreshToken {
-
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true)
     private String token;
 
-    /**
-     * The {@link MapsId} annotation indicates that the id of RefreshToken is the same as the id of the associated User.
-     */
-    @OneToOne(fetch = FetchType.LAZY)
-    @MapsId
-    @JoinColumn(name = "user_id")
+    @Column(name = "device_name")
+    private String deviceName;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(name = "expiry_date", nullable = false)
+    private Instant expiryDate;
+
     //    @Column(nullable = false)
-    //    private Instant expiryDate;
+    //    private boolean revoked = false;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.deviceName == null) {
+            this.deviceName = "A";
+        }
+    }
 }

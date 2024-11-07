@@ -1,10 +1,10 @@
 package com.myproject.elearning.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.util.List;
 import java.util.Set;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,8 +16,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "users")
 @NoArgsConstructor
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,8 +39,8 @@ public class User {
     private String imageUrl;
 
     @JsonIgnore
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private RefreshToken refreshToken;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RefreshToken> refreshToken;
 
     @ManyToMany
     @JoinTable(
@@ -53,11 +53,5 @@ public class User {
         this.email = email;
         this.username = username;
         this.password = password;
-    }
-
-    @JsonIgnore
-    @Nullable
-    public String getRefreshTokenValue() {
-        return this.refreshToken != null ? this.refreshToken.getToken() : null;
     }
 }

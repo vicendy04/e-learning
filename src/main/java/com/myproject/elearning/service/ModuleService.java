@@ -6,6 +6,7 @@ import com.myproject.elearning.dto.response.PagedResponse;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.repository.CourseRepository;
 import com.myproject.elearning.repository.ModuleRepository;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 import org.springframework.data.domain.Page;
@@ -38,6 +39,7 @@ public class ModuleService {
         return moduleRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
     }
 
+    @Transactional
     public Module updateModule(Module module) {
         Module currentModule =
                 moduleRepository.findById(module.getId()).orElseThrow(() -> new InvalidIdException(module.getId()));
@@ -87,6 +89,7 @@ public class ModuleService {
         return moduleRepository.saveAll(modules);
     }
 
+    @Transactional
     public void deleteModulesOfCourse(Long courseId) {
         //        when orphanRemoval = true
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new InvalidIdException(courseId));

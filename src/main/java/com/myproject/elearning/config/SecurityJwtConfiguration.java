@@ -2,7 +2,8 @@ package com.myproject.elearning.config;
 
 import static com.myproject.elearning.security.SecurityUtils.JWT_ALGORITHM;
 
-import com.myproject.elearning.service.TokenValidationService;
+import com.myproject.elearning.exception.problemdetails.TokenException;
+import com.myproject.elearning.service.TokenBlacklistService;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.util.Base64;
 import javax.crypto.SecretKey;
@@ -12,16 +13,22 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.oauth2.jwt.*;
+import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 
 @Configuration
 public class SecurityJwtConfiguration {
     @Value(value = "${jwt.base64-secret}")
     private String jwtKey;
 
-    private final TokenValidationService tokenValidationService;
+    private final TokenBlacklistService tokenBlacklistService;
 
-    public SecurityJwtConfiguration(TokenValidationService tokenValidationService) {
-        this.tokenValidationService = tokenValidationService;
+    public SecurityJwtConfiguration(TokenBlacklistService tokenBlacklistService) {
+        this.tokenBlacklistService = tokenBlacklistService;
+    }
+
+    @Bean
+    public DefaultBearerTokenResolver defaultBearerTokenResolver() {
+        return new DefaultBearerTokenResolver();
     }
 
     @Bean
@@ -31,15 +38,15 @@ public class SecurityJwtConfiguration {
 
     @SuppressWarnings({"Convert2Lambda"})
     @Bean
-    public JwtDecoder accessTokenDecoder() {
+    public JwtDecoder refreshTokenDecoder() {
         NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(getSecretKey())
                 .macAlgorithm(JWT_ALGORITHM)
                 .build();
         return new JwtDecoder() {
             @Override
-            public Jwt decode(String token) throws JwtException {
+            public Jwt decode(String token) throws TokenException {
                 Jwt jwt = jwtDecoder.decode(token);
-                tokenValidationService.checkTokenRevocationStatus(jwt);
+                tokenBlacklistService.checkTokenRevocationStatus(jwt);
                 return jwt;
             }
         };

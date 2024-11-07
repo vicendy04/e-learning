@@ -5,7 +5,6 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 import com.myproject.elearning.security.JwtAccessDeniedHandler;
 import com.myproject.elearning.security.JwtAuthenticationEntryPoint;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -37,10 +36,10 @@ public class SecurityConfiguration {
         return new BCryptPasswordEncoder();
     }
 
-    private final JwtDecoder accessTokenDecoder;
+    private final JwtDecoder jwtDecoder;
 
-    public SecurityConfiguration(@Qualifier("accessTokenDecoder") JwtDecoder accessTokenDecoder) {
-        this.accessTokenDecoder = accessTokenDecoder;
+    public SecurityConfiguration(JwtDecoder jwtDecoder) {
+        this.jwtDecoder = jwtDecoder;
     }
 
     @Bean
@@ -58,9 +57,10 @@ public class SecurityConfiguration {
                                 .anyRequest()
                                 .authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(accessTokenDecoder))
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder))
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                        .accessDeniedHandler(jwtAccessDeniedHandler));
+                        .accessDeniedHandler(jwtAccessDeniedHandler))
+                .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(jwtAuthenticationEntryPoint));
 
         return http.build();
     }

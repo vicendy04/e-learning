@@ -1,10 +1,13 @@
 package com.myproject.elearning.service;
 
 import com.myproject.elearning.dto.request.LoginRequest;
-import com.myproject.elearning.dto.request.LogoutRequest;
-import com.myproject.elearning.dto.response.JwtAuthenticationResponse;
+import com.myproject.elearning.dto.response.TokenDTO;
+import com.myproject.elearning.repository.RefreshTokenRepository;
 import com.myproject.elearning.security.CustomUserDetailsService;
-import com.myproject.elearning.web.rest.utils.JwtTokenUtil;
+import com.myproject.elearning.web.rest.utils.JwtTokenUtils;
+import com.nimbusds.jwt.SignedJWT;
+import jakarta.transaction.Transactional;
+import java.text.ParseException;
 import java.time.Instant;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -12,64 +15,65 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthenticateService {
-
-    private final JwtDecoder jwtDecoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
-    private final TokenValidationService tokenValidationService;
+    private final TokenBlacklistService tokenBlacklistService;
     private final CustomUserDetailsService userDetailsService;
-    private final JwtTokenUtil jwtTokenUtil;
+    private final JwtTokenUtils jwtTokenUtils;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     public AuthenticateService(
-            JwtDecoder jwtDecoder,
             AuthenticationManagerBuilder authenticationManagerBuilder,
-            TokenValidationService tokenValidationService,
+            TokenBlacklistService tokenBlacklistService,
             CustomUserDetailsService userDetailsService,
-            JwtTokenUtil jwtTokenUtil) {
-        this.jwtDecoder = jwtDecoder;
+            JwtTokenUtils jwtTokenUtils,
+            RefreshTokenRepository refreshTokenRepository) {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
-        this.tokenValidationService = tokenValidationService;
+        this.tokenBlacklistService = tokenBlacklistService;
         this.userDetailsService = userDetailsService;
-        this.jwtTokenUtil = jwtTokenUtil;
+        this.jwtTokenUtils = jwtTokenUtils;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
-    public JwtAuthenticationResponse authenticate(LoginRequest loginRequest) {
+    public TokenDTO authenticate(LoginRequest loginRequest) {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsernameOrEmail(), loginRequest.getPassword());
         /* https://docs.spring.io/spring-security/reference/servlet/authentication/architecture.html#servlet-authentication-authentication */
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String accessToken = jwtTokenUtil.generateAccessToken(authentication);
-        String refreshToken = jwtTokenUtil.generateAndStoreNewRefreshToken(authentication.getName());
-        return new JwtAuthenticationResponse(accessToken, refreshToken);
+        String accessToken = jwtTokenUtils.generateAccessToken(authentication);
+        String refreshToken = jwtTokenUtils.generateAndStoreNewRefreshToken(authentication.getName());
+        return new TokenDTO(accessToken, refreshToken);
     }
 
-    public JwtAuthenticationResponse refresh(Jwt jwt) {
+    @Transactional
+    public TokenDTO refresh(Jwt jwt) throws ParseException {
         UserDetails userDetails = userDetailsService.loadUserByUsername(jwt.getSubject());
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String newAccessToken = jwtTokenUtil.generateAccessToken(authentication);
-        String newRefreshToken = jwtTokenUtil.generateAndStoreNewRefreshToken(authentication.getName());
-        return new JwtAuthenticationResponse(newAccessToken, newRefreshToken);
+        String newAccessToken = jwtTokenUtils.generateAccessToken(authentication);
+        String newRefreshToken;
+        if (jwtTokenUtils.isTokenReadyForRefresh(jwt.getTokenValue())) {
+            revoke(jwt.getTokenValue());
+            newRefreshToken = jwtTokenUtils.generateAndStoreNewRefreshToken(authentication.getName());
+        } else {
+            newRefreshToken = jwt.getTokenValue(); // old token
+        }
+        return new TokenDTO(newAccessToken, newRefreshToken);
     }
 
     /**
      * Add revoked tokens to blocklist.
      */
-    public void revoke(LogoutRequest logoutRequest) {
-        String token = logoutRequest.getToken();
-        if (token == null || token.isEmpty()) {
-            throw new JwtException("Token is null or empty");
-        }
-        Jwt decode = jwtDecoder.decode(token);
-        String jti = decode.getId();
-        Instant expireTime = decode.getExpiresAt();
-        tokenValidationService.revokeToken(jti, expireTime);
+    @Transactional
+    public void revoke(String token) throws ParseException {
+        SignedJWT signedJWT = jwtTokenUtils.getClaims(token);
+        String jti = signedJWT.getJWTClaimsSet().getJWTID();
+        Instant expireTime = signedJWT.getJWTClaimsSet().getExpirationTime().toInstant();
+        tokenBlacklistService.revokeToken(jti, expireTime);
     }
 }
