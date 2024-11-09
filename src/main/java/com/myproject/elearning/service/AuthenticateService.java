@@ -2,7 +2,6 @@ package com.myproject.elearning.service;
 
 import com.myproject.elearning.dto.request.LoginRequest;
 import com.myproject.elearning.dto.response.TokenDTO;
-import com.myproject.elearning.repository.RefreshTokenRepository;
 import com.myproject.elearning.security.CustomUserDetailsService;
 import com.myproject.elearning.web.rest.utils.JwtTokenUtils;
 import com.nimbusds.jwt.SignedJWT;
@@ -23,19 +22,16 @@ public class AuthenticateService {
     private final TokenBlacklistService tokenBlacklistService;
     private final CustomUserDetailsService userDetailsService;
     private final JwtTokenUtils jwtTokenUtils;
-    private final RefreshTokenRepository refreshTokenRepository;
 
     public AuthenticateService(
             AuthenticationManagerBuilder authenticationManagerBuilder,
             TokenBlacklistService tokenBlacklistService,
             CustomUserDetailsService userDetailsService,
-            JwtTokenUtils jwtTokenUtils,
-            RefreshTokenRepository refreshTokenRepository) {
+            JwtTokenUtils jwtTokenUtils) {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.tokenBlacklistService = tokenBlacklistService;
         this.userDetailsService = userDetailsService;
         this.jwtTokenUtils = jwtTokenUtils;
-        this.refreshTokenRepository = refreshTokenRepository;
     }
 
     public TokenDTO authenticate(LoginRequest loginRequest) {

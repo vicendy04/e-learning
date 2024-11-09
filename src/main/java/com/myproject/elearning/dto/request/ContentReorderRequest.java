@@ -1,10 +1,11 @@
 package com.myproject.elearning.dto.request;
 
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class LogoutRequest {
-    private String token;
+public class ContentReorderRequest {
+    private Map<Long, Integer> orderMapping;
 }

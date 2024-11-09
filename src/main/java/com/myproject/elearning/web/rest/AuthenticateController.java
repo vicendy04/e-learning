@@ -20,7 +20,6 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -32,15 +31,11 @@ public class AuthenticateController {
     private long refreshTokenValidityInSeconds;
 
     private final JwtDecoder refreshTokenDecoder;
-    private final DefaultBearerTokenResolver tokenResolverDelegate;
 
     public AuthenticateController(
-            AuthenticateService authenticateService,
-            @Qualifier("refreshTokenDecoder") JwtDecoder refreshTokenDecoder,
-            DefaultBearerTokenResolver tokenResolverDelegate) {
+            AuthenticateService authenticateService, @Qualifier("refreshTokenDecoder") JwtDecoder refreshTokenDecoder) {
         this.authenticateService = authenticateService;
         this.refreshTokenDecoder = refreshTokenDecoder;
-        this.tokenResolverDelegate = tokenResolverDelegate;
     }
 
     @PostMapping("/login")

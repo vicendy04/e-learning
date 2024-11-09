@@ -11,7 +11,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,7 +21,6 @@ import org.springframework.stereotype.Component;
 public class JwtTokenUtils {
 
     private final JwtEncoder jwtEncoder;
-    private final JwtDecoder refreshTokenDecoder;
 
     @Value("${jwt.access-token-expiration}")
     private long accessTokenValidityInSeconds;
@@ -37,12 +35,8 @@ public class JwtTokenUtils {
     private final RefreshTokenRepository refreshTokenRepository;
 
     public JwtTokenUtils(
-            JwtEncoder jwtEncoder,
-            @Qualifier("refreshTokenDecoder") JwtDecoder refreshTokenDecoder,
-            UserService userService,
-            RefreshTokenRepository refreshTokenRepository) {
+            JwtEncoder jwtEncoder, UserService userService, RefreshTokenRepository refreshTokenRepository) {
         this.jwtEncoder = jwtEncoder;
-        this.refreshTokenDecoder = refreshTokenDecoder;
         this.userService = userService;
         this.refreshTokenRepository = refreshTokenRepository;
     }

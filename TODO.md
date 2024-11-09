@@ -1,3 +1,7 @@
+Sử dụng projection (interface-based hoặc class-based):
+
+Sử dụng JPQL/HQL với constructor expression:
+
 refresh AuthentiateService
 
 --> revoke rồi updateuser ở userservice

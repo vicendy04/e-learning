@@ -26,16 +26,6 @@ public class TokenBlacklistService {
         return revokedTokenRepository.existsById(jti);
     }
 
-    //    public void checkTokenRevocationStatus(Jwt jwt) throws JwtException {
-    //        String jti = jwt.getId();
-    //        if (jti == null) {
-    //            throw new JwtException("Missing jti!");
-    //        }
-    //        if (isTokenRevoked(jti)) {
-    //            throw new JwtException("Token has been revoked");
-    //        }
-    //    }
-
     public void checkTokenRevocationStatus(Jwt jwt) throws TokenException {
         try {
             String jti = jwt.getId();

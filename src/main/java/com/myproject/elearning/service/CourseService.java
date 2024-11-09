@@ -31,7 +31,7 @@ public class CourseService {
         Course currentCourse =
                 courseRepository.findById(course.getId()).orElseThrow(() -> new InvalidIdException(course.getId()));
         currentCourse.setTitle(course.getTitle());
-        currentCourse.setOverview(course.getOverview());
+        currentCourse.setDescription(course.getDescription());
         return courseRepository.save(currentCourse);
     }
 

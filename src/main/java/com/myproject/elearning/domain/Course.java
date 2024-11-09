@@ -2,6 +2,7 @@ package com.myproject.elearning.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
@@ -19,21 +20,30 @@ public class Course {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "title")
+    @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "overview", columnDefinition = "MEDIUMTEXT")
-    private String overview;
+    @Column(name = "description", columnDefinition = "MEDIUMTEXT")
+    private String description;
+
+    @Column(name = "duration")
+    private int duration;
+
+    @Column(name = "price", precision = 10, scale = 2)
+    private BigDecimal price;
+
+    @Column(name = "category")
+    private String category;
 
     /**
-     * The {@link JsonIgnoreProperties} annotation is used to create an empty course (without modules).
-     * It also resolves the response issue for the "get module" API.
-     * The {@link List<Module>} is used to avoid fetching the collection when add elements.
+     * The {@link JsonIgnoreProperties} annotation is used to create an empty course (without contents).
+     * It also resolves the response issue for the "get contents" API.
+     * The {@link List<Content>} is used to avoid fetching the collection when adding elements.
      */
     @JsonIgnoreProperties(
             value = {"course"},
             allowSetters = true)
-    @OrderBy("order ASC") // auto-sorted list of modules based on their order
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<Module> modules = new ArrayList<>();
+    @OrderBy("orderIndex ASC")
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Content> contents = new ArrayList<>();
 }
