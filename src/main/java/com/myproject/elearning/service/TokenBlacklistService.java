@@ -5,21 +5,19 @@ import com.myproject.elearning.exception.problemdetails.TokenException;
 import com.myproject.elearning.repository.RevokedTokenRepository;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class TokenBlacklistService {
     private final RevokedTokenRepository revokedTokenRepository;
 
-    public TokenBlacklistService(RevokedTokenRepository revokedTokenRepository) {
-        this.revokedTokenRepository = revokedTokenRepository;
-    }
-
     @Transactional
     public void revokeToken(String jti, Instant expireTime) {
-        revokedTokenRepository.save(new RevokedToken(jti, expireTime));
+        revokedTokenRepository.save(RevokedToken.from(jti, expireTime));
     }
 
     public boolean isTokenRevoked(String jti) {

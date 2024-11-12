@@ -1,19 +1,35 @@
 package com.myproject.elearning.web.rest.utils;
 
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
+import org.springframework.stereotype.Component;
 
+/**
+ * Util class for making cookies.
+ */
+@Component
 public final class CookieUtils {
+
+    @Value("${jwt.refresh-token-expiration}")
+    private long refreshTokenValidityInSeconds;
+
+    private static long staticRefreshTokenValidityInSeconds;
+    private static final String REFRESH_TOKEN_COOKIE_NAME = "refresh_token";
 
     private CookieUtils() {}
 
-    private static final String REFRESH_TOKEN_COOKIE_NAME = "refresh_token";
+    @PostConstruct
+    public void init() {
+        staticRefreshTokenValidityInSeconds = this.refreshTokenValidityInSeconds;
+    }
 
-    public static ResponseCookie createRefreshTokenCookie(String refreshToken, long maxAgeInSeconds) {
+    public static ResponseCookie createRefreshTokenCookie(String refreshToken) {
         return ResponseCookie.from(REFRESH_TOKEN_COOKIE_NAME, refreshToken)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .maxAge(maxAgeInSeconds)
+                .maxAge(staticRefreshTokenValidityInSeconds)
                 .sameSite("Lax")
                 .build();
     }

@@ -2,6 +2,7 @@ package com.myproject.elearning.service;
 
 import com.myproject.elearning.domain.Content;
 import com.myproject.elearning.domain.Course;
+import com.myproject.elearning.dto.request.ContentUpdateInput;
 import com.myproject.elearning.dto.response.ContentListResponse;
 import com.myproject.elearning.dto.response.PagedResponse;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
@@ -10,6 +11,8 @@ import com.myproject.elearning.repository.CourseRepository;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -18,39 +21,38 @@ import org.springframework.stereotype.Service;
  * Service class for managing contents.
  */
 @Service
+@RequiredArgsConstructor
 public class ContentService {
     private final ContentRepository contentRepository;
     private final CourseRepository courseRepository;
-
-    public ContentService(ContentRepository contentRepository, CourseRepository courseRepository) {
-        this.contentRepository = contentRepository;
-        this.courseRepository = courseRepository;
-    }
 
     public Content createContent(Content content) {
         return contentRepository.save(content);
     }
 
     public Content getContent(Long id) {
-        return contentRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
+        //        return contentRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
+        return contentRepository.findByIdWithCourse(id).orElseThrow(() -> new InvalidIdException(id));
     }
 
     @Transactional
-    public Content updateContent(Content content) {
-        Content currentContent =
-                contentRepository.findById(content.getId()).orElseThrow(() -> new InvalidIdException(content.getId()));
-        if (content.getCourse() != null && content.getCourse().getId() != null) {
+    public Content updateContent(ContentUpdateInput contentUpdateInput) {
+        //        Content currentContent = contentRepository.findById(contentUpdateDTO.getId()).orElseThrow(() -> new
+        // InvalidIdException(contentUpdateDTO.getId()));
+        Content currentContent = contentRepository
+                .findByIdWithCourse(contentUpdateInput.getId())
+                .orElseThrow(() -> new InvalidIdException(contentUpdateInput.getId()));
+        if (!Objects.equals(
+                contentUpdateInput.getCourseId(), currentContent.getCourse().getId())) {
             Course course = courseRepository
-                    .findById(content.getCourse().getId())
-                    .orElseThrow(
-                            () -> new InvalidIdException(content.getCourse().getId()));
-            content.setCourse(course);
+                    .findById(contentUpdateInput.getCourseId())
+                    .orElseThrow(() -> new InvalidIdException(contentUpdateInput.getCourseId()));
+            currentContent.setCourse(course);
         }
-        currentContent.setTitle(content.getTitle());
-        currentContent.setOrderIndex(content.getOrderIndex());
-        currentContent.setContentType(content.getContentType());
-        currentContent.setStatus(content.getStatus());
-        currentContent.setCourse(content.getCourse());
+        currentContent.setTitle(contentUpdateInput.getTitle());
+        currentContent.setOrderIndex(contentUpdateInput.getOrderIndex());
+        currentContent.setContentType(contentUpdateInput.getContentType());
+        currentContent.setStatus(contentUpdateInput.getStatus());
         return contentRepository.save(currentContent);
     }
 
@@ -60,12 +62,14 @@ public class ContentService {
     }
 
     public PagedResponse<Content> getAllContents(Pageable pageable) {
-        Page<Content> contents = contentRepository.findAll(pageable);
+        //        Page<Content> contents = contentRepository.findAll(pageable);
+        Page<Content> contents = contentRepository.findAllWithCourse(pageable);
         return PagedResponse.from(contents);
     }
 
     public PagedResponse<ContentListResponse> getContentsByCourseId(Long courseId, Pageable pageable) {
-        Page<Content> contents = contentRepository.findByCourseId(courseId, pageable);
+        //        Page<Content> contents = contentRepository.findByCourseId(courseId, pageable);
+        Page<Content> contents = contentRepository.findByCourseIdWithCourse(courseId, pageable);
         Page<ContentListResponse> contentListResponses = contents.map(ContentListResponse::new);
         return PagedResponse.from(contentListResponses);
     }

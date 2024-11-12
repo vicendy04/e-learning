@@ -4,6 +4,7 @@ import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.dto.response.PagedResponse;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.repository.CourseRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -12,12 +13,9 @@ import org.springframework.stereotype.Service;
  * Service class for managing courses.
  */
 @Service
+@RequiredArgsConstructor
 public class CourseService {
     private final CourseRepository courseRepository;
-
-    public CourseService(CourseRepository courseRepository) {
-        this.courseRepository = courseRepository;
-    }
 
     public Course createBlankCourse(Course course) {
         return courseRepository.save(course);
@@ -41,7 +39,7 @@ public class CourseService {
     }
 
     public PagedResponse<Course> getAllCourses(Pageable pageable) {
-        Page<Course> courses = courseRepository.findAll(pageable);
+        Page<Course> courses = courseRepository.findAllWithContents(pageable);
         return PagedResponse.from(courses);
     }
 }

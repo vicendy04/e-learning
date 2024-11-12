@@ -44,7 +44,7 @@ public class Content {
     @JsonIgnoreProperties(
             value = {"contents"},
             allowSetters = true)
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id")
     private Course course;
 

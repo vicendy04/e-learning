@@ -4,9 +4,11 @@ import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessRe
 
 import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.dto.response.ApiResponse;
+import com.myproject.elearning.dto.response.CourseGetResponse;
 import com.myproject.elearning.dto.response.PagedResponse;
 import com.myproject.elearning.service.CourseService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -19,12 +21,9 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/v1/courses")
+@RequiredArgsConstructor
 public class CourseController {
     private final CourseService courseService;
-
-    public CourseController(CourseService courseService) {
-        this.courseService = courseService;
-    }
 
     /**
      * @param course the blank course to create.
@@ -38,9 +37,11 @@ public class CourseController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Course>> getCourse(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<ApiResponse<CourseGetResponse>> getCourse(@PathVariable(name = "id") Long id) {
         Course course = courseService.getCourse(id);
-        ApiResponse<Course> response = wrapSuccessResponse("Course retrieved successfully", course);
+        CourseGetResponse courseGetResponse = CourseGetResponse.toDTO(course);
+        ApiResponse<CourseGetResponse> response =
+                wrapSuccessResponse("Course retrieved successfully", courseGetResponse);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

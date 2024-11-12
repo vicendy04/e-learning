@@ -1,13 +1,14 @@
 package com.myproject.elearning.service;
 
-import com.myproject.elearning.dto.request.LoginRequest;
-import com.myproject.elearning.dto.response.TokenDTO;
+import com.myproject.elearning.dto.TokenPair;
+import com.myproject.elearning.dto.request.LoginInput;
 import com.myproject.elearning.security.CustomUserDetailsService;
-import com.myproject.elearning.web.rest.utils.JwtTokenUtils;
+import com.myproject.elearning.security.JwtTokenUtils;
 import com.nimbusds.jwt.SignedJWT;
 import jakarta.transaction.Transactional;
 import java.text.ParseException;
 import java.time.Instant;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -17,36 +18,26 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class AuthenticateService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final TokenBlacklistService tokenBlacklistService;
     private final CustomUserDetailsService userDetailsService;
     private final JwtTokenUtils jwtTokenUtils;
 
-    public AuthenticateService(
-            AuthenticationManagerBuilder authenticationManagerBuilder,
-            TokenBlacklistService tokenBlacklistService,
-            CustomUserDetailsService userDetailsService,
-            JwtTokenUtils jwtTokenUtils) {
-        this.authenticationManagerBuilder = authenticationManagerBuilder;
-        this.tokenBlacklistService = tokenBlacklistService;
-        this.userDetailsService = userDetailsService;
-        this.jwtTokenUtils = jwtTokenUtils;
-    }
-
-    public TokenDTO authenticate(LoginRequest loginRequest) {
+    public TokenPair authenticate(LoginInput loginInput) {
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsernameOrEmail(), loginRequest.getPassword());
+                new UsernamePasswordAuthenticationToken(loginInput.getUsernameOrEmail(), loginInput.getPassword());
         /* https://docs.spring.io/spring-security/reference/servlet/authentication/architecture.html#servlet-authentication-authentication */
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String accessToken = jwtTokenUtils.generateAccessToken(authentication);
         String refreshToken = jwtTokenUtils.generateAndStoreNewRefreshToken(authentication.getName());
-        return new TokenDTO(accessToken, refreshToken);
+        return new TokenPair(accessToken, refreshToken);
     }
 
     @Transactional
-    public TokenDTO refresh(Jwt jwt) throws ParseException {
+    public TokenPair refresh(Jwt jwt) throws ParseException {
         UserDetails userDetails = userDetailsService.loadUserByUsername(jwt.getSubject());
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
@@ -59,7 +50,7 @@ public class AuthenticateService {
         } else {
             newRefreshToken = jwt.getTokenValue(); // old token
         }
-        return new TokenDTO(newAccessToken, newRefreshToken);
+        return new TokenPair(newAccessToken, newRefreshToken);
     }
 
     /**

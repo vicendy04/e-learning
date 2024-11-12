@@ -31,15 +31,16 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 @EnableWebSecurity
 public class SecurityConfiguration {
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 
     private final JwtDecoder jwtDecoder;
 
     public SecurityConfiguration(JwtDecoder jwtDecoder) {
         this.jwtDecoder = jwtDecoder;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Bean

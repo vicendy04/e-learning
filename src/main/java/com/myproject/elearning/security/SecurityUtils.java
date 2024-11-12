@@ -10,10 +10,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.stereotype.Component;
 
 /**
  * Utility class for Spring Security.
  */
+@Component
 public final class SecurityUtils {
 
     public static final MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS512;

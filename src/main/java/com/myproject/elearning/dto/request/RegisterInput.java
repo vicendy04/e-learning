@@ -6,9 +6,12 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class LoginRequest {
+public class RegisterInput {
     @NotBlank
-    private String usernameOrEmail;
+    private String email;
+
+    @NotBlank
+    private String username;
 
     @NotBlank
     private String password;

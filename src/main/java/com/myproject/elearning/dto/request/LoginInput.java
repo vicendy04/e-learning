@@ -1,16 +1,14 @@
 package com.myproject.elearning.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
-public class RegisterRequest {
+public class LoginInput {
     @NotBlank
-    private String email;
-
-    @NotBlank
-    private String username;
+    private String usernameOrEmail;
 
     @NotBlank
     private String password;

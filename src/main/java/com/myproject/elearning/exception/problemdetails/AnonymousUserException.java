@@ -6,28 +6,28 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.ErrorResponseException;
 
-public class EmailAlreadyUsedException extends ErrorResponseException {
-    private static final HttpStatus HTTP_STATUS = HttpStatus.BAD_REQUEST;
+public class AnonymousUserException extends ErrorResponseException {
+    private static final HttpStatus HTTP_STATUS = HttpStatus.UNAUTHORIZED;
 
-    public EmailAlreadyUsedException() {
-        super(HTTP_STATUS, problemDetailFrom("Email is already in use!"), null);
+    public AnonymousUserException() {
+        super(HTTP_STATUS, problemDetailFrom("Anonymous user cannot perform this action"), null);
     }
 
-    public EmailAlreadyUsedException(Throwable cause) {
-        super(HTTP_STATUS, problemDetailFrom("Email is already in use!"), cause);
+    public AnonymousUserException(Throwable cause) {
+        super(HTTP_STATUS, problemDetailFrom("Anonymous user cannot perform this action"), cause);
     }
 
-    public EmailAlreadyUsedException(String message) {
+    public AnonymousUserException(String message) {
         super(HTTP_STATUS, problemDetailFrom(message), null);
     }
 
-    public EmailAlreadyUsedException(String message, Throwable cause) {
+    public AnonymousUserException(String message, Throwable cause) {
         super(HTTP_STATUS, problemDetailFrom(message), cause);
     }
 
     private static ProblemDetail problemDetailFrom(String message) {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HTTP_STATUS);
-        problemDetail.setType(ErrorUriConstants.EMAIL_ALREADY_USED_URI);
+        problemDetail.setType(ErrorUriConstants.ANONYMOUS_USER_URI);
         problemDetail.setTitle(message);
         problemDetail.setProperty("timestamp", Instant.now());
         return problemDetail;

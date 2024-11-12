@@ -13,7 +13,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.oauth2.jwt.*;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
+import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 
 @Configuration
 public class SecurityJwtConfiguration {
@@ -63,6 +65,16 @@ public class SecurityJwtConfiguration {
         return NimbusJwtDecoder.withSecretKey(getSecretKey())
                 .macAlgorithm(JWT_ALGORITHM)
                 .build();
+    }
+
+    @Bean
+    public BearerTokenAccessDeniedHandler bearerTokenAccessDeniedHandler() {
+        return new BearerTokenAccessDeniedHandler();
+    }
+
+    @Bean
+    public BearerTokenAuthenticationEntryPoint bearerTokenAuthenticationEntryPoint() {
+        return new BearerTokenAuthenticationEntryPoint();
     }
 
     private SecretKey getSecretKey() {

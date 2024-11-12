@@ -3,12 +3,13 @@ package com.myproject.elearning.web.rest;
 import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
 
 import com.myproject.elearning.domain.Content;
-import com.myproject.elearning.dto.request.ContentReorderRequest;
+import com.myproject.elearning.dto.request.ContentOrderInput;
 import com.myproject.elearning.dto.response.ApiResponse;
 import com.myproject.elearning.dto.response.ContentListResponse;
 import com.myproject.elearning.dto.response.PagedResponse;
 import com.myproject.elearning.service.ContentService;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -21,12 +22,9 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/v1/courses/{courseId}/contents")
+@RequiredArgsConstructor
 public class CourseContentController {
     private final ContentService contentService;
-
-    public CourseContentController(ContentService contentService) {
-        this.contentService = contentService;
-    }
 
     @GetMapping("")
     public ResponseEntity<ApiResponse<PagedResponse<ContentListResponse>>> getContentsByCourseId(
@@ -56,15 +54,14 @@ public class CourseContentController {
     /**
      * Reorders the contents of a specific course.
      *
-     * @param courseId              The ID of the course whose contents will be reordered.
-     * @param contentReorderRequest The new order of contents.
+     * @param courseId          The ID of the course whose contents will be reordered.
+     * @param contentOrderInput The new order of contents.
      * @return The {@link ResponseEntity} with status {@code 200 (OK)} and the reordered contents wrapped in {@link ApiResponse}.
      */
     @PostMapping("/reorder")
     public ResponseEntity<ApiResponse<List<Content>>> reorderContents(
-            @PathVariable Long courseId, @RequestBody ContentReorderRequest contentReorderRequest) {
-        List<Content> reorderedContents =
-                contentService.reorderContents(courseId, contentReorderRequest.getOrderMapping());
+            @PathVariable Long courseId, @RequestBody ContentOrderInput contentOrderInput) {
+        List<Content> reorderedContents = contentService.reorderContents(courseId, contentOrderInput.getOrderMapping());
         ApiResponse<List<Content>> response = wrapSuccessResponse("Contents reordered successfully", reorderedContents);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

@@ -1,7 +1,7 @@
 package com.myproject.elearning.dto.mapper;
 
 import com.myproject.elearning.domain.User;
-import com.myproject.elearning.dto.request.RegisterRequest;
+import com.myproject.elearning.dto.request.RegisterInput;
 import com.myproject.elearning.dto.response.UserResponse;
 import java.util.List;
 import java.util.Objects;
@@ -23,7 +23,7 @@ public class UserMapper {
         return UserResponse.from(user);
     }
 
-    public User registerRequestToUser(RegisterRequest registerRequest) {
-        return new User(registerRequest.getEmail(), registerRequest.getUsername(), registerRequest.getPassword());
+    public User registerRequestToUser(RegisterInput registerInput) {
+        return new User(registerInput.getEmail(), registerInput.getUsername(), registerInput.getPassword());
     }
 }

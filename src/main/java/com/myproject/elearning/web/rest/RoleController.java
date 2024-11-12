@@ -7,6 +7,7 @@ import com.myproject.elearning.dto.response.ApiResponse;
 import com.myproject.elearning.dto.response.PagedResponse;
 import com.myproject.elearning.service.RoleService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -19,12 +20,9 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/v1/roles")
+@RequiredArgsConstructor
 public class RoleController {
     private final RoleService roleService;
-
-    public RoleController(RoleService roleService) {
-        this.roleService = roleService;
-    }
 
     @PostMapping("")
     public ResponseEntity<ApiResponse<Role>> createRole(@Valid @RequestBody Role role) {

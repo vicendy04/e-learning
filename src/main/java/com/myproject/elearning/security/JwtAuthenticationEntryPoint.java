@@ -21,11 +21,12 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
-    private final BearerTokenAuthenticationEntryPoint bearerTokenAuthEntryPointDelegate =
-            new BearerTokenAuthenticationEntryPoint();
+    private final BearerTokenAuthenticationEntryPoint bearerTokenAuthEntryPointDelegate;
     private final ObjectMapper objectMapper;
 
-    public JwtAuthenticationEntryPoint(ObjectMapper objectMapper) {
+    public JwtAuthenticationEntryPoint(
+            BearerTokenAuthenticationEntryPoint bearerTokenAuthEntryPointDelegate, ObjectMapper objectMapper) {
+        this.bearerTokenAuthEntryPointDelegate = bearerTokenAuthEntryPointDelegate;
         this.objectMapper = objectMapper;
     }
 

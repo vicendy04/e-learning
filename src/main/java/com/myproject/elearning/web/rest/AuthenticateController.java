@@ -3,17 +3,16 @@ package com.myproject.elearning.web.rest;
 import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapErrorResponse;
 import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
 
-import com.myproject.elearning.dto.request.LoginRequest;
+import com.myproject.elearning.dto.TokenPair;
+import com.myproject.elearning.dto.request.LoginInput;
 import com.myproject.elearning.dto.response.ApiResponse;
-import com.myproject.elearning.dto.response.TokenDTO;
 import com.myproject.elearning.service.AuthenticateService;
 import com.myproject.elearning.web.rest.utils.CookieUtils;
 import jakarta.validation.Valid;
 import java.security.Principal;
 import java.text.ParseException;
 import java.util.Objects;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -24,26 +23,17 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
+@RequiredArgsConstructor
 public class AuthenticateController {
     private final AuthenticateService authenticateService;
-
-    @Value("${jwt.refresh-token-expiration}")
-    private long refreshTokenValidityInSeconds;
-
     private final JwtDecoder refreshTokenDecoder;
 
-    public AuthenticateController(
-            AuthenticateService authenticateService, @Qualifier("refreshTokenDecoder") JwtDecoder refreshTokenDecoder) {
-        this.authenticateService = authenticateService;
-        this.refreshTokenDecoder = refreshTokenDecoder;
-    }
-
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<String>> authorize(@Valid @RequestBody LoginRequest loginRequest) {
-        TokenDTO authenticationResponse = authenticateService.authenticate(loginRequest);
+    public ResponseEntity<ApiResponse<String>> authorize(@Valid @RequestBody LoginInput loginInput) {
+        TokenPair authenticationResponse = authenticateService.authenticate(loginInput);
         ApiResponse<String> response = wrapSuccessResponse("Success", authenticationResponse.getAccessToken());
-        ResponseCookie refreshTokenCookie = CookieUtils.createRefreshTokenCookie(
-                authenticationResponse.getRefreshToken(), refreshTokenValidityInSeconds);
+        ResponseCookie refreshTokenCookie =
+                CookieUtils.createRefreshTokenCookie(authenticationResponse.getRefreshToken());
         return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
                 .body(response);
@@ -90,10 +80,9 @@ public class AuthenticateController {
             return ResponseEntity.badRequest().body(response);
         }
         Jwt jwt = refreshTokenDecoder.decode(refreshTokenCookie);
-        TokenDTO authenticationResponse = authenticateService.refresh(jwt);
+        TokenPair authenticationResponse = authenticateService.refresh(jwt);
         ApiResponse<String> response = wrapSuccessResponse("Success", authenticationResponse.getAccessToken());
-        ResponseCookie responseCookie = CookieUtils.createRefreshTokenCookie(
-                authenticationResponse.getRefreshToken(), refreshTokenValidityInSeconds);
+        ResponseCookie responseCookie = CookieUtils.createRefreshTokenCookie(authenticationResponse.getRefreshToken());
         return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
                 .body(response);

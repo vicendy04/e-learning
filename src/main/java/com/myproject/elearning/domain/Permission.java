@@ -6,7 +6,7 @@ package com.myproject.elearning.domain;
 @Entity
 @Table(name = "privileges")
  */
-public class Privilege {
+public interface Permission {
     /* Uncomment when need
     @Id
     private String name;

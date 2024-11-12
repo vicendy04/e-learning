@@ -6,6 +6,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ContentReorderRequest {
+public class ContentOrderInput {
     private Map<Long, Integer> orderMapping;
 }

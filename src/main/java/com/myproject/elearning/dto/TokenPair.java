@@ -1,13 +1,14 @@
-package com.myproject.elearning.dto.response;
+package com.myproject.elearning.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
  * Object to return as body in JWT Authentication.
  */
 @Getter
 @AllArgsConstructor
-public class TokenDTO {
+public class TokenPair {
     private String accessToken;
     private String refreshToken;
 }

@@ -1,7 +1,6 @@
-package com.myproject.elearning.web.rest.utils;
+package com.myproject.elearning.security;
 
 import static com.myproject.elearning.security.SecurityUtils.CLAIM_KEY_AUTHORITIES;
-import static com.myproject.elearning.security.SecurityUtils.JWT_ALGORITHM;
 
 import com.myproject.elearning.repository.RefreshTokenRepository;
 import com.myproject.elearning.service.UserService;
@@ -17,10 +16,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Component;
 
+/**
+ * Utility class for jwt.
+ */
 @Component
-public class JwtTokenUtils {
-
-    private final JwtEncoder jwtEncoder;
+public final class JwtTokenUtils {
 
     @Value("${jwt.access-token-expiration}")
     private long accessTokenValidityInSeconds;
@@ -29,8 +29,9 @@ public class JwtTokenUtils {
     private long refreshTokenValidityInSeconds;
 
     @Value("${jwt.token-refresh-threshold}")
-    private Long tokenRefreshThreshold;
+    private Long tokenRefreshThresholdInSeconds;
 
+    private final JwtEncoder jwtEncoder;
     private final UserService userService;
     private final RefreshTokenRepository refreshTokenRepository;
 
@@ -51,7 +52,7 @@ public class JwtTokenUtils {
         // @formatter:off
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuedAt(now)
-                .expiresAt(generateExpirationDate(now, accessTokenValidityInSeconds))
+                .expiresAt(now.plusSeconds(accessTokenValidityInSeconds))
                 .subject(authentication.getName())
                 .id((UUID.randomUUID().toString()))
                 .claim(CLAIM_KEY_AUTHORITIES, authorities)
@@ -65,7 +66,7 @@ public class JwtTokenUtils {
     }
 
     private String encodeClaims(JwtClaimsSet claims) {
-        JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
+        JwsHeader jwsHeader = JwsHeader.with(SecurityUtils.JWT_ALGORITHM).build();
         return jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
     }
 
@@ -83,22 +84,21 @@ public class JwtTokenUtils {
 
     public String generateAndStoreNewRefreshToken(String email) {
         Instant now = Instant.now();
-        Instant expirationDate = generateExpirationDate(now, refreshTokenValidityInSeconds);
+        Instant expirationDate = now.plusSeconds(refreshTokenValidityInSeconds);
 
         String newRefreshToken = generateRefreshToken(email, now, expirationDate);
         userService.updateUserWithRefreshToken(email, newRefreshToken, expirationDate);
         return newRefreshToken;
     }
-
     /**
      * Checks if the given token is near its refresh threshold.
      */
     public boolean isTokenReadyForRefresh(String token) throws ParseException {
-        SignedJWT signedJWT = getClaims(token);
-        Instant createAt = signedJWT.getJWTClaimsSet().getIssueTime().toInstant();
+        SignedJWT signedJWT = SignedJWT.parse(token);
+        Instant createdAt = signedJWT.getJWTClaimsSet().getIssueTime().toInstant();
         Instant now = Instant.now();
-        Instant refreshThresholdTime = Instant.now().minusSeconds(tokenRefreshThreshold);
-        return now.isAfter(createAt) && createAt.isBefore(refreshThresholdTime);
+        Instant refreshThresholdTime = now.minusSeconds(tokenRefreshThresholdInSeconds);
+        return now.isAfter(createdAt) && createdAt.isBefore(refreshThresholdTime);
     }
 
     public SignedJWT getClaims(String token) throws ParseException {

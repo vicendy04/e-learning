@@ -1,3 +1,5 @@
+làm enroll cache
+
 Sử dụng projection (interface-based hoặc class-based):
 
 Sử dụng JPQL/HQL với constructor expression:
@@ -5,6 +7,8 @@ Sử dụng JPQL/HQL với constructor expression:
 refresh AuthentiateService
 
 --> revoke rồi updateuser ở userservice
+
+chuyển hết thành dto cho đỡ lỗi
 
 ## to do
 

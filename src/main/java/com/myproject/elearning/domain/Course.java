@@ -44,6 +44,10 @@ public class Course {
             value = {"course"},
             allowSetters = true)
     @OrderBy("orderIndex ASC")
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "course", orphanRemoval = true)
     private List<Content> contents = new ArrayList<>();
+
+    @JsonIgnoreProperties("course")
+    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Enrollment> enrollments = new ArrayList<>();
 }

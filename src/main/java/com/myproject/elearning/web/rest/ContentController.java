@@ -3,10 +3,12 @@ package com.myproject.elearning.web.rest;
 import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
 
 import com.myproject.elearning.domain.Content;
+import com.myproject.elearning.dto.request.ContentUpdateInput;
 import com.myproject.elearning.dto.response.ApiResponse;
 import com.myproject.elearning.dto.response.PagedResponse;
 import com.myproject.elearning.service.ContentService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -19,12 +21,9 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/v1/contents")
+@RequiredArgsConstructor
 public class ContentController {
     private final ContentService contentService;
-
-    public ContentController(ContentService contentService) {
-        this.contentService = contentService;
-    }
 
     @PostMapping("")
     public ResponseEntity<ApiResponse<Content>> createContent(@Valid @RequestBody Content content) {
@@ -49,8 +48,8 @@ public class ContentController {
     }
 
     @PutMapping("")
-    public ResponseEntity<ApiResponse<Content>> updateContent(@RequestBody Content content) {
-        Content updatedContent = contentService.updateContent(content);
+    public ResponseEntity<ApiResponse<Content>> updateContent(@RequestBody ContentUpdateInput contentUpdateInput) {
+        Content updatedContent = contentService.updateContent(contentUpdateInput);
         ApiResponse<Content> response = wrapSuccessResponse("Content updated successfully", updatedContent);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

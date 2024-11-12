@@ -13,21 +13,21 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserRequest {
+public class UserUpdateInput {
     private Long id;
     private String email;
     private String username;
     private String imageUrl;
 
-    public UserRequest(User user) {
+    public UserUpdateInput(User user) {
         this.id = user.getId();
         this.email = user.getEmail();
         this.username = user.getUsername();
         this.imageUrl = user.getImageUrl();
     }
 
-    public static UserRequest from(User user) {
-        UserRequest userResponse = new UserRequest();
+    public static UserUpdateInput from(User user) {
+        UserUpdateInput userResponse = new UserUpdateInput();
         userResponse.setId(user.getId());
         userResponse.setEmail(user.getEmail());
         userResponse.setUsername(user.getUsername());

@@ -20,11 +20,12 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class JwtAccessDeniedHandler implements AccessDeniedHandler {
-    private final BearerTokenAccessDeniedHandler bearerTokenAccessDeniedHandlerDelegate =
-            new BearerTokenAccessDeniedHandler();
+    private final BearerTokenAccessDeniedHandler bearerTokenAccessDeniedHandlerDelegate;
     private final ObjectMapper objectMapper;
 
-    public JwtAccessDeniedHandler(ObjectMapper objectMapper) {
+    public JwtAccessDeniedHandler(
+            BearerTokenAccessDeniedHandler bearerTokenAccessDeniedHandlerDelegate, ObjectMapper objectMapper) {
+        this.bearerTokenAccessDeniedHandlerDelegate = bearerTokenAccessDeniedHandlerDelegate;
         this.objectMapper = objectMapper;
     }
 

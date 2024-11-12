@@ -4,10 +4,12 @@ import com.myproject.elearning.domain.RefreshToken;
 import com.myproject.elearning.domain.Role;
 import com.myproject.elearning.domain.User;
 import com.myproject.elearning.dto.mapper.UserMapper;
-import com.myproject.elearning.dto.request.RegisterRequest;
-import com.myproject.elearning.dto.request.UserRequest;
+import com.myproject.elearning.dto.request.RegisterInput;
+import com.myproject.elearning.dto.request.UserUpdateInput;
 import com.myproject.elearning.dto.response.PagedResponse;
 import com.myproject.elearning.dto.response.UserResponse;
+import com.myproject.elearning.exception.constants.ErrorMessageConstants;
+import com.myproject.elearning.exception.problemdetails.EmailAlreadyUsedException;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.repository.RoleRepository;
 import com.myproject.elearning.repository.UserRepository;
@@ -16,6 +18,7 @@ import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,41 +28,30 @@ import org.springframework.stereotype.Service;
  * Service class for managing users.
  */
 @Service
-// @Transactional
+@RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(
-            UserRepository userRepository,
-            RoleRepository roleRepository,
-            UserMapper userMapper,
-            PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.userMapper = userMapper;
-        this.passwordEncoder = passwordEncoder;
-    }
-
-    public UserResponse createUser(RegisterRequest registerRequest) {
-        String encryptedPassword = passwordEncoder.encode(registerRequest.getPassword());
-        registerRequest.setPassword(encryptedPassword);
-        User user = userMapper.registerRequestToUser(registerRequest);
+    public UserResponse createUser(RegisterInput registerInput) {
+        String encryptedPassword = passwordEncoder.encode(registerInput.getPassword());
+        registerInput.setPassword(encryptedPassword);
+        User user = userMapper.registerRequestToUser(registerInput);
         Set<Role> roles = new HashSet<>();
 
         if (userRepository.count() == 0) {
             roles.add(roleRepository
                     .findById(AuthoritiesConstants.ADMIN)
-                    .orElseThrow(() -> new InvalidIdException("Role not found")));
+                    .orElseThrow(() -> new InvalidIdException(ErrorMessageConstants.ROLE_NOT_FOUND)));
             roles.add(roleRepository
                     .findById(AuthoritiesConstants.USER)
-                    .orElseThrow(() -> new InvalidIdException("Role not found")));
+                    .orElseThrow(() -> new InvalidIdException(ErrorMessageConstants.ROLE_NOT_FOUND)));
         } else {
             roles.add(roleRepository
                     .findById(AuthoritiesConstants.USER)
-                    .orElseThrow(() -> new InvalidIdException("Role not found")));
+                    .orElseThrow(() -> new InvalidIdException(ErrorMessageConstants.ROLE_NOT_FOUND)));
         }
 
         user.setRoles(roles);
@@ -69,6 +61,10 @@ public class UserService {
 
     public User getUser(Long id) {
         return userRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
+    }
+
+    public User getUser(String email) {
+        return userRepository.findByEmail(email).orElseThrow(() -> new EmailAlreadyUsedException(email));
     }
 
     @Transactional
@@ -88,13 +84,13 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public UserResponse updateUser(UserRequest userRequest) {
+    public UserResponse updateUser(UserUpdateInput userUpdateInput) {
         User user = userRepository
-                .findById(userRequest.getId())
-                .orElseThrow(() -> new InvalidIdException(userRequest.getId()));
-        user.setEmail(userRequest.getEmail().toLowerCase());
-        user.setUsername(userRequest.getUsername());
-        user.setImageUrl(userRequest.getImageUrl());
+                .findById(userUpdateInput.getId())
+                .orElseThrow(() -> new InvalidIdException(userUpdateInput.getId()));
+        user.setEmail(userUpdateInput.getEmail().toLowerCase());
+        user.setUsername(userUpdateInput.getUsername());
+        user.setImageUrl(userUpdateInput.getImageUrl());
         userRepository.save(user);
         return userMapper.toUserDTO(user);
     }
