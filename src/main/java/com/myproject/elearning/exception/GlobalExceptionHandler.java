@@ -2,7 +2,7 @@ package com.myproject.elearning.exception;
 
 import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapErrorResponse;
 
-import com.myproject.elearning.dto.response.ApiResponse;
+import com.myproject.elearning.dto.common.ApiResponse;
 import com.myproject.elearning.exception.problemdetails.EmailAlreadyUsedException;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.exception.problemdetails.TokenException;

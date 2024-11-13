@@ -3,7 +3,7 @@ package com.myproject.elearning.security;
 import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapErrorResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.myproject.elearning.dto.response.ApiResponse;
+import com.myproject.elearning.dto.common.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;

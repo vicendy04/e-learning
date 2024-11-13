@@ -3,26 +3,29 @@ package com.myproject.elearning.service;
 import com.myproject.elearning.domain.RefreshToken;
 import com.myproject.elearning.domain.Role;
 import com.myproject.elearning.domain.User;
-import com.myproject.elearning.dto.mapper.UserMapper;
-import com.myproject.elearning.dto.request.RegisterInput;
-import com.myproject.elearning.dto.request.UserUpdateInput;
-import com.myproject.elearning.dto.response.PagedResponse;
-import com.myproject.elearning.dto.response.UserResponse;
+import com.myproject.elearning.dto.common.PagedResponse;
+import com.myproject.elearning.dto.request.auth.RegisterRequest;
+import com.myproject.elearning.dto.request.user.UserUpdateRequest;
+import com.myproject.elearning.dto.response.user.UserGetResponse;
 import com.myproject.elearning.exception.constants.ErrorMessageConstants;
 import com.myproject.elearning.exception.problemdetails.EmailAlreadyUsedException;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
+import com.myproject.elearning.mapper.user.UserGetMapper;
+import com.myproject.elearning.mapper.user.UserRegisterMapper;
+import com.myproject.elearning.mapper.user.UserUpdateMapper;
 import com.myproject.elearning.repository.RoleRepository;
 import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.security.AuthoritiesConstants;
 import jakarta.transaction.Transactional;
-import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Service class for managing users.
@@ -32,13 +35,15 @@ import org.springframework.stereotype.Service;
 public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final UserGetMapper userGetMapper;
+    private final UserRegisterMapper userRegisterMapper;
+    private final UserUpdateMapper userUpdateMapper;
 
-    public UserResponse createUser(RegisterInput registerInput) {
-        String encryptedPassword = passwordEncoder.encode(registerInput.getPassword());
-        registerInput.setPassword(encryptedPassword);
-        User user = userMapper.registerRequestToUser(registerInput);
+    public UserGetResponse createUser(RegisterRequest registerRequest) {
+        String encryptedPassword = passwordEncoder.encode(registerRequest.getPassword());
+        registerRequest.setPassword(encryptedPassword);
+        User user = userRegisterMapper.toEntity(registerRequest);
         Set<Role> roles = new HashSet<>();
 
         if (userRepository.count() == 0) {
@@ -56,11 +61,12 @@ public class UserService {
 
         user.setRoles(roles);
         userRepository.save(user);
-        return userMapper.toUserDTO(user);
+        return userGetMapper.toDto(user);
     }
 
-    public User getUser(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
+    public UserGetResponse getUser(Long id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
+        return userGetMapper.toDto(user);
     }
 
     public User getUser(String email) {
@@ -84,15 +90,13 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public UserResponse updateUser(UserUpdateInput userUpdateInput) {
+    public UserGetResponse updateUser(Long id, UserUpdateRequest userUpdateRequest) {
         User user = userRepository
-                .findById(userUpdateInput.getId())
-                .orElseThrow(() -> new InvalidIdException(userUpdateInput.getId()));
-        user.setEmail(userUpdateInput.getEmail().toLowerCase());
-        user.setUsername(userUpdateInput.getUsername());
-        user.setImageUrl(userUpdateInput.getImageUrl());
+                .findById(id)
+                .orElseThrow(() -> new InvalidIdException(id));
+        userUpdateMapper.partialUpdate(user, userUpdateRequest);
         userRepository.save(user);
-        return userMapper.toUserDTO(user);
+        return userGetMapper.toDto(user);
     }
 
     public void deleteUser(Long id) {
@@ -100,8 +104,8 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    public PagedResponse<UserResponse> getAllUsers(Pageable pageable) {
-        Page<UserResponse> users = userRepository.findAll(pageable).map(UserResponse::from);
+    public PagedResponse<UserGetResponse> getAllUsers(Pageable pageable) {
+        Page<UserGetResponse> users = userRepository.findAll(pageable).map(userGetMapper::toDto);
         return PagedResponse.from(users);
     }
 }

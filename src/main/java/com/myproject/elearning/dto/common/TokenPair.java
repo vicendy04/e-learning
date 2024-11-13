@@ -1,4 +1,4 @@
-package com.myproject.elearning.dto;
+package com.myproject.elearning.dto.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

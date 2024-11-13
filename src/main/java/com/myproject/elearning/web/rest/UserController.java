@@ -1,13 +1,10 @@
 package com.myproject.elearning.web.rest;
 
-import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
-
-import com.myproject.elearning.domain.User;
-import com.myproject.elearning.dto.request.RegisterInput;
-import com.myproject.elearning.dto.request.UserUpdateInput;
-import com.myproject.elearning.dto.response.ApiResponse;
-import com.myproject.elearning.dto.response.PagedResponse;
-import com.myproject.elearning.dto.response.UserResponse;
+import com.myproject.elearning.dto.request.auth.RegisterRequest;
+import com.myproject.elearning.dto.request.user.UserUpdateRequest;
+import com.myproject.elearning.dto.common.ApiResponse;
+import com.myproject.elearning.dto.common.PagedResponse;
+import com.myproject.elearning.dto.response.user.UserGetResponse;
 import com.myproject.elearning.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
+
 /**
  * REST controller for managing users
  */
@@ -29,32 +28,32 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("")
-    public ResponseEntity<ApiResponse<UserResponse>> createUser(@Valid @RequestBody RegisterInput registerInput) {
-        UserResponse newUser = userService.createUser(registerInput);
-        ApiResponse<UserResponse> response = wrapSuccessResponse("User created successfully", newUser);
+    public ResponseEntity<ApiResponse<UserGetResponse>> createUser(@Valid @RequestBody RegisterRequest registerRequest) {
+        UserGetResponse newUser = userService.createUser(registerRequest);
+        ApiResponse<UserGetResponse> response = wrapSuccessResponse("User created successfully", newUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<User>> getUser(@PathVariable(name = "id") Long id) {
-        User user = userService.getUser(id);
-        ApiResponse<User> response = wrapSuccessResponse("User retrieved successfully", user);
+    public ResponseEntity<ApiResponse<UserGetResponse>> getUser(@PathVariable(name = "id") Long id) {
+        UserGetResponse user = userService.getUser(id);
+        ApiResponse<UserGetResponse> response = wrapSuccessResponse("User retrieved successfully", user);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("")
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public ResponseEntity<ApiResponse<PagedResponse<UserResponse>>> getAllUsers(
+    public ResponseEntity<ApiResponse<PagedResponse<UserGetResponse>>> getAllUsers(
             @PageableDefault(size = 5, page = 0, sort = "username", direction = Sort.Direction.ASC) Pageable pageable) {
-        PagedResponse<UserResponse> users = userService.getAllUsers(pageable);
-        ApiResponse<PagedResponse<UserResponse>> response = wrapSuccessResponse("Users retrieved successfully", users);
+        PagedResponse<UserGetResponse> users = userService.getAllUsers(pageable);
+        ApiResponse<PagedResponse<UserGetResponse>> response = wrapSuccessResponse("Users retrieved successfully", users);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @PutMapping("")
-    public ResponseEntity<ApiResponse<UserResponse>> updateUser(@RequestBody UserUpdateInput userUpdateInput) {
-        UserResponse updatedUser = userService.updateUser(userUpdateInput);
-        ApiResponse<UserResponse> response = wrapSuccessResponse("User updated successfully", updatedUser);
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<UserGetResponse>> updateUser(@PathVariable(name = "id") Long id, @RequestBody UserUpdateRequest userUpdateRequest) {
+        UserGetResponse updatedUser = userService.updateUser(id, userUpdateRequest);
+        ApiResponse<UserGetResponse> response = wrapSuccessResponse("User updated successfully", updatedUser);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

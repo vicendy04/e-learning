@@ -1,11 +1,11 @@
 package com.myproject.elearning.web.rest;
 
-import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
-
 import com.myproject.elearning.domain.Content;
-import com.myproject.elearning.dto.request.ContentUpdateInput;
-import com.myproject.elearning.dto.response.ApiResponse;
-import com.myproject.elearning.dto.response.PagedResponse;
+import com.myproject.elearning.dto.common.ApiResponse;
+import com.myproject.elearning.dto.common.PagedResponse;
+import com.myproject.elearning.dto.request.content.ContentCreateRequest;
+import com.myproject.elearning.dto.request.content.ContentUpdateRequest;
+import com.myproject.elearning.dto.response.content.ContentGetResponse;
 import com.myproject.elearning.service.ContentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +15,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
 
 /**
  * REST controller for managing contents.
@@ -26,31 +28,36 @@ public class ContentController {
     private final ContentService contentService;
 
     @PostMapping("")
-    public ResponseEntity<ApiResponse<Content>> createContent(@Valid @RequestBody Content content) {
-        Content newContent = contentService.createContent(content);
-        ApiResponse<Content> response = wrapSuccessResponse("Content created successfully", newContent);
+    public ResponseEntity<ApiResponse<ContentGetResponse>> createContent(
+            @Valid @RequestBody ContentCreateRequest request) {
+        ContentGetResponse newContent = contentService.createContent(request);
+        ApiResponse<ContentGetResponse> response = wrapSuccessResponse(
+            "Content created successfully", newContent);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Content>> getContent(@PathVariable(name = "id") Long id) {
-        Content content = contentService.getContent(id);
-        ApiResponse<Content> response = wrapSuccessResponse("Content retrieved successfully", content);
+    public ResponseEntity<ApiResponse<ContentGetResponse>> getContent(@PathVariable(name = "id") Long id) {
+        ContentGetResponse content = contentService.getContent(id);
+        ApiResponse<ContentGetResponse> response = wrapSuccessResponse("Content retrieved successfully", content);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("")
-    public ResponseEntity<ApiResponse<PagedResponse<Content>>> getAllContents(
+    public ResponseEntity<ApiResponse<PagedResponse<ContentGetResponse>>> getAllContents(
             @PageableDefault(size = 5, page = 0, sort = "title", direction = Sort.Direction.ASC) Pageable pageable) {
-        PagedResponse<Content> contents = contentService.getAllContents(pageable);
-        ApiResponse<PagedResponse<Content>> response = wrapSuccessResponse("Contents retrieved successfully", contents);
+        PagedResponse<ContentGetResponse> contents = contentService.getAllContents(pageable);
+        ApiResponse<PagedResponse<ContentGetResponse>> response = wrapSuccessResponse("Contents retrieved successfully", contents);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @PutMapping("")
-    public ResponseEntity<ApiResponse<Content>> updateContent(@RequestBody ContentUpdateInput contentUpdateInput) {
-        Content updatedContent = contentService.updateContent(contentUpdateInput);
-        ApiResponse<Content> response = wrapSuccessResponse("Content updated successfully", updatedContent);
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<ContentGetResponse>> updateContent(
+            @PathVariable(name = "id") Long id,
+            @Valid @RequestBody ContentUpdateRequest request) {
+        ContentGetResponse updatedContent = contentService.updateContent(id, request);
+        ApiResponse<ContentGetResponse> response = wrapSuccessResponse(
+            "Content updated successfully", updatedContent);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

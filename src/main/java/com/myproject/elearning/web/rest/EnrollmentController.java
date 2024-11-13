@@ -1,14 +1,13 @@
 package com.myproject.elearning.web.rest;
 
-import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
-
-import com.myproject.elearning.domain.Enrollment;
-import com.myproject.elearning.dto.request.EnrollmentStatusUpdateInput;
-import com.myproject.elearning.dto.response.ApiResponse;
-import com.myproject.elearning.dto.response.PagedResponse;
+import com.myproject.elearning.dto.common.ApiResponse;
+import com.myproject.elearning.dto.common.PagedResponse;
+import com.myproject.elearning.dto.response.enrollment.EnrollmentResponse;
+import com.myproject.elearning.dto.request.enrollment.EnrollmentStatusUpdateRequest;
 import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
 import com.myproject.elearning.security.SecurityUtils;
 import com.myproject.elearning.service.EnrollmentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -20,6 +19,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
+
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
@@ -27,10 +28,10 @@ public class EnrollmentController {
     private final EnrollmentService enrollmentService;
 
     @PostMapping("/courses/{courseId}/enroll")
-    public ResponseEntity<ApiResponse<Enrollment>> enrollCourse(@PathVariable Long courseId) {
+    public ResponseEntity<ApiResponse<EnrollmentResponse>> enrollCourse(@PathVariable Long courseId) {
         String email = SecurityUtils.getCurrentUserLogin().orElseThrow(AnonymousUserException::new);
-        Enrollment enrollment = enrollmentService.enrollCourse(email, courseId);
-        ApiResponse<Enrollment> response = wrapSuccessResponse("Enrolled successfully", enrollment);
+        EnrollmentResponse enrollment = enrollmentService.enrollCourse(email, courseId);
+        ApiResponse<EnrollmentResponse> response = wrapSuccessResponse("Enrolled successfully", enrollment);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -43,48 +44,40 @@ public class EnrollmentController {
     }
 
     @GetMapping("/users/enrollments")
-    public ResponseEntity<ApiResponse<PagedResponse<Enrollment>>> getUserEnrollments(
+    public ResponseEntity<ApiResponse<PagedResponse<EnrollmentResponse>>> getUserEnrollments(
             @PageableDefault(size = 5, page = 0) Pageable pageable) {
         String email = SecurityUtils.getCurrentUserLogin().orElseThrow(AnonymousUserException::new);
-        PagedResponse<Enrollment> enrollments = enrollmentService.getUserEnrollments(email, pageable);
-        ApiResponse<PagedResponse<Enrollment>> response =
+        PagedResponse<EnrollmentResponse> enrollments = enrollmentService.getUserEnrollments(email, pageable);
+        ApiResponse<PagedResponse<EnrollmentResponse>> response =
                 wrapSuccessResponse("User enrollments retrieved successfully", enrollments);
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Get enrollment by ID
-     * Only enrolled user or admin can access
-     */
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER') ")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @PostAuthorize("hasAnyRole('ADMIN') or returnObject.body.data.user.email == #jwt.subject")
     @GetMapping("/enrollments/{enrollmentId}")
-    public ResponseEntity<ApiResponse<Enrollment>> getEnrollment(
+    public ResponseEntity<ApiResponse<EnrollmentResponse>> getEnrollment(
             @PathVariable Long enrollmentId, @AuthenticationPrincipal Jwt jwt) {
-        Enrollment enrollment = enrollmentService.getEnrollment(enrollmentId);
-        ApiResponse<Enrollment> response = wrapSuccessResponse("Enrollment retrieved successfully", enrollment);
+        EnrollmentResponse enrollment = enrollmentService.getEnrollment(enrollmentId);
+        ApiResponse<EnrollmentResponse> response = wrapSuccessResponse("Enrollment retrieved successfully", enrollment);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/courses/{courseId}/enrollments")
-    public ResponseEntity<ApiResponse<PagedResponse<Enrollment>>> getCourseEnrollments(
+    public ResponseEntity<ApiResponse<PagedResponse<EnrollmentResponse>>> getCourseEnrollments(
             @PathVariable Long courseId, @PageableDefault(size = 5, page = 0) Pageable pageable) {
-        PagedResponse<Enrollment> enrollments = enrollmentService.getCourseEnrollments(courseId, pageable);
-        ApiResponse<PagedResponse<Enrollment>> response =
+        PagedResponse<EnrollmentResponse> enrollments = enrollmentService.getCourseEnrollments(courseId, pageable);
+        ApiResponse<PagedResponse<EnrollmentResponse>> response =
                 wrapSuccessResponse("Course enrollments retrieved successfully", enrollments);
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Change enrollment status
-     * Only course owner or enrolled user can change status
-     */
     @PutMapping("/enrollments/{enrollmentId}/status")
-    public ResponseEntity<ApiResponse<Enrollment>> changeEnrollmentStatus(
-            @PathVariable Long enrollmentId, @RequestBody EnrollmentStatusUpdateInput statusUpdateInput) {
-        Enrollment updatedEnrollment =
+    public ResponseEntity<ApiResponse<EnrollmentResponse>> changeEnrollmentStatus(
+            @PathVariable Long enrollmentId, @Valid @RequestBody EnrollmentStatusUpdateRequest statusUpdateInput) {
+        EnrollmentResponse updatedEnrollment =
                 enrollmentService.changeEnrollmentStatus(enrollmentId, statusUpdateInput.getStatus());
-        ApiResponse<Enrollment> response =
+        ApiResponse<EnrollmentResponse> response =
                 wrapSuccessResponse("Enrollment status changed successfully", updatedEnrollment);
         return ResponseEntity.ok(response);
     }

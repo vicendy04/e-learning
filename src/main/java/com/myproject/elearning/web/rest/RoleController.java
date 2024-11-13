@@ -1,10 +1,8 @@
 package com.myproject.elearning.web.rest;
 
-import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
-
-import com.myproject.elearning.domain.Role;
-import com.myproject.elearning.dto.response.ApiResponse;
-import com.myproject.elearning.dto.response.PagedResponse;
+import com.myproject.elearning.dto.common.ApiResponse;
+import com.myproject.elearning.dto.common.PagedResponse;
+import com.myproject.elearning.dto.response.role.RoleDTO;
 import com.myproject.elearning.service.RoleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +12,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
 
 /**
  * REST controller for managing roles.
@@ -25,31 +25,31 @@ public class RoleController {
     private final RoleService roleService;
 
     @PostMapping("")
-    public ResponseEntity<ApiResponse<Role>> createRole(@Valid @RequestBody Role role) {
-        Role newRole = roleService.createRole(role);
-        ApiResponse<Role> response = wrapSuccessResponse("Role created successfully", newRole);
+    public ResponseEntity<ApiResponse<RoleDTO>> createRole(@Valid @RequestBody RoleDTO role) {
+        RoleDTO newRole = roleService.createRole(role);
+        ApiResponse<RoleDTO> response = wrapSuccessResponse("Role created successfully", newRole);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{name}")
-    public ResponseEntity<ApiResponse<Role>> getRole(@PathVariable String name) {
-        Role role = roleService.getRole(name);
-        ApiResponse<Role> response = wrapSuccessResponse("Role retrieved successfully", role);
+    public ResponseEntity<ApiResponse<RoleDTO>> getRole(@PathVariable String name) {
+        RoleDTO role = roleService.getRole(name);
+        ApiResponse<RoleDTO> response = wrapSuccessResponse("Role retrieved successfully", role);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("")
-    public ResponseEntity<ApiResponse<PagedResponse<Role>>> getAllRoles(
+    public ResponseEntity<ApiResponse<PagedResponse<RoleDTO>>> getAllRoles(
             @PageableDefault(size = 5, page = 0, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
-        PagedResponse<Role> roles = roleService.getAllRoles(pageable);
-        ApiResponse<PagedResponse<Role>> response = wrapSuccessResponse("Roles retrieved successfully", roles);
+        PagedResponse<RoleDTO> roles = roleService.getAllRoles(pageable);
+        ApiResponse<PagedResponse<RoleDTO>> response = wrapSuccessResponse("Roles retrieved successfully", roles);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PutMapping("")
-    public ResponseEntity<ApiResponse<Role>> updateRole(@RequestBody Role role) {
-        Role updatedRole = roleService.updateRole(role);
-        ApiResponse<Role> response = wrapSuccessResponse("Role updated successfully", updatedRole);
+    public ResponseEntity<ApiResponse<RoleDTO>> updateRole(@RequestBody RoleDTO role) {
+        RoleDTO updatedRole = roleService.updateRole(role);
+        ApiResponse<RoleDTO> response = wrapSuccessResponse("Role updated successfully", updatedRole);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

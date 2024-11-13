@@ -2,20 +2,26 @@ package com.myproject.elearning.service;
 
 import com.myproject.elearning.domain.Content;
 import com.myproject.elearning.domain.Course;
-import com.myproject.elearning.dto.request.ContentUpdateInput;
-import com.myproject.elearning.dto.response.ContentListResponse;
-import com.myproject.elearning.dto.response.PagedResponse;
+import com.myproject.elearning.dto.common.PagedResponse;
+import com.myproject.elearning.dto.request.content.ContentCreateRequest;
+import com.myproject.elearning.dto.request.content.ContentUpdateRequest;
+import com.myproject.elearning.dto.response.content.ContentGetResponse;
+import com.myproject.elearning.dto.response.content.ContentListResponse;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
+import com.myproject.elearning.mapper.content.ContentCreateMapper;
+import com.myproject.elearning.mapper.content.ContentGetMapper;
+import com.myproject.elearning.mapper.content.ContentListMapper;
+import com.myproject.elearning.mapper.content.ContentUpdateMapper;
 import com.myproject.elearning.repository.ContentRepository;
 import com.myproject.elearning.repository.CourseRepository;
 import jakarta.transaction.Transactional;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Service class for managing contents.
@@ -25,35 +31,31 @@ import org.springframework.stereotype.Service;
 public class ContentService {
     private final ContentRepository contentRepository;
     private final CourseRepository courseRepository;
+    private final ContentGetMapper contentGetMapper;
+    private final ContentCreateMapper contentCreateMapper;
+    private final ContentUpdateMapper contentUpdateMapper;
+    private final ContentListMapper contentListMapper;
 
-    public Content createContent(Content content) {
-        return contentRepository.save(content);
+    public ContentGetResponse createContent(ContentCreateRequest request) {
+        Content content = contentCreateMapper.toEntity(request);
+        Content savedContent = contentRepository.save(content);
+        return contentGetMapper.toDto(savedContent);
     }
 
-    public Content getContent(Long id) {
-        //        return contentRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
-        return contentRepository.findByIdWithCourse(id).orElseThrow(() -> new InvalidIdException(id));
+    public ContentGetResponse getContent(Long id) {
+        Content content = contentRepository.findByIdWithCourse(id)
+                .orElseThrow(() -> new InvalidIdException(id));
+        return contentGetMapper.toDto(content);
     }
 
     @Transactional
-    public Content updateContent(ContentUpdateInput contentUpdateInput) {
-        //        Content currentContent = contentRepository.findById(contentUpdateDTO.getId()).orElseThrow(() -> new
-        // InvalidIdException(contentUpdateDTO.getId()));
+    public ContentGetResponse updateContent(Long id, ContentUpdateRequest request) {
         Content currentContent = contentRepository
-                .findByIdWithCourse(contentUpdateInput.getId())
-                .orElseThrow(() -> new InvalidIdException(contentUpdateInput.getId()));
-        if (!Objects.equals(
-                contentUpdateInput.getCourseId(), currentContent.getCourse().getId())) {
-            Course course = courseRepository
-                    .findById(contentUpdateInput.getCourseId())
-                    .orElseThrow(() -> new InvalidIdException(contentUpdateInput.getCourseId()));
-            currentContent.setCourse(course);
-        }
-        currentContent.setTitle(contentUpdateInput.getTitle());
-        currentContent.setOrderIndex(contentUpdateInput.getOrderIndex());
-        currentContent.setContentType(contentUpdateInput.getContentType());
-        currentContent.setStatus(contentUpdateInput.getStatus());
-        return contentRepository.save(currentContent);
+                .findByIdWithCourse(id)
+                .orElseThrow(() -> new InvalidIdException(id));
+        contentUpdateMapper.partialUpdate(currentContent, request);
+        contentRepository.save(currentContent);
+        return contentGetMapper.toDto(currentContent);
     }
 
     public void deleteContent(Long id) {
@@ -61,26 +63,26 @@ public class ContentService {
         contentRepository.delete(content);
     }
 
-    public PagedResponse<Content> getAllContents(Pageable pageable) {
-        //        Page<Content> contents = contentRepository.findAll(pageable);
+    public PagedResponse<ContentGetResponse> getAllContents(Pageable pageable) {
         Page<Content> contents = contentRepository.findAllWithCourse(pageable);
-        return PagedResponse.from(contents);
+        Page<ContentGetResponse> contentResponses = contents.map(contentGetMapper::toDto);
+        return PagedResponse.from(contentResponses);
     }
 
     public PagedResponse<ContentListResponse> getContentsByCourseId(Long courseId, Pageable pageable) {
-        //        Page<Content> contents = contentRepository.findByCourseId(courseId, pageable);
         Page<Content> contents = contentRepository.findByCourseIdWithCourse(courseId, pageable);
-        Page<ContentListResponse> contentListResponses = contents.map(ContentListResponse::new);
-        return PagedResponse.from(contentListResponses);
+        return PagedResponse.from(contents.map(contentListMapper::toDto));
     }
 
-    public Content addContentToCourse(Long courseId, Content content) {
-        Course course = courseRepository.findById(courseId).orElseThrow(() -> new InvalidIdException(courseId));
-        content.setCourse(course);
-        return contentRepository.save(content);
+    @Transactional
+    public ContentGetResponse addContentToCourse(Long courseId, ContentCreateRequest content) {
+        Content content1 = contentCreateMapper.toEntity(content);
+        content1.getCourse().setId(courseId);
+        contentRepository.save(content1);
+        return contentGetMapper.toDto(content1);
     }
 
-    public List<Content> reorderContents(Long courseId, Map<Long, Integer> orderMapping) {
+    public List<ContentListResponse> reorderContents(Long courseId, Map<Long, Integer> orderMapping) {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new InvalidIdException(courseId));
         List<Content> contents = course.getContents();
         contents.forEach(content -> {
@@ -89,7 +91,8 @@ public class ContentService {
                 content.setOrderIndex(newOrder);
             }
         });
-        return contentRepository.saveAll(contents);
+        contentRepository.saveAll(contents);
+        return contentListMapper.toDto(contents);
     }
 
     @Transactional

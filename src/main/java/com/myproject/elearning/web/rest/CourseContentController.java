@@ -1,14 +1,14 @@
 package com.myproject.elearning.web.rest;
 
-import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
-
 import com.myproject.elearning.domain.Content;
-import com.myproject.elearning.dto.request.ContentOrderInput;
-import com.myproject.elearning.dto.response.ApiResponse;
-import com.myproject.elearning.dto.response.ContentListResponse;
-import com.myproject.elearning.dto.response.PagedResponse;
+import com.myproject.elearning.dto.common.ApiResponse;
+import com.myproject.elearning.dto.common.PagedResponse;
+import com.myproject.elearning.dto.request.content.ContentCreateRequest;
+import com.myproject.elearning.dto.request.content.ContentOrderRequest;
+import com.myproject.elearning.dto.response.content.ContentGetResponse;
+import com.myproject.elearning.dto.response.content.ContentListResponse;
 import com.myproject.elearning.service.ContentService;
-import java.util.List;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -16,6 +16,10 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
 
 /**
  * REST controller for managing contents within courses
@@ -44,25 +48,25 @@ public class CourseContentController {
     }
 
     @PostMapping("")
-    public ResponseEntity<ApiResponse<Content>> addContentToCourse(
-            @PathVariable Long courseId, @RequestBody Content content) {
-        Content createdContent = contentService.addContentToCourse(courseId, content);
-        ApiResponse<Content> response = wrapSuccessResponse("Content added successfully", createdContent);
+    public ResponseEntity<ApiResponse<ContentGetResponse>> addContentToCourse(
+            @PathVariable Long courseId, @Valid @RequestBody ContentCreateRequest request) {
+        ContentGetResponse createdContent = contentService.addContentToCourse(courseId, request);
+        ApiResponse<ContentGetResponse> response = wrapSuccessResponse("Content added successfully", createdContent);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     /**
      * Reorders the contents of a specific course.
      *
-     * @param courseId          The ID of the course whose contents will be reordered.
-     * @param contentOrderInput The new order of contents.
+     * @param courseId            The ID of the course whose contents will be reordered.
+     * @param contentOrderRequest The new order of contents.
      * @return The {@link ResponseEntity} with status {@code 200 (OK)} and the reordered contents wrapped in {@link ApiResponse}.
      */
     @PostMapping("/reorder")
-    public ResponseEntity<ApiResponse<List<Content>>> reorderContents(
-            @PathVariable Long courseId, @RequestBody ContentOrderInput contentOrderInput) {
-        List<Content> reorderedContents = contentService.reorderContents(courseId, contentOrderInput.getOrderMapping());
-        ApiResponse<List<Content>> response = wrapSuccessResponse("Contents reordered successfully", reorderedContents);
+    public ResponseEntity<ApiResponse<List<ContentListResponse>>> reorderContents(
+            @PathVariable Long courseId, @RequestBody ContentOrderRequest contentOrderRequest) {
+        List<ContentListResponse> reorderedContents = contentService.reorderContents(courseId, contentOrderRequest.getOrderMapping());
+        ApiResponse<List<ContentListResponse>> response = wrapSuccessResponse("Contents reordered successfully", reorderedContents);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

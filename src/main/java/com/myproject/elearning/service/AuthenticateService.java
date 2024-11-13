@@ -1,7 +1,7 @@
 package com.myproject.elearning.service;
 
-import com.myproject.elearning.dto.TokenPair;
-import com.myproject.elearning.dto.request.LoginInput;
+import com.myproject.elearning.dto.common.TokenPair;
+import com.myproject.elearning.dto.request.auth.LoginRequest;
 import com.myproject.elearning.security.CustomUserDetailsService;
 import com.myproject.elearning.security.JwtTokenUtils;
 import com.nimbusds.jwt.SignedJWT;
@@ -25,9 +25,9 @@ public class AuthenticateService {
     private final CustomUserDetailsService userDetailsService;
     private final JwtTokenUtils jwtTokenUtils;
 
-    public TokenPair authenticate(LoginInput loginInput) {
+    public TokenPair authenticate(LoginRequest loginRequest) {
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(loginInput.getUsernameOrEmail(), loginInput.getPassword());
+                new UsernamePasswordAuthenticationToken(loginRequest.getUsernameOrEmail(), loginRequest.getPassword());
         /* https://docs.spring.io/spring-security/reference/servlet/authentication/architecture.html#servlet-authentication-authentication */
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);

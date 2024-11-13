@@ -1,8 +1,14 @@
 package com.myproject.elearning.service;
 
 import com.myproject.elearning.domain.Course;
-import com.myproject.elearning.dto.response.PagedResponse;
+import com.myproject.elearning.dto.request.course.CourseCreateRequest;
+import com.myproject.elearning.dto.request.course.CourseUpdateRequest;
+import com.myproject.elearning.dto.response.course.CourseGetResponse;
+import com.myproject.elearning.dto.common.PagedResponse;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
+import com.myproject.elearning.mapper.course.CourseCreateMapper;
+import com.myproject.elearning.mapper.course.CourseGetMapper;
+import com.myproject.elearning.mapper.course.CourseUpdateMapper;
 import com.myproject.elearning.repository.CourseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,21 +22,27 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CourseService {
     private final CourseRepository courseRepository;
+    private final CourseGetMapper courseGetMapper;
+    private final CourseCreateMapper courseCreateMapper;
+    private final CourseUpdateMapper courseUpdateMapper;
 
-    public Course createBlankCourse(Course course) {
-        return courseRepository.save(course);
+    public CourseGetResponse createBlankCourse(CourseCreateRequest courseCreateRequest) {
+        Course course = courseCreateMapper.toEntity(courseCreateRequest);
+        Course savedCourse = courseRepository.save(course);
+        return courseGetMapper.toDto(savedCourse);
     }
 
-    public Course getCourse(Long id) {
-        return courseRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
+    public CourseGetResponse getCourse(Long id) {
+        Course course = courseRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
+        return courseGetMapper.toDto(course);
     }
 
-    public Course updateCourse(Course course) {
-        Course currentCourse =
-                courseRepository.findById(course.getId()).orElseThrow(() -> new InvalidIdException(course.getId()));
-        currentCourse.setTitle(course.getTitle());
-        currentCourse.setDescription(course.getDescription());
-        return courseRepository.save(currentCourse);
+    public CourseGetResponse updateCourse(Long id, CourseUpdateRequest courseUpdateRequest) {
+        Course course =
+                courseRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
+        courseUpdateMapper.partialUpdate(course, courseUpdateRequest);
+        courseRepository.save(course);
+        return courseGetMapper.toDto(course);
     }
 
     public void deleteCourse(Long id) {
@@ -38,8 +50,8 @@ public class CourseService {
         courseRepository.delete(course);
     }
 
-    public PagedResponse<Course> getAllCourses(Pageable pageable) {
-        Page<Course> courses = courseRepository.findAllWithContents(pageable);
-        return PagedResponse.from(courses);
+    public PagedResponse<CourseGetResponse> getAllCourses(Pageable pageable) {
+        Page<Course> coursesPage = courseRepository.findAllWithContents(pageable);
+        return PagedResponse.from(coursesPage.map(courseGetMapper::toDto));
     }
 }

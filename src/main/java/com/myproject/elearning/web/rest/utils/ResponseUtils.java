@@ -1,6 +1,6 @@
 package com.myproject.elearning.web.rest.utils;
 
-import com.myproject.elearning.dto.response.ApiResponse;
+import com.myproject.elearning.dto.common.ApiResponse;
 
 /**
  * Util class for wrapping response.

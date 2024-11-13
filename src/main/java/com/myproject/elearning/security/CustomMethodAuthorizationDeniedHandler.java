@@ -2,7 +2,7 @@ package com.myproject.elearning.security;
 
 import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapErrorResponse;
 
-import com.myproject.elearning.dto.response.ApiResponse;
+import com.myproject.elearning.dto.common.ApiResponse;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
