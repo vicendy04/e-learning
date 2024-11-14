@@ -1,10 +1,12 @@
 package com.myproject.elearning.web.rest;
 
+import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
+
+import com.myproject.elearning.dto.common.ApiResponse;
+import com.myproject.elearning.dto.common.PagedResponse;
 import com.myproject.elearning.dto.request.course.CourseCreateRequest;
 import com.myproject.elearning.dto.request.course.CourseUpdateRequest;
-import com.myproject.elearning.dto.common.ApiResponse;
 import com.myproject.elearning.dto.response.course.CourseGetResponse;
-import com.myproject.elearning.dto.common.PagedResponse;
 import com.myproject.elearning.service.CourseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +16,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
 
 /**
  * REST controller for courses
@@ -31,7 +31,8 @@ public class CourseController {
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and the new blank course wrapped in {@link ApiResponse}.
      */
     @PostMapping("")
-    public ResponseEntity<ApiResponse<CourseGetResponse>> createBlankCourse(@Valid @RequestBody CourseCreateRequest courseCreateRequest) {
+    public ResponseEntity<ApiResponse<CourseGetResponse>> createBlankCourse(
+            @Valid @RequestBody CourseCreateRequest courseCreateRequest) {
         CourseGetResponse courseResponse = courseService.createBlankCourse(courseCreateRequest);
         ApiResponse<CourseGetResponse> response = wrapSuccessResponse("Course created successfully", courseResponse);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -60,8 +61,9 @@ public class CourseController {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with the body.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<CourseGetResponse>> updateCourse(@PathVariable(name = "id") Long id, @RequestBody CourseUpdateRequest courseUpdateRequest) {
-        CourseGetResponse updatedCourse = courseService.updateCourse(id,courseUpdateRequest);
+    public ResponseEntity<ApiResponse<CourseGetResponse>> updateCourse(
+            @PathVariable(name = "id") Long id, @RequestBody CourseUpdateRequest courseUpdateRequest) {
+        CourseGetResponse updatedCourse = courseService.updateCourse(id, courseUpdateRequest);
         ApiResponse<CourseGetResponse> response = wrapSuccessResponse("Course updated successfully", updatedCourse);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

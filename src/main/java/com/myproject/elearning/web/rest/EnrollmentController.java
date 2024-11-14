@@ -1,9 +1,11 @@
 package com.myproject.elearning.web.rest;
 
+import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
+
 import com.myproject.elearning.dto.common.ApiResponse;
 import com.myproject.elearning.dto.common.PagedResponse;
-import com.myproject.elearning.dto.response.enrollment.EnrollmentResponse;
 import com.myproject.elearning.dto.request.enrollment.EnrollmentStatusUpdateRequest;
+import com.myproject.elearning.dto.response.enrollment.EnrollmentResponse;
 import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
 import com.myproject.elearning.security.SecurityUtils;
 import com.myproject.elearning.service.EnrollmentService;
@@ -18,8 +20,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
-
-import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
 
 @RestController
 @RequestMapping("/api/v1")

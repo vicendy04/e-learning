@@ -3,9 +3,9 @@ package com.myproject.elearning.web.rest;
 import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapErrorResponse;
 import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
 
+import com.myproject.elearning.dto.common.ApiResponse;
 import com.myproject.elearning.dto.common.TokenPair;
 import com.myproject.elearning.dto.request.auth.LoginRequest;
-import com.myproject.elearning.dto.common.ApiResponse;
 import com.myproject.elearning.service.AuthenticateService;
 import com.myproject.elearning.web.rest.utils.CookieUtils;
 import jakarta.validation.Valid;

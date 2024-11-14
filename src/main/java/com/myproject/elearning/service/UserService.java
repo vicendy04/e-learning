@@ -17,15 +17,14 @@ import com.myproject.elearning.repository.RoleRepository;
 import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.security.AuthoritiesConstants;
 import jakarta.transaction.Transactional;
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Service class for managing users.
@@ -91,9 +90,7 @@ public class UserService {
     }
 
     public UserGetResponse updateUser(Long id, UserUpdateRequest userUpdateRequest) {
-        User user = userRepository
-                .findById(id)
-                .orElseThrow(() -> new InvalidIdException(id));
+        User user = userRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
         userUpdateMapper.partialUpdate(user, userUpdateRequest);
         userRepository.save(user);
         return userGetMapper.toDto(user);

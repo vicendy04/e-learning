@@ -2,7 +2,6 @@ package com.myproject.elearning.dto.request.content;
 
 import jakarta.validation.constraints.NotNull;
 import java.util.Map;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

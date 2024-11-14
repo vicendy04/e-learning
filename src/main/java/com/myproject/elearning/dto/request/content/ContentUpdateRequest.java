@@ -19,8 +19,11 @@ public class ContentUpdateRequest {
     @PositiveOrZero
     private Integer orderIndex;
 
-    @Pattern(regexp = "^(ASSIGNMENT|CODE_EXERCISE|DOCUMENT|PRESENTATION|QUIZ|VIDEO)$", message = "Invalid content type.")
+    @Pattern(
+            regexp = "^(ASSIGNMENT|CODE_EXERCISE|DOCUMENT|PRESENTATION|QUIZ|VIDEO)$",
+            message = "Invalid content type.")
     private String contentType;
+
     @Pattern(regexp = "^(PUBLISHED|DRAFT)$", message = "Invalid content status.")
     private String status;
 }

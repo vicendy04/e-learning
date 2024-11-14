@@ -1,6 +1,7 @@
 package com.myproject.elearning.web.rest;
 
-import com.myproject.elearning.domain.Content;
+import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
+
 import com.myproject.elearning.dto.common.ApiResponse;
 import com.myproject.elearning.dto.common.PagedResponse;
 import com.myproject.elearning.dto.request.content.ContentCreateRequest;
@@ -9,6 +10,7 @@ import com.myproject.elearning.dto.response.content.ContentGetResponse;
 import com.myproject.elearning.dto.response.content.ContentListResponse;
 import com.myproject.elearning.service.ContentService;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -16,10 +18,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-
-import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
 
 /**
  * REST controller for managing contents within courses
@@ -65,8 +63,10 @@ public class CourseContentController {
     @PostMapping("/reorder")
     public ResponseEntity<ApiResponse<List<ContentListResponse>>> reorderContents(
             @PathVariable Long courseId, @RequestBody ContentOrderRequest contentOrderRequest) {
-        List<ContentListResponse> reorderedContents = contentService.reorderContents(courseId, contentOrderRequest.getOrderMapping());
-        ApiResponse<List<ContentListResponse>> response = wrapSuccessResponse("Contents reordered successfully", reorderedContents);
+        List<ContentListResponse> reorderedContents =
+                contentService.reorderContents(courseId, contentOrderRequest.getOrderMapping());
+        ApiResponse<List<ContentListResponse>> response =
+                wrapSuccessResponse("Contents reordered successfully", reorderedContents);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

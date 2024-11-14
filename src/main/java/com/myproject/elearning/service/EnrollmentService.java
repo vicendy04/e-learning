@@ -13,14 +13,13 @@ import com.myproject.elearning.repository.CourseRepository;
 import com.myproject.elearning.repository.EnrollmentRepository;
 import com.myproject.elearning.security.AuthoritiesConstants;
 import com.myproject.elearning.security.SecurityUtils;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -60,11 +59,9 @@ public class EnrollmentService {
 
     @Transactional(readOnly = true)
     public EnrollmentResponse getEnrollment(Long enrollmentId) {
-        return enrollmentMapper.toDto(
-            enrollmentRepository
+        return enrollmentMapper.toDto(enrollmentRepository
                 .findByIdWithDetails(enrollmentId)
-                .orElseThrow(() -> new InvalidIdException(enrollmentId))
-        );
+                .orElseThrow(() -> new InvalidIdException(enrollmentId)));
     }
 
     public PagedResponse<EnrollmentResponse> getCourseEnrollments(Long courseId, Pageable pageable) {
@@ -84,7 +81,7 @@ public class EnrollmentService {
         }
         enrollment.setStatus(Enrollment.EnrollmentStatus.valueOf(newStatus));
         return enrollmentMapper.toDto(enrollmentRepository.save(enrollment));
-            }
+    }
 
     private void validateStatusTransition(
             Enrollment.EnrollmentStatus currentStatus, Enrollment.EnrollmentStatus newStatus) {
@@ -95,7 +92,7 @@ public class EnrollmentService {
 
         if ((currentStatus == Enrollment.EnrollmentStatus.DROPPED)
                 && ((newStatus == Enrollment.EnrollmentStatus.ACTIVE)
-                || (newStatus == Enrollment.EnrollmentStatus.COMPLETED))) {
+                        || (newStatus == Enrollment.EnrollmentStatus.COMPLETED))) {
             throw new IllegalStateException("Cannot change status from DROPPED to " + newStatus);
         }
     }

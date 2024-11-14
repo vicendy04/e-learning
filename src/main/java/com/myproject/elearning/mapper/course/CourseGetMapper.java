@@ -5,13 +5,12 @@ import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.dto.response.course.CourseGetResponse;
 import com.myproject.elearning.mapper.base.EntityMapper;
 import com.myproject.elearning.mapper.base.MapperConfig;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 
 @Mapper(config = MapperConfig.class)
 public interface CourseGetMapper extends EntityMapper<CourseGetResponse, Course> {
@@ -36,8 +35,7 @@ public interface CourseGetMapper extends EntityMapper<CourseGetResponse, Course>
                     content.getId(),
                     content.getTitle(),
                     content.getOrderIndex(),
-                    content.getStatus().name()
-            ));
+                    content.getStatus().name()));
         }
         return contentDTOs;
     }

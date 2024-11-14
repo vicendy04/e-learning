@@ -12,16 +12,16 @@ public interface ContentCreateMapper extends EntityMapper<ContentCreateRequest, 
 
     @Mapping(target = "contentType", expression = "java(Content.ContentType.valueOf(request.getContentType()))")
     @Mapping(target = "status", expression = "java(Content.ContentStatus.valueOf(request.getStatus()))")
-//    @Mapping(target = "course", source = "courseId", qualifiedByName = "toCourse")
+    //    @Mapping(target = "course", source = "courseId", qualifiedByName = "toCourse")
     Content toEntity(ContentCreateRequest request);
 
-//    @Named("toCourse")
-//    default Course toCourse(Long courseId) {
-//        if (courseId == null) {
-//            return null;
-//        }
-//        Course course = new Course();
-//        course.setId(courseId);
-//        return course;
-//    }
+    //    @Named("toCourse")
+    //    default Course toCourse(Long courseId) {
+    //        if (courseId == null) {
+    //            return null;
+    //        }
+    //        Course course = new Course();
+    //        course.setId(courseId);
+    //        return course;
+    //    }
 }

@@ -1,12 +1,11 @@
 package com.myproject.elearning.dto.response.course;
 
+import java.math.BigDecimal;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.math.BigDecimal;
-import java.util.List;
 
 @Getter
 @Setter
@@ -21,7 +20,6 @@ public class CourseGetResponse {
     private String category;
     private int enrollmentCount;
     private List<ContentDTO> contents;
-
 
     @Getter
     @Setter

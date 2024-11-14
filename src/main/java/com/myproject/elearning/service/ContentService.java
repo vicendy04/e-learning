@@ -15,13 +15,12 @@ import com.myproject.elearning.mapper.content.ContentUpdateMapper;
 import com.myproject.elearning.repository.ContentRepository;
 import com.myproject.elearning.repository.CourseRepository;
 import jakarta.transaction.Transactional;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Service class for managing contents.
@@ -43,16 +42,13 @@ public class ContentService {
     }
 
     public ContentGetResponse getContent(Long id) {
-        Content content = contentRepository.findByIdWithCourse(id)
-                .orElseThrow(() -> new InvalidIdException(id));
+        Content content = contentRepository.findByIdWithCourse(id).orElseThrow(() -> new InvalidIdException(id));
         return contentGetMapper.toDto(content);
     }
 
     @Transactional
     public ContentGetResponse updateContent(Long id, ContentUpdateRequest request) {
-        Content currentContent = contentRepository
-                .findByIdWithCourse(id)
-                .orElseThrow(() -> new InvalidIdException(id));
+        Content currentContent = contentRepository.findByIdWithCourse(id).orElseThrow(() -> new InvalidIdException(id));
         contentUpdateMapper.partialUpdate(currentContent, request);
         contentRepository.save(currentContent);
         return contentGetMapper.toDto(currentContent);

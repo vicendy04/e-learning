@@ -1,10 +1,10 @@
 package com.myproject.elearning.service;
 
 import com.myproject.elearning.domain.Course;
+import com.myproject.elearning.dto.common.PagedResponse;
 import com.myproject.elearning.dto.request.course.CourseCreateRequest;
 import com.myproject.elearning.dto.request.course.CourseUpdateRequest;
 import com.myproject.elearning.dto.response.course.CourseGetResponse;
-import com.myproject.elearning.dto.common.PagedResponse;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.mapper.course.CourseCreateMapper;
 import com.myproject.elearning.mapper.course.CourseGetMapper;
@@ -38,8 +38,7 @@ public class CourseService {
     }
 
     public CourseGetResponse updateCourse(Long id, CourseUpdateRequest courseUpdateRequest) {
-        Course course =
-                courseRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
+        Course course = courseRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
         courseUpdateMapper.partialUpdate(course, courseUpdateRequest);
         courseRepository.save(course);
         return courseGetMapper.toDto(course);

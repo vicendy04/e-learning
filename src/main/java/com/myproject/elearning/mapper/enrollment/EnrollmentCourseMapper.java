@@ -7,5 +7,4 @@ import com.myproject.elearning.mapper.base.MapperConfig;
 import org.mapstruct.Mapper;
 
 @Mapper(config = MapperConfig.class)
-public interface EnrollmentCourseMapper extends EntityMapper<CourseInfo, Course> {
-}
+public interface EnrollmentCourseMapper extends EntityMapper<CourseInfo, Course> {}

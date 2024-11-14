@@ -1,5 +1,7 @@
 package com.myproject.elearning.web.rest;
 
+import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
+
 import com.myproject.elearning.dto.common.ApiResponse;
 import com.myproject.elearning.dto.common.PagedResponse;
 import com.myproject.elearning.dto.response.role.RoleDTO;
@@ -12,8 +14,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
 
 /**
  * REST controller for managing roles.
