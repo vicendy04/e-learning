@@ -5,6 +5,7 @@ import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessRe
 import com.myproject.elearning.dto.common.ApiResponse;
 import com.myproject.elearning.dto.common.PagedResponse;
 import com.myproject.elearning.dto.request.auth.RegisterRequest;
+import com.myproject.elearning.dto.request.user.UserSearchDTO;
 import com.myproject.elearning.dto.request.user.UserUpdateRequest;
 import com.myproject.elearning.dto.response.user.UserGetResponse;
 import com.myproject.elearning.service.UserService;
@@ -45,8 +46,10 @@ public class UserController {
     @GetMapping("")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<ApiResponse<PagedResponse<UserGetResponse>>> getAllUsers(
+            @ModelAttribute UserSearchDTO searchDTO,
             @PageableDefault(size = 5, page = 0, sort = "username", direction = Sort.Direction.ASC) Pageable pageable) {
-        PagedResponse<UserGetResponse> users = userService.getAllUsers(pageable);
+
+        PagedResponse<UserGetResponse> users = userService.getAllUsers(searchDTO, pageable);
         ApiResponse<PagedResponse<UserGetResponse>> response =
                 wrapSuccessResponse("Users retrieved successfully", users);
         return ResponseEntity.status(HttpStatus.OK).body(response);

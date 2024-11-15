@@ -48,6 +48,29 @@ public class Course {
     private List<Content> contents = new ArrayList<>();
 
     @JsonIgnoreProperties("course")
-    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(
+            mappedBy = "course",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            fetch = FetchType.LAZY)
     private List<Enrollment> enrollments = new ArrayList<>();
+
+    public void addContent(Content content) {
+        contents.add(content);
+        content.setCourse(this);
+    }
+
+    public void removeContent(Content content) {
+        contents.remove(content);
+        content.setCourse(null);
+    }
+
+    public void addEnrollment(Enrollment enrollment) {
+        enrollments.add(enrollment);
+        enrollment.setCourse(this);
+    }
+
+    public void removeEnrollment(Enrollment enrollment) {
+        enrollments.remove(enrollment);
+        enrollment.setCourse(null);
+    }
 }

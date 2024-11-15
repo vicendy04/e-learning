@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import lombok.Getter;
@@ -41,23 +42,29 @@ public class User {
     private String imageUrl;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RefreshToken> refreshToken;
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RefreshToken> refreshToken = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(
             name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_name", referencedColumnName = "name"))
-    private Set<Role> roles;
+    private Set<Role> roles = new HashSet<>();
 
     @JsonIgnoreProperties("user") // dùng dto
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(
+            mappedBy = "user",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Enrollment> enrollments = new ArrayList<>();
 
-    public User(String email, String username, String password) {
-        this.email = email;
-        this.username = username;
-        this.password = password;
+    public void addEnrollment(Enrollment enrollment) {
+        enrollments.add(enrollment);
+        enrollment.setUser(this);
+    }
+
+    public void removeEnrollment(Enrollment enrollment) {
+        enrollments.remove(enrollment);
+        enrollment.setUser(null);
     }
 }

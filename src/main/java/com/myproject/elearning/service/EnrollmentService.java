@@ -39,8 +39,8 @@ public class EnrollmentService {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new InvalidIdException(courseId));
 
         Enrollment enrollment = new Enrollment();
-        enrollment.setUser(user);
-        enrollment.setCourse(course);
+        user.addEnrollment(enrollment);
+        course.addEnrollment(enrollment);
 
         return enrollmentMapper.toDto(enrollmentRepository.save(enrollment));
     }

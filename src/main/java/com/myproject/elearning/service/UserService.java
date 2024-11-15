@@ -5,6 +5,7 @@ import com.myproject.elearning.domain.Role;
 import com.myproject.elearning.domain.User;
 import com.myproject.elearning.dto.common.PagedResponse;
 import com.myproject.elearning.dto.request.auth.RegisterRequest;
+import com.myproject.elearning.dto.request.user.UserSearchDTO;
 import com.myproject.elearning.dto.request.user.UserUpdateRequest;
 import com.myproject.elearning.dto.response.user.UserGetResponse;
 import com.myproject.elearning.exception.constants.ErrorMessageConstants;
@@ -15,6 +16,7 @@ import com.myproject.elearning.mapper.user.UserRegisterMapper;
 import com.myproject.elearning.mapper.user.UserUpdateMapper;
 import com.myproject.elearning.repository.RoleRepository;
 import com.myproject.elearning.repository.UserRepository;
+import com.myproject.elearning.repository.specification.UserSpecification;
 import com.myproject.elearning.security.AuthoritiesConstants;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
@@ -23,6 +25,7 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -101,8 +104,9 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    public PagedResponse<UserGetResponse> getAllUsers(Pageable pageable) {
-        Page<UserGetResponse> users = userRepository.findAll(pageable).map(userGetMapper::toDto);
+    public PagedResponse<UserGetResponse> getAllUsers(UserSearchDTO searchDTO, Pageable pageable) {
+        Specification<User> spec = UserSpecification.filterUsers(searchDTO);
+        Page<UserGetResponse> users = userRepository.findAll(spec, pageable).map(userGetMapper::toDto);
         return PagedResponse.from(users);
     }
 }

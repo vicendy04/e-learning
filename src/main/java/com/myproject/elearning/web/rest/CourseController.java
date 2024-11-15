@@ -5,6 +5,7 @@ import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessRe
 import com.myproject.elearning.dto.common.ApiResponse;
 import com.myproject.elearning.dto.common.PagedResponse;
 import com.myproject.elearning.dto.request.course.CourseCreateRequest;
+import com.myproject.elearning.dto.request.course.CourseSearchDTO;
 import com.myproject.elearning.dto.request.course.CourseUpdateRequest;
 import com.myproject.elearning.dto.response.course.CourseGetResponse;
 import com.myproject.elearning.service.CourseService;
@@ -48,16 +49,18 @@ public class CourseController {
 
     @GetMapping("")
     public ResponseEntity<ApiResponse<PagedResponse<CourseGetResponse>>> getAllCourses(
-            @PageableDefault(size = 5, page = 0, sort = "title", direction = Sort.Direction.ASC) Pageable pageable) {
-        PagedResponse<CourseGetResponse> courses = courseService.getAllCourses(pageable);
+            @ModelAttribute CourseSearchDTO searchDTO,
+            @PageableDefault(size = 10, page = 0, sort = "title", direction = Sort.Direction.ASC) Pageable pageable) {
+
+        PagedResponse<CourseGetResponse> courses = courseService.getAllCourses(searchDTO, pageable);
         ApiResponse<PagedResponse<CourseGetResponse>> response =
-                wrapSuccessResponse("All courses retrieved successfully", courses);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+                wrapSuccessResponse("Courses retrieved successfully", courses);
+        return ResponseEntity.ok(response);
     }
 
     /**
      * @param courseUpdateRequest The course which contains the updated information. It should not have any modules.
-     *               This API can not edit modules.
+     *                            This API can not edit modules.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with the body.
      */
     @PutMapping("/{id}")

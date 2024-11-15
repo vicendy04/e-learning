@@ -3,6 +3,7 @@ package com.myproject.elearning.service;
 import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.dto.common.PagedResponse;
 import com.myproject.elearning.dto.request.course.CourseCreateRequest;
+import com.myproject.elearning.dto.request.course.CourseSearchDTO;
 import com.myproject.elearning.dto.request.course.CourseUpdateRequest;
 import com.myproject.elearning.dto.response.course.CourseGetResponse;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
@@ -10,9 +11,11 @@ import com.myproject.elearning.mapper.course.CourseCreateMapper;
 import com.myproject.elearning.mapper.course.CourseGetMapper;
 import com.myproject.elearning.mapper.course.CourseUpdateMapper;
 import com.myproject.elearning.repository.CourseRepository;
+import com.myproject.elearning.repository.specification.CourseSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 /**
@@ -49,8 +52,10 @@ public class CourseService {
         courseRepository.delete(course);
     }
 
-    public PagedResponse<CourseGetResponse> getAllCourses(Pageable pageable) {
-        Page<Course> coursesPage = courseRepository.findAllWithContents(pageable);
-        return PagedResponse.from(coursesPage.map(courseGetMapper::toDto));
+    public PagedResponse<CourseGetResponse> getAllCourses(CourseSearchDTO searchDTO, Pageable pageable) {
+        Specification<Course> spec = CourseSpecification.filterCourses(searchDTO);
+        Page<CourseGetResponse> courses =
+                courseRepository.findAll(spec, pageable).map(courseGetMapper::toDto);
+        return PagedResponse.from(courses);
     }
 }
