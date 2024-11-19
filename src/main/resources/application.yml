@@ -1,0 +1,82 @@
+spring:
+  application:
+    name: elearning
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/elearning
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 123456
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+
+  #  devtools:
+  #    restart:
+  #      enabled: true
+  #      additional-exclude: static/**
+  #    livereload:
+  #      enabled: false
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+#      lettuce:
+#        pool:
+#          max-active: 8
+#          max-idle: 8
+#          min-idle: 0
+#          max-wait: -1ms
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+
+
+jwt:
+  base64-secret: gNvW6uq3Ky9//vVtvLHexnQ9c5rhR/pE6uPz/OFZ02tke+j4s6ukyY2YwMIj1a5ERhwR1oYPwlRAZvNCDoAjHw
+  access-token-expiration: 2592000
+  refresh-token-expiration: 2592000
+  token-refresh-threshold: 300000
+
+redis:
+  key:
+    course:
+      prefix: 'course:'
+      ttl: 3600
+    course-detail:
+      prefix: 'course-detail:'
+      ttl: 3600
+    course-list:
+      prefix: 'course-list:'
+      ttl: 1800
+    content: 'content:'
+    user: 'user:'
+    enrollment: 'enrollment'
+
+#logging:
+#  level:
+#    ROOT: DEBUG
+#    tech.jhipster: DEBUG
+#    org.hibernate.SQL: DEBUG
+#    com.mycompany.myapp: DEBUG
+#    org.springframework.transaction:
+#      interceptor: TRACE
+#      support: DEBUG
+#    org.springframework.orm.jpa.JpaTransactionManager: TRACE

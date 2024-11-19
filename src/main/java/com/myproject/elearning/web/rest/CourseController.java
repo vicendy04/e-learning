@@ -8,7 +8,9 @@ import com.myproject.elearning.dto.request.course.CourseCreateRequest;
 import com.myproject.elearning.dto.request.course.CourseSearchDTO;
 import com.myproject.elearning.dto.request.course.CourseUpdateRequest;
 import com.myproject.elearning.dto.response.course.CourseGetResponse;
+import com.myproject.elearning.dto.response.course.CourseUpdateResponse;
 import com.myproject.elearning.service.CourseService;
+import com.myproject.elearning.service.cache.CourseCacheService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class CourseController {
     private final CourseService courseService;
+    private final CourseCacheService courseCacheService;
 
     /**
      * @param courseCreateRequest the blank course to create.
@@ -41,7 +44,14 @@ public class CourseController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<CourseGetResponse>> getCourse(@PathVariable(name = "id") Long id) {
+        CourseGetResponse cachedCourse = courseCacheService.getCachedCourse(id);
+        if (cachedCourse != null) {
+            ApiResponse<CourseGetResponse> response =
+                    wrapSuccessResponse("Course retrieved from cache successfully", cachedCourse);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
         CourseGetResponse courseGetResponse = courseService.getCourse(id);
+        courseCacheService.setCachedCourse(id, courseGetResponse);
         ApiResponse<CourseGetResponse> response =
                 wrapSuccessResponse("Course retrieved successfully", courseGetResponse);
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -64,16 +74,18 @@ public class CourseController {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with the body.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<CourseGetResponse>> updateCourse(
+    public ResponseEntity<ApiResponse<CourseUpdateResponse>> updateCourse(
             @PathVariable(name = "id") Long id, @RequestBody CourseUpdateRequest courseUpdateRequest) {
-        CourseGetResponse updatedCourse = courseService.updateCourse(id, courseUpdateRequest);
-        ApiResponse<CourseGetResponse> response = wrapSuccessResponse("Course updated successfully", updatedCourse);
+        CourseUpdateResponse updatedCourse = courseService.updateCourse(id, courseUpdateRequest);
+        //        courseCacheService.invalidateCache(id); // note
+        ApiResponse<CourseUpdateResponse> response = wrapSuccessResponse("Course updated successfully", updatedCourse);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteCourse(@PathVariable(name = "id") Long id) {
         courseService.deleteCourse(id);
+        //        courseCacheService.invalidateCache(id); // note
         ApiResponse<Void> response = wrapSuccessResponse("Course deleted successfully", null);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
     }

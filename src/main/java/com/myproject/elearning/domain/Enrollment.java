@@ -17,12 +17,12 @@ public class Enrollment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    @JsonIgnoreProperties({"enrollments", "refreshToken", "password"}) // dùng dto
+    @JsonIgnoreProperties({"enrollments", "refreshToken", "password"})
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id")
-    @JsonIgnoreProperties({"enrollments", "contents"}) // dùng dto
+    @JsonIgnoreProperties({"enrollments", "contents"})
     private Course course;
 
     @Column(name = "enrolled_at")

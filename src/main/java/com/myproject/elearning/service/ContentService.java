@@ -79,7 +79,8 @@ public class ContentService {
     }
 
     public List<ContentListResponse> reorderContents(Long courseId, Map<Long, Integer> orderMapping) {
-        Course course = courseRepository.findById(courseId).orElseThrow(() -> new InvalidIdException(courseId));
+        Course course =
+                courseRepository.findWithContentsById(courseId).orElseThrow(() -> new InvalidIdException(courseId));
         List<Content> contents = course.getContents();
         contents.forEach(content -> {
             Integer newOrder = orderMapping.get(content.getId());
@@ -93,7 +94,8 @@ public class ContentService {
 
     @Transactional
     public void deleteContentsOfCourse(Long courseId) {
-        Course course = courseRepository.findById(courseId).orElseThrow(() -> new InvalidIdException(courseId));
+        Course course =
+                courseRepository.findWithContentsById(courseId).orElseThrow(() -> new InvalidIdException(courseId));
         course.getContents().clear();
         courseRepository.save(course);
     }

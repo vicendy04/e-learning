@@ -24,9 +24,17 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
     List<Course> findCoursesWithContents(List<Long> ids);
 
     @EntityGraph(attributePaths = "contents")
-    Optional<Course> findById(Long id);
+    Optional<Course> findWithContentsById(Long id);
 
-    Optional<Course> findLazyById(Long id);
+    @EntityGraph(attributePaths = "enrollments")
+    Optional<Course> findWithEnrollmentsById(Long id);
+
+    //    loi
+    //    @Query("SELECT DISTINCT c FROM Course c " +
+    //            "LEFT JOIN FETCH c.contents " +
+    //            "LEFT JOIN FETCH c.enrollments " +
+    //            "WHERE c.id = :id")
+    //    Optional<Course> findWithContentsAndEnrollmentsById(@Param("id") Long id);
 
     @Query("SELECT c FROM Course c LEFT JOIN FETCH c.contents ORDER BY c.title")
     Page<Course> findAllWithContents(Pageable pageable);
