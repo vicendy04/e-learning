@@ -1,6 +1,8 @@
 package com.myproject.elearning.dto.response.course;
 
 import java.math.BigDecimal;
+
+import com.myproject.elearning.domain.Course;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +18,7 @@ public class CourseGetResponse {
     private String description;
     private int duration;
     private BigDecimal price;
-    private String category;
+    private Course.CourseCategory category;
     private int enrollmentCount;
     //    private List<ContentDTO> contents;
 

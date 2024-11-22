@@ -2,8 +2,9 @@ package com.myproject.elearning.repository.specification;
 
 import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.dto.request.course.CourseSearchDTO;
-import java.math.BigDecimal;
 import org.springframework.data.jpa.domain.Specification;
+
+import java.math.BigDecimal;
 
 public class CourseSpecification {
 
@@ -21,7 +22,12 @@ public class CourseSpecification {
             if (category == null || category.isEmpty()) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.equal(root.get("category"), category);
+            try {
+                Course.CourseCategory courseCategory = Course.CourseCategory.valueOf(category.toUpperCase());
+                return criteriaBuilder.equal(root.get("category"), courseCategory);
+            } catch (IllegalArgumentException e) {
+                return criteriaBuilder.conjunction();
+            }
         };
     }
 

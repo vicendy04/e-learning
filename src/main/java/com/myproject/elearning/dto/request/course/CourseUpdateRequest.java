@@ -1,5 +1,6 @@
 package com.myproject.elearning.dto.request.course;
 
+import com.myproject.elearning.domain.Course;
 import jakarta.validation.constraints.PositiveOrZero;
 import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
@@ -20,5 +21,5 @@ public class CourseUpdateRequest {
     @PositiveOrZero
     private BigDecimal price;
 
-    private String category;
+    private Course.CourseCategory category;
 }

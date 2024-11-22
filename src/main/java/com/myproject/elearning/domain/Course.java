@@ -2,11 +2,12 @@ package com.myproject.elearning.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * A course.
@@ -33,7 +34,8 @@ public class Course {
     private BigDecimal price;
 
     @Column(name = "category")
-    private String category;
+    @Enumerated(EnumType.STRING)
+    private CourseCategory category;
 
     /**
      * The {@link JsonIgnoreProperties} annotation is used to create an empty course (without contents).
@@ -53,6 +55,19 @@ public class Course {
             cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             fetch = FetchType.LAZY)
     private List<Enrollment> enrollments = new ArrayList<>();
+
+    public enum CourseCategory {
+        FITNESS,
+        DESIGN,
+        PHOTOGRAPHY,
+        MARKETING,
+        PROGRAMMING,
+        MUSIC,
+        LANGUAGE_LEARNING,
+        PERSONAL_DEVELOPMENT,
+        FINANCE,
+        COOKING
+    }
 
     public void addContent(Content content) {
         contents.add(content);

@@ -2,6 +2,8 @@ package com.myproject.elearning.dto.response.enrollment;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+
+import com.myproject.elearning.domain.Course;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,6 +39,6 @@ public class EnrollmentResponse {
         private String title;
         private String description;
         private BigDecimal price;
-        private String category;
+        private Course.CourseCategory category;
     }
 }
