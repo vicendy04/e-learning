@@ -2,16 +2,18 @@ package com.myproject.elearning.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.myproject.elearning.security.AuthoritiesConstants;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 /**
  * A user.
@@ -58,6 +60,11 @@ public class User {
             cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Enrollment> enrollments = new ArrayList<>();
 
+    // giúp gọi từ chiều này, không thêm thông tin trong db, và sẽ tối ưu hơn là set 1 chiều.
+    @JsonIgnoreProperties("instructor")
+    @OneToMany(mappedBy = "instructor", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<Course> instructedCourses = new ArrayList<>();
+
     public void addEnrollment(Enrollment enrollment) {
         enrollments.add(enrollment);
         enrollment.setUser(this);
@@ -66,5 +73,18 @@ public class User {
     public void removeEnrollment(Enrollment enrollment) {
         enrollments.remove(enrollment);
         enrollment.setUser(null);
+    }
+
+    public void addInstructedCourse(Course course) {
+        if (this.roles.stream().noneMatch(role -> role.getName().equals(AuthoritiesConstants.INSTRUCTOR))) {
+            throw new IllegalStateException("Only instructors can create courses");
+        }
+        instructedCourses.add(course);
+        course.setInstructor(this);
+    }
+
+    public void removeInstructedCourse(Course course) {
+        instructedCourses.remove(course);
+        course.setInstructor(null);
     }
 }

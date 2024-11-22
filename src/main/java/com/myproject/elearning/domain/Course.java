@@ -56,6 +56,14 @@ public class Course {
             fetch = FetchType.LAZY)
     private List<Enrollment> enrollments = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "instructor_id", nullable = false)
+    private User instructor;
+
+//    @JsonIgnoreProperties("courses")
+//    @ManyToMany(mappedBy = "specificCourses")
+//    private Set<Discount> discounts = new HashSet<>();
+
     public enum CourseCategory {
         FITNESS,
         DESIGN,
