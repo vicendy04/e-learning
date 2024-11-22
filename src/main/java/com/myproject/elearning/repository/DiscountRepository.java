@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface DiscountRepository extends JpaRepository<Discount, Long> {
-    boolean existsByDiscountCode(String discountCode);
+    boolean existsByInstructorIdAndDiscountCode(Long id,String discountCode);
 
     Optional<Discount> findByDiscountCode(String discountCode);
 

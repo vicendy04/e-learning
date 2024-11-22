@@ -19,15 +19,16 @@ import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.repository.specification.UserSpecification;
 import com.myproject.elearning.security.AuthoritiesConstants;
 import jakarta.transaction.Transactional;
-import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Service class for managing users.
@@ -76,8 +77,8 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUserWithRefreshToken(String email, String newRefreshToken, Instant expirationDate) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new InvalidIdException("Email not found!"));
+    public void updateUserWithRefreshToken(String id, String newRefreshToken, Instant expirationDate) {
+        User user = userRepository.findById(Long.parseLong(id)).orElseThrow(() -> new InvalidIdException(Long.parseLong(id)));
         RefreshToken refreshToken = user.getRefreshToken().stream()
                 .filter(rt -> "A".equals(rt.getDeviceName())) // hardcode
                 .findFirst()

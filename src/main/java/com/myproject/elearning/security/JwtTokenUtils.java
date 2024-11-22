@@ -70,24 +70,24 @@ public final class JwtTokenUtils {
         return jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
     }
 
-    public String generateRefreshToken(String email, Instant now, Instant expirationDate) {
+    public String generateRefreshToken(String id, Instant now, Instant expirationDate) {
         // @formatter:off
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuedAt(now)
                 .expiresAt(expirationDate)
-                .subject(email)
+                .subject(id)
                 .id((UUID.randomUUID().toString()))
                 .build();
 
         return encodeClaims(claims);
     }
 
-    public String generateAndStoreNewRefreshToken(String email) {
+    public String generateAndStoreNewRefreshToken(String id) {
         Instant now = Instant.now();
         Instant expirationDate = now.plusSeconds(refreshTokenValidityInSeconds);
 
-        String newRefreshToken = generateRefreshToken(email, now, expirationDate);
-        userService.updateUserWithRefreshToken(email, newRefreshToken, expirationDate);
+        String newRefreshToken = generateRefreshToken(id, now, expirationDate);
+        userService.updateUserWithRefreshToken(id, newRefreshToken, expirationDate);
         return newRefreshToken;
     }
     /**

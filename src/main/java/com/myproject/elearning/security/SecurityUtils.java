@@ -1,8 +1,5 @@
 package com.myproject.elearning.security;
 
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.stream.Stream;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -11,6 +8,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Utility class for Spring Security.
@@ -22,7 +23,8 @@ public final class SecurityUtils {
 
     public static final String CLAIM_KEY_AUTHORITIES = "scope";
 
-    private SecurityUtils() {}
+    private SecurityUtils() {
+    }
 
     /**
      * Get the login of the current user.
@@ -32,6 +34,21 @@ public final class SecurityUtils {
     public static Optional<String> getCurrentUserLogin() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         return Optional.ofNullable(extractPrincipal(securityContext.getAuthentication()));
+    }
+
+    public static Optional<Long> getCurrentUserLoginId() {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        String userLogin = extractPrincipal(securityContext.getAuthentication());
+
+        if (userLogin == null) {
+            return Optional.empty();
+        }
+
+        try {
+            return Optional.of(Long.parseLong(userLogin));
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
     }
 
     private static String extractPrincipal(Authentication authentication) {
@@ -80,7 +97,7 @@ public final class SecurityUtils {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return (authentication != null
                 && getAuthorities(authentication)
-                        .anyMatch(authority -> Arrays.asList(authorities).contains(authority)));
+                .anyMatch(authority -> Arrays.asList(authorities).contains(authority)));
     }
 
     /**
