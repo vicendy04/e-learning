@@ -1,9 +1,8 @@
 package com.myproject.elearning.dto.response.enrollment;
 
+import com.myproject.elearning.domain.Course;
 import java.math.BigDecimal;
 import java.time.Instant;
-
-import com.myproject.elearning.domain.Course;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

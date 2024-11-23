@@ -2,12 +2,11 @@ package com.myproject.elearning.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * A course.
@@ -60,9 +59,9 @@ public class Course {
     @JoinColumn(name = "instructor_id", nullable = false)
     private User instructor;
 
-//    @JsonIgnoreProperties("courses")
-//    @ManyToMany(mappedBy = "specificCourses")
-//    private Set<Discount> discounts = new HashSet<>();
+    //    @JsonIgnoreProperties("courses")
+    //    @ManyToMany(mappedBy = "specificCourses")
+    //    private Set<Discount> discounts = new HashSet<>();
 
     public enum CourseCategory {
         FITNESS,

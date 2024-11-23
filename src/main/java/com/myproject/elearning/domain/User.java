@@ -6,14 +6,13 @@ import com.myproject.elearning.security.AuthoritiesConstants;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * A user.
@@ -62,7 +61,9 @@ public class User {
 
     // giúp gọi từ chiều này, không thêm thông tin trong db, và sẽ tối ưu hơn là set 1 chiều.
     @JsonIgnoreProperties("instructor")
-    @OneToMany(mappedBy = "instructor", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(
+            mappedBy = "instructor",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Course> instructedCourses = new ArrayList<>();
 
     public void addEnrollment(Enrollment enrollment) {

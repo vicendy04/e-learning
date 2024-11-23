@@ -1,6 +1,7 @@
 package com.myproject.elearning.repository;
 
 import com.myproject.elearning.domain.Course;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -54,4 +55,22 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
     @Query("SELECT c FROM Course c " + "WHERE LOWER(c.title) LIKE LOWER(CONCAT('%', :keyword, '%')) "
             + "OR LOWER(c.description) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<Course> searchCourses(@Param("keyword") String keyword, Pageable pageable);
+
+    @Query(
+            """
+			SELECT c.id as id,
+				c.price as price,
+				c.instructor.id as instructorId
+			FROM Course c
+			WHERE c.id = :courseId
+			""")
+    Optional<CourseForValidDiscount> findCourseWithInstructor(@Param("courseId") Long courseId);
+
+    interface CourseForValidDiscount {
+        Long getId();
+
+        BigDecimal getPrice();
+
+        Long getInstructorId();
+    }
 }

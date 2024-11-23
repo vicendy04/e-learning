@@ -5,7 +5,6 @@ import com.myproject.elearning.dto.request.course.CourseCreateRequest;
 import com.myproject.elearning.mapper.base.EntityMapper;
 import com.myproject.elearning.mapper.base.MapperConfig;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 @Mapper(config = MapperConfig.class)
 public interface CourseCreateMapper extends EntityMapper<CourseCreateRequest, Course> {}

@@ -4,6 +4,7 @@ import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapErrorResp
 
 import com.myproject.elearning.dto.common.ApiResponse;
 import com.myproject.elearning.exception.problemdetails.EmailAlreadyUsedException;
+import com.myproject.elearning.exception.problemdetails.InvalidDiscountException;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.exception.problemdetails.TokenException;
 import java.net.URI;
@@ -43,6 +44,8 @@ public class GlobalExceptionHandler {
             return iie.getBody();
         } else if (ex instanceof EmailAlreadyUsedException eaue) {
             return eaue.getBody();
+        } else if (ex instanceof InvalidDiscountException ide) {
+            return ide.getBody();
         } else if (ex instanceof MethodArgumentNotValidException manve) {
             manve.getBody().setProperty("errors", getFieldErrors(manve));
             return manve.getBody();

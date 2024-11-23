@@ -1,13 +1,13 @@
 package com.myproject.elearning.domain;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -59,17 +59,18 @@ public class Discount {
     @Column(name = "applies_to", nullable = false)
     private DiscountAppliesTo appliesTo = DiscountAppliesTo.ALL;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "instructor_id", nullable = false)
-    private User instructor;
+    //    @ManyToOne(fetch = FetchType.LAZY)
+    //    @JoinColumn(name = "instructor_id", nullable = false)
+    //    private User instructor;
+
+    @Column(name = "instructor_id", nullable = false)
+    private Long instructorId;
 
     @ElementCollection
-    @CollectionTable(
-            name = "discount_specific_course_ids",
-            joinColumns = @JoinColumn(name = "discount_id")
-    )
+    //
+    @CollectionTable(name = "discount_specific_course_ids", joinColumns = @JoinColumn(name = "discount_id"))
     @Column(name = "course_id")
-    private Set<Long> specificCourseIds = new HashSet<>();
+    private List<Long> specificCourseIds = new ArrayList<>();
 
     public enum DiscountType {
         FIXED_AMOUNT,
@@ -85,31 +86,17 @@ public class Discount {
     @PreUpdate
     private void validateDiscount() {
         if (appliesTo == DiscountAppliesTo.SPECIFIC && specificCourseIds.isEmpty()) {
-            throw new IllegalStateException("Specific course IDs must be set when discount applies to specific courses");
+            throw new IllegalStateException(
+                    "Specific course IDs must be set when discount applies to specific courses");
         }
     }
 
-    public boolean isApplicableToCourse(Course course) {
-        if (!isActive || LocalDateTime.now().isBefore(startDate) || LocalDateTime.now().isAfter(endDate)) {
-            return false;
+    // don't use
+    public BigDecimal getDiscountAmount(BigDecimal originalPrice) {
+        if (this.discountType == Discount.DiscountType.FIXED_AMOUNT) {
+            return getDiscountValue();
+        } else {
+            return originalPrice.multiply(getDiscountValue().divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP));
         }
-
-        if (usesCount >= maxUses) {
-            return false;
-        }
-
-        // Kiểm tra xem khóa học có thuộc instructor này không
-        if (!course.getInstructor().equals(this.instructor)) {
-            return false;
-        }
-
-        // Nếu là ALL thì áp dụng cho tất cả khóa học của instructor
-        if (appliesTo == DiscountAppliesTo.ALL) {
-            return true;
-        }
-
-        // Nếu là SPECIFIC thì kiểm tra xem ID khóa học có nằm trong danh sách không
-        return specificCourseIds.contains(course.getId());
     }
-
-} 
+}

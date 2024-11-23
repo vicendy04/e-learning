@@ -11,6 +11,7 @@ public final class ErrorUriConstants {
     public static final URI EMAIL_ALREADY_USED_URI = URI.create(PROBLEM_BASE_URL + "/email-already-used");
     public static final URI TOKEN_ISSUE_URI = URI.create(PROBLEM_BASE_URL + "/token-issue");
     public static final URI ANONYMOUS_USER_URI = URI.create(PROBLEM_BASE_URL + "/anonymous-user-issue");
+    public static final URI INVALID_DISCOUNT_CODE = URI.create(PROBLEM_BASE_URL + "/invalid-discount-code");
 
     private ErrorUriConstants() {}
 }

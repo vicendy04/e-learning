@@ -1,8 +1,7 @@
 package com.myproject.elearning.dto.response.course;
 
-import java.math.BigDecimal;
-
 import com.myproject.elearning.domain.Course;
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
