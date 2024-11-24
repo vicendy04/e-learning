@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -67,10 +67,9 @@ public class Discount {
     private Long instructorId;
 
     @ElementCollection
-    //
     @CollectionTable(name = "discount_specific_course_ids", joinColumns = @JoinColumn(name = "discount_id"))
     @Column(name = "course_id")
-    private List<Long> specificCourseIds = new ArrayList<>();
+    private Set<Long> specificCourseIds = new HashSet<>();
 
     public enum DiscountType {
         FIXED_AMOUNT,

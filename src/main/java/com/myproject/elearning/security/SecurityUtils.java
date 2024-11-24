@@ -43,7 +43,7 @@ public final class SecurityUtils {
         }
 
         try {
-            return Optional.of(Long.parseLong(userLogin));
+            return Optional.of(Long.valueOf(userLogin));
         } catch (NumberFormatException e) {
             return Optional.empty();
         }

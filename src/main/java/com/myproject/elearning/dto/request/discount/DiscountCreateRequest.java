@@ -4,7 +4,7 @@ import com.myproject.elearning.domain.Discount;
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -46,5 +46,13 @@ public class DiscountCreateRequest {
     private BigDecimal minOrderValue;
     private Boolean isActive;
     private Discount.DiscountAppliesTo appliesTo;
-    private List<Long> specificCourseIds;
+    private Set<Long> specificCourseIds;
+
+    @AssertTrue(message = "Specific course IDs must not be empty when applies to SPECIFIC")
+    private boolean isValidSpecificCourses() {
+        if (appliesTo == Discount.DiscountAppliesTo.SPECIFIC) {
+            return specificCourseIds != null && !specificCourseIds.isEmpty();
+        }
+        return true;
+    }
 }

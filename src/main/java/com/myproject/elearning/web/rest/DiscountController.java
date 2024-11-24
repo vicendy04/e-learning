@@ -7,6 +7,7 @@ import com.myproject.elearning.dto.common.PagedResponse;
 import com.myproject.elearning.dto.request.discount.ApplyDiscountRequest;
 import com.myproject.elearning.dto.request.discount.DiscountCreateRequest;
 import com.myproject.elearning.dto.response.discount.DiscountGetResponse;
+import com.myproject.elearning.exception.problemdetails.InvalidDiscountException;
 import com.myproject.elearning.service.DiscountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -46,15 +47,18 @@ public class DiscountController {
 
     @PostMapping("/valid")
     public ResponseEntity<?> validateDiscountForCourse(@RequestBody ApplyDiscountRequest request) {
-        var discounts = discountService.validateDiscountForCourse(request.getDiscountCode(), request.getCourseId());
-        ApiResponse<?> response = wrapSuccessResponse("Retrieved successfully", discounts);
+        var isAccept = discountService.validateDiscountForCourse(request.getDiscountCode(), request.getCourseId());
+        if (!isAccept) {
+            throw new InvalidDiscountException("Mã giảm giá không áp dụng cho khóa học này");
+        }
+        ApiResponse<?> response = wrapSuccessResponse("Retrieved successfully", true);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'INSTRUCTOR')")
-    @DeleteMapping("/{discountCode}")
-    public ResponseEntity<?> deleteDiscountCode(@PathVariable String discountCode) {
-        discountService.deleteDiscountCode(discountCode);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteDiscountCode(@PathVariable Long id) {
+        discountService.deleteDiscountCode(id);
         ApiResponse<?> response = wrapSuccessResponse("Deleted successfully", null);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
     }

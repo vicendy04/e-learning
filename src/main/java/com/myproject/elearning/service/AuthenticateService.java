@@ -2,6 +2,8 @@ package com.myproject.elearning.service;
 
 import com.myproject.elearning.dto.common.TokenPair;
 import com.myproject.elearning.dto.request.auth.LoginRequest;
+import com.myproject.elearning.exception.problemdetails.InvalidIdException;
+import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.security.CustomUserDetailsService;
 import com.myproject.elearning.security.JwtTokenUtils;
 import com.nimbusds.jwt.SignedJWT;
@@ -24,6 +26,7 @@ public class AuthenticateService {
     private final TokenBlacklistService tokenBlacklistService;
     private final CustomUserDetailsService userDetailsService;
     private final JwtTokenUtils jwtTokenUtils;
+    private final UserRepository userRepository;
 
     public TokenPair authenticate(LoginRequest loginRequest) {
         UsernamePasswordAuthenticationToken authenticationToken =
@@ -38,7 +41,10 @@ public class AuthenticateService {
 
     @Transactional
     public TokenPair refresh(Jwt jwt) throws ParseException {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(jwt.getSubject());
+        String email = userRepository
+                .findEmailByUserId(Long.valueOf(jwt.getSubject()))
+                .orElseThrow(() -> new InvalidIdException("Email not found!"));
+        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);

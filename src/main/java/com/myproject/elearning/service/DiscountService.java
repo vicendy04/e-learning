@@ -10,11 +10,13 @@ import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.mapper.discount.DiscountCreateMapper;
 import com.myproject.elearning.mapper.discount.DiscountGetMapper;
 import com.myproject.elearning.repository.CourseRepository;
+import com.myproject.elearning.repository.CourseRepository.CourseForValidDiscount;
 import com.myproject.elearning.repository.DiscountRepository;
 import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.security.AuthoritiesConstants;
 import com.myproject.elearning.security.SecurityUtils;
 import java.time.LocalDateTime;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +40,15 @@ public class DiscountService {
         if (discountRepository.existsByInstructorIdAndDiscountCode(instructorId, request.getDiscountCode())) {
             throw new InvalidDiscountException("Mã giảm giá đã tồn tại");
         }
+
+        if (request.getAppliesTo() == Discount.DiscountAppliesTo.SPECIFIC) {
+            Set<Long> instructorCourseIds = courseRepository.findCourseIdsByInstructorId(instructorId);
+
+            if (!instructorCourseIds.containsAll(request.getSpecificCourseIds())) {
+                throw new InvalidDiscountException("Một số khóa học không thuộc về bạn");
+            }
+        }
+
         Discount discount = discountCreateMapper.toEntity(request, instructorId);
         discountRepository.save(discount);
         return request.getDiscountCode();
@@ -52,40 +63,35 @@ public class DiscountService {
         return PagedResponse.from(discounts);
     }
 
-    // làm filter
-    //  làm phân trang, xem lại new ArrayList, sửa tên
-    // 3. Get all product by discount code [User/Student]
-    //    public PagedResponse<CourseGetResponse> getCoursesByDiscountCode(Pageable pageable, String discountCode) {
+    //    3. Get all product by discount code [User/Student]
+    //        public PagedResponse<CourseGetResponse> getCoursesByDiscountCode(Pageable pageable, String discountCode) {
     //
-    //        Discount discount = discountRepository.findByDiscountCode(discountCode)
-    //                .orElseThrow(() -> new InvalidDiscountCodeException("Mã giảm giá không tồn tại"));
+    //            Discount discount = discountRepository.findByDiscountCode(discountCode)
+    //                    .orElseThrow(() -> new InvalidDiscountCodeException("Mã giảm giá không tồn tại"));
     //
-    //        if (!discount.getIsActive()) {
-    //            throw new InvalidDiscountCodeException("Mã giảm giá đã hết hạn hoặc không còn hiệu lực");
+    //            if (!discount.getIsActive()) {
+    //                throw new InvalidDiscountCodeException("Mã giảm giá đã hết hạn hoặc không còn hiệu lực");
+    //            }
+    //
+    //            if (discount.getAppliesTo() == Discount.DiscountAppliesTo.ALL) {
+    //                // Lấy tất cả khóa học của instructor
+    //                return courseService.getAllCoursesByInstructor(discount.getInstructor().getId());
+    //            } else {
+    //                // Lấy các khóa học cụ thể
+    //                return courseService.getAllCoursesByIds(new ArrayList<>(discount.getSpecificCourseIds()));
+    //            }
     //        }
-    //
-    //        if (discount.getAppliesTo() == Discount.DiscountAppliesTo.ALL) {
-    //            // Lấy tất cả khóa học của instructor
-    //            return courseService.getAllCoursesByInstructor(discount.getInstructor().getId());
-    //        } else {
-    //            // Lấy các khóa học cụ thể
-    //            return courseService.getAllCoursesByIds(new ArrayList<>(discount.getSpecificCourseIds()));
-    //        }
-    //    }
 
-    public Object validateDiscountForCourse(String discountCode, Long courseId) {
+    public boolean validateDiscountForCourse(String discountCode, Long courseId) {
         Discount discount = discountRepository
                 .findByDiscountCode(discountCode)
                 .orElseThrow(() -> new InvalidDiscountException("Mã giảm giá không tồn tại"));
-        CourseRepository.CourseForValidDiscount course =
+        CourseForValidDiscount course =
                 courseRepository.findCourseWithInstructor(courseId).orElseThrow(() -> new InvalidIdException(courseId));
-        if (!isApplicableToCourse(discount, course)) {
-            throw new InvalidDiscountException("Mã giảm giá không áp dụng cho khóa học này");
-        }
-        return null;
+        return isApplicableToCourse(discount, course);
     }
 
-    private boolean isApplicableToCourse(Discount discount, CourseRepository.CourseForValidDiscount course) {
+    private boolean isApplicableToCourse(Discount discount, CourseForValidDiscount course) {
         if (!discount.getIsActive()
                 || LocalDateTime.now().isBefore(discount.getStartDate())
                 || LocalDateTime.now().isAfter(discount.getEndDate())) {
@@ -107,15 +113,14 @@ public class DiscountService {
     }
 
     @Transactional
-    public void deleteDiscountCode(String discountCode) {
+    public void deleteDiscountCode(Long discountId) {
         Long id = SecurityUtils.getCurrentUserLoginId().orElseThrow(AnonymousUserException::new);
-        Discount discount = discountRepository
-                .findByInstructorIdAndDiscountCode(id, discountCode)
-                .orElseThrow(() -> new InvalidDiscountException("Mã giảm giá không tồn tại hoặc không thuộc về bạn"));
-        discountRepository.delete(discount);
+        int rowsDeleted = discountRepository.deleteByIdAndInstructorId(discountId, id);
+        if (rowsDeleted == 0) {
+            throw new InvalidDiscountException("Mã giảm giá không tồn tại hoặc không thuộc về bạn");
+        }
     }
 
-    // thêm trường discount_users_used thay vì tạo bản riêng
     // 6. Cancel discount Code [User/Student]
     //    @Transactional
     //    public void cancelDiscountCode(String userEmail, String discountCode) {
