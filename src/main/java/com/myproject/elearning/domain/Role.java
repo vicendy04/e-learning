@@ -1,10 +1,12 @@
 package com.myproject.elearning.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A role.
@@ -16,6 +18,10 @@ import lombok.Setter;
 public class Role {
     @Id
     private String name;
+
+    @JsonIgnoreProperties("roles")
+    @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
+    private Set<User> users = new HashSet<>();
 
     /* Uncomment when need
     @ManyToMany(fetch = FetchType.LAZY)

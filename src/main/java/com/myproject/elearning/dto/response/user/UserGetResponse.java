@@ -16,5 +16,5 @@ public class UserGetResponse {
     private String email;
     private String username;
     private String imageUrl;
-    private Set<Role> roles;
+//    private Set<Role> roles;
 }

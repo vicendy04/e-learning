@@ -39,6 +39,7 @@ public class CourseService {
         return courseGetMapper.toDto(savedCourse);
     }
 
+    // custom query here
     public CourseGetResponse getCourse(Long id) {
         Course course = courseRepository.findWithEnrollmentsById(id).orElseThrow(() -> new InvalidIdException(id));
         return courseGetMapper.toDto(course);
@@ -59,8 +60,16 @@ public class CourseService {
 
     public PagedResponse<CourseGetResponse> getAllCourses(CourseSearchDTO searchDTO, Pageable pageable) {
         Specification<Course> spec = CourseSpecification.filterCourses(searchDTO);
-        Page<CourseGetResponse> courses =
-                courseRepository.findAll(spec, pageable).map(courseGetMapper::toDto);
+        Page<Object[]> coursesWithCount = courseRepository.findAllWithEnrollmentCount(spec, pageable);
+        
+        Page<CourseGetResponse> courses = coursesWithCount.map(array -> {
+            Course course = (Course) array[0];
+            Long enrollmentCount = (Long) array[1];
+            CourseGetResponse response = courseGetMapper.toDto(course);
+            response.setEnrollmentCount(enrollmentCount.intValue());
+            return response;
+        });
+        
         return PagedResponse.from(courses);
     }
 }

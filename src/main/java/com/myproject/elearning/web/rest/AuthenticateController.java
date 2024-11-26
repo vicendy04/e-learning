@@ -1,17 +1,11 @@
 package com.myproject.elearning.web.rest;
 
-import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapErrorResponse;
-import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
-
 import com.myproject.elearning.dto.common.ApiResponse;
 import com.myproject.elearning.dto.common.TokenPair;
 import com.myproject.elearning.dto.request.auth.LoginRequest;
 import com.myproject.elearning.service.AuthenticateService;
 import com.myproject.elearning.web.rest.utils.CookieUtils;
 import jakarta.validation.Valid;
-import java.security.Principal;
-import java.text.ParseException;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,6 +14,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
+import java.text.ParseException;
+import java.util.Objects;
+
+import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapErrorResponse;
+import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -80,6 +81,10 @@ public class AuthenticateController {
             return ResponseEntity.badRequest().body(response);
         }
         Jwt jwt = refreshTokenDecoder.decode(refreshTokenCookie);
+        if (!authenticateService.isRefreshTokenValidForUser(jwt)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(wrapErrorResponse("Invalid refresh token", null));
+        }
         TokenPair authenticationResponse = authenticateService.refresh(jwt);
         ApiResponse<String> response = wrapSuccessResponse("Success", authenticationResponse.getAccessToken());
         ResponseCookie responseCookie = CookieUtils.createRefreshTokenCookie(authenticationResponse.getRefreshToken());

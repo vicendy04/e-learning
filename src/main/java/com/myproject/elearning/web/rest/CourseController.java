@@ -10,7 +10,7 @@ import com.myproject.elearning.dto.request.course.CourseUpdateRequest;
 import com.myproject.elearning.dto.response.course.CourseGetResponse;
 import com.myproject.elearning.dto.response.course.CourseUpdateResponse;
 import com.myproject.elearning.service.CourseService;
-import com.myproject.elearning.service.cache.CourseCacheService;
+import com.myproject.elearning.service.cache.RedisCourseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class CourseController {
     private final CourseService courseService;
-    private final CourseCacheService courseCacheService;
+    private final RedisCourseService redisCourseService;
 
     /**
      * @param courseCreateRequest the blank course to create.
@@ -44,14 +44,14 @@ public class CourseController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<CourseGetResponse>> getCourse(@PathVariable(name = "id") Long id) {
-        CourseGetResponse cachedCourse = courseCacheService.getCachedCourse(id);
+        CourseGetResponse cachedCourse = redisCourseService.getCachedCourse(id);
         if (cachedCourse != null) {
             ApiResponse<CourseGetResponse> response =
                     wrapSuccessResponse("Course retrieved from cache successfully", cachedCourse);
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }
         CourseGetResponse courseGetResponse = courseService.getCourse(id);
-        courseCacheService.setCachedCourse(id, courseGetResponse);
+        redisCourseService.setCachedCourse(id, courseGetResponse);
         ApiResponse<CourseGetResponse> response =
                 wrapSuccessResponse("Course retrieved successfully", courseGetResponse);
         return ResponseEntity.status(HttpStatus.OK).body(response);

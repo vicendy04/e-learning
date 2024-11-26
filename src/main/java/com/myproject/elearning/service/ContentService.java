@@ -15,12 +15,13 @@ import com.myproject.elearning.mapper.content.ContentUpdateMapper;
 import com.myproject.elearning.repository.ContentRepository;
 import com.myproject.elearning.repository.CourseRepository;
 import jakarta.transaction.Transactional;
-import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Service class for managing contents.
@@ -71,11 +72,12 @@ public class ContentService {
     }
 
     @Transactional
-    public ContentGetResponse addContentToCourse(Long courseId, ContentCreateRequest content) {
-        Content content1 = contentCreateMapper.toEntity(content);
-        content1.getCourse().setId(courseId);
-        contentRepository.save(content1);
-        return contentGetMapper.toDto(content1);
+    public ContentGetResponse addContentToCourse(Long courseId, ContentCreateRequest request) {
+        Course courseOnlyId = courseRepository.getReferenceById(courseId);
+        Content content = contentCreateMapper.toEntity(request);
+        content.setCourse(courseOnlyId);
+        contentRepository.save(content);
+        return contentGetMapper.toDto(content);
     }
 
     public List<ContentListResponse> reorderContents(Long courseId, Map<Long, Integer> orderMapping) {

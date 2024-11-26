@@ -1,18 +1,20 @@
 package com.myproject.elearning.repository;
 
 import com.myproject.elearning.domain.Course;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Spring Data JPA repository for the {@link Course} entity.
@@ -59,12 +61,12 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
 
     @Query(
             """
-					SELECT c.id as id,
-						c.price as price,
-						c.instructor.id as instructorId
-					FROM Course c
-					WHERE c.id = :courseId
-					""")
+                    SELECT c.id as id,
+                    	c.price as price,
+                    	c.instructor.id as instructorId
+                    FROM Course c
+                    WHERE c.id = :courseId
+                    """)
     Optional<CourseForValidDiscount> findCourseWithInstructor(@Param("courseId") Long courseId);
 
     interface CourseForValidDiscount {
@@ -77,4 +79,10 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
 
     @Query("SELECT c.id FROM Course c WHERE c.instructor.id = :instructorId")
     Set<Long> findCourseIdsByInstructorId(@Param("instructorId") Long instructorId);
+
+//    @EntityGraph(attributePaths = "enrollments")
+//    Page<Course> findAll(Specification<Course> spec, Pageable pageable);
+
+    @Query("SELECT c, COUNT(e) FROM Course c LEFT JOIN c.enrollments e GROUP BY c")
+    Page<Object[]> findAllWithEnrollmentCount(Specification<Course> spec, Pageable pageable);
 }

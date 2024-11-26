@@ -9,7 +9,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(config = MapperConfig.class)
 public interface CourseGetMapper extends EntityMapper<CourseGetResponse, Course> {
-    @Mapping(target = "enrollmentCount", expression = "java(course.getEnrollments().size())")
+    // @Mapping(target = "enrollmentCount", expression = "java(course.getEnrollments().size())")
     //    @Mapping(target = "contents", expression = "java(mapContents(course.getContents()))")
     @Override
     CourseGetResponse toDto(Course course);

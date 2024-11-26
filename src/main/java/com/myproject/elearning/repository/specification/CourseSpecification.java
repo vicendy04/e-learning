@@ -2,8 +2,9 @@ package com.myproject.elearning.repository.specification;
 
 import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.dto.request.course.CourseSearchDTO;
-import java.math.BigDecimal;
 import org.springframework.data.jpa.domain.Specification;
+
+import java.math.BigDecimal;
 
 public class CourseSpecification {
 
