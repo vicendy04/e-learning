@@ -1,11 +1,10 @@
 package com.myproject.elearning.dto.auth;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -15,8 +14,7 @@ public class UserAuthDTO implements Serializable {
     private String password;
     private Set<String> roles;
 
-    public UserAuthDTO() {
-    }
+    public UserAuthDTO() {}
 
     public UserAuthDTO(Long id, String email, String password, String role) {
         this.id = id;

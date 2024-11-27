@@ -1,13 +1,10 @@
 package com.myproject.elearning.service.cache;
 
-import com.myproject.elearning.domain.User;
 import com.myproject.elearning.dto.auth.UserAuthDTO;
+import java.util.concurrent.TimeUnit;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
-
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Service
 public class RedisAuthService {

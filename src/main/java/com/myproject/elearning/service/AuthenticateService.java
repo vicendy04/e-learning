@@ -10,6 +10,8 @@ import com.myproject.elearning.security.JwtTokenUtils;
 import com.myproject.elearning.service.cache.RedisTokenBlacklistService;
 import com.nimbusds.jwt.SignedJWT;
 import jakarta.transaction.Transactional;
+import java.text.ParseException;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -18,9 +20,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
-
-import java.text.ParseException;
-import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor

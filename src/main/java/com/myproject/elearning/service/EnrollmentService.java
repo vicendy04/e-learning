@@ -8,7 +8,7 @@ import com.myproject.elearning.dto.response.enrollment.EnrollmentResponse;
 import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
 import com.myproject.elearning.exception.problemdetails.EmailAlreadyUsedException;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
-import com.myproject.elearning.mapper.enrollment.EnrollmentMapper;
+import com.myproject.elearning.mapper.EnrollmentMapper;
 import com.myproject.elearning.repository.CourseRepository;
 import com.myproject.elearning.repository.EnrollmentRepository;
 import com.myproject.elearning.security.AuthoritiesConstants;
@@ -42,7 +42,7 @@ public class EnrollmentService {
         user.addEnrollment(enrollment);
         course.addEnrollment(enrollment);
 
-        return enrollmentMapper.toDto(enrollmentRepository.save(enrollment));
+        return enrollmentMapper.toEnrollmentResponse(enrollmentRepository.save(enrollment));
     }
 
     public void unrollCourse(String email, Long courseId) {
@@ -54,19 +54,19 @@ public class EnrollmentService {
 
     public PagedResponse<EnrollmentResponse> getUserEnrollments(String email, Pageable pageable) {
         Page<Enrollment> enrollments = enrollmentRepository.findAllByUserEmail(email, pageable);
-        return PagedResponse.from(enrollments.map(enrollmentMapper::toDto));
+        return PagedResponse.from(enrollments.map(enrollmentMapper::toEnrollmentResponse));
     }
 
     @Transactional(readOnly = true)
     public EnrollmentResponse getEnrollment(Long enrollmentId) {
-        return enrollmentMapper.toDto(enrollmentRepository
+        return enrollmentMapper.toEnrollmentResponse(enrollmentRepository
                 .findByIdWithDetails(enrollmentId)
                 .orElseThrow(() -> new InvalidIdException(enrollmentId)));
     }
 
     public PagedResponse<EnrollmentResponse> getCourseEnrollments(Long courseId, Pageable pageable) {
         Page<Enrollment> enrollments = enrollmentRepository.findAllByCourseId(courseId, pageable);
-        return PagedResponse.from(enrollments.map(enrollmentMapper::toDto));
+        return PagedResponse.from(enrollments.map(enrollmentMapper::toEnrollmentResponse));
     }
 
     @Transactional
@@ -80,7 +80,7 @@ public class EnrollmentService {
             throw new AccessDeniedException("You don't have permission to change this enrollment status");
         }
         enrollment.setStatus(Enrollment.EnrollmentStatus.valueOf(newStatus));
-        return enrollmentMapper.toDto(enrollmentRepository.save(enrollment));
+        return enrollmentMapper.toEnrollmentResponse(enrollmentRepository.save(enrollment));
     }
 
     private void validateStatusTransition(

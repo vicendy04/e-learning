@@ -1,7 +1,14 @@
 package com.myproject.elearning.security;
 
+import static com.myproject.elearning.security.SecurityUtils.CLAIM_KEY_AUTHORITIES;
+
 import com.myproject.elearning.service.UserService;
 import com.nimbusds.jwt.SignedJWT;
+import java.text.ParseException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -11,14 +18,6 @@ import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Component;
-
-import java.text.ParseException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static com.myproject.elearning.security.SecurityUtils.CLAIM_KEY_AUTHORITIES;
 
 /**
  * Utility class for jwt.

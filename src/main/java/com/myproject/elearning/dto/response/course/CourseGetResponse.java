@@ -32,6 +32,6 @@ public class CourseGetResponse {
     //        private String status;
     //    }
     public void setEnrollmentCount(int enrollmentCount) {
-    this.enrollmentCount = enrollmentCount;
-}
+        this.enrollmentCount = enrollmentCount;
+    }
 }

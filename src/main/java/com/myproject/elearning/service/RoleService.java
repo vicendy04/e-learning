@@ -5,7 +5,7 @@ import com.myproject.elearning.dto.common.PagedResponse;
 import com.myproject.elearning.dto.response.role.RoleDTO;
 import com.myproject.elearning.exception.constants.ErrorMessageConstants;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
-import com.myproject.elearning.mapper.role.RoleMapper;
+import com.myproject.elearning.mapper.RoleMapper;
 import com.myproject.elearning.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

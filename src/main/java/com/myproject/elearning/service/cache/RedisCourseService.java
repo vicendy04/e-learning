@@ -1,13 +1,12 @@
 package com.myproject.elearning.service.cache;
 
 import com.myproject.elearning.dto.response.course.CourseGetResponse;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.stereotype.Service;
-
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.stereotype.Service;
 
 @Service
 public class RedisCourseService {

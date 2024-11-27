@@ -7,12 +7,10 @@ import com.myproject.elearning.dto.response.discount.DiscountGetResponse;
 import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
 import com.myproject.elearning.exception.problemdetails.InvalidDiscountException;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
-import com.myproject.elearning.mapper.discount.DiscountCreateMapper;
-import com.myproject.elearning.mapper.discount.DiscountGetMapper;
+import com.myproject.elearning.mapper.DiscountMapper;
 import com.myproject.elearning.repository.CourseRepository;
 import com.myproject.elearning.repository.CourseRepository.CourseForValidDiscount;
 import com.myproject.elearning.repository.DiscountRepository;
-import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.security.AuthoritiesConstants;
 import com.myproject.elearning.security.SecurityUtils;
 import java.time.LocalDateTime;
@@ -26,13 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class DiscountService {
-    private final UserService userService;
-    private final CourseService courseService;
     private final DiscountRepository discountRepository;
     private final CourseRepository courseRepository;
-    private final UserRepository userRepository;
-    private final DiscountCreateMapper discountCreateMapper;
-    private final DiscountGetMapper discountGetMapper;
+    private final DiscountMapper discountMapper;
 
     @Transactional
     public String generateDiscountCode(DiscountCreateRequest request) {
@@ -49,7 +43,7 @@ public class DiscountService {
             }
         }
 
-        Discount discount = discountCreateMapper.toEntity(request, instructorId);
+        Discount discount = discountMapper.toEntity(request, instructorId);
         discountRepository.save(discount);
         return request.getDiscountCode();
     }
@@ -58,7 +52,7 @@ public class DiscountService {
         Long id = SecurityUtils.getCurrentUserLoginId().orElseThrow(AnonymousUserException::new);
         Page<DiscountGetResponse> discounts = Page.empty();
         if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.INSTRUCTOR)) {
-            discounts = discountRepository.findAllByInstructorId(pageable, id).map(discountGetMapper::toDto);
+            discounts = discountRepository.findAllByInstructorId(pageable, id).map(discountMapper::toGetResponse);
         }
         return PagedResponse.from(discounts);
     }

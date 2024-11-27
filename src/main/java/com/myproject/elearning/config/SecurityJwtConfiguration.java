@@ -1,10 +1,15 @@
 package com.myproject.elearning.config;
 
+import static com.myproject.elearning.security.SecurityUtils.JWT_ALGORITHM;
+
 import com.myproject.elearning.exception.problemdetails.TokenException;
 import com.myproject.elearning.service.TokenBlacklistService;
 import com.myproject.elearning.service.cache.RedisTokenBlacklistService;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.util.Base64;
+import java.time.Instant;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -14,12 +19,6 @@ import org.springframework.security.oauth2.jwt.*;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
-
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.time.Instant;
-
-import static com.myproject.elearning.security.SecurityUtils.JWT_ALGORITHM;
 
 @RequiredArgsConstructor
 @Configuration

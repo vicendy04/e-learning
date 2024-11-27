@@ -1,11 +1,10 @@
 package com.myproject.elearning.service.cache;
 
+import java.time.Duration;
+import java.time.Instant;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
-
-import java.time.Duration;
-import java.time.Instant;
 
 @Service
 public class RedisTokenBlacklistService {
@@ -20,7 +19,6 @@ public class RedisTokenBlacklistService {
         this.redisTemplate = redisTemplate;
         this.valueOps = redisTemplate.opsForValue();
     }
-
 
     public void revokeToken(String jti, Instant expireTime) {
         String key = BLACKLIST_PREFIX + jti;

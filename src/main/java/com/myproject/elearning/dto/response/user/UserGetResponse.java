@@ -1,7 +1,5 @@
 package com.myproject.elearning.dto.response.user;
 
-import com.myproject.elearning.domain.Role;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,5 +14,5 @@ public class UserGetResponse {
     private String email;
     private String username;
     private String imageUrl;
-//    private Set<Role> roles;
+    //    private Set<Role> roles;
 }
