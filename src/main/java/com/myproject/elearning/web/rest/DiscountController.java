@@ -10,7 +10,9 @@ import com.myproject.elearning.dto.response.discount.DiscountGetResponse;
 import com.myproject.elearning.exception.problemdetails.InvalidDiscountException;
 import com.myproject.elearning.service.DiscountService;
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -23,10 +25,11 @@ import org.springframework.web.bind.annotation.*;
  * REST controller for managing discount.
  */
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequestMapping("/api/v1/discounts")
 @RestController
 public class DiscountController {
-    private final DiscountService discountService;
+    DiscountService discountService;
 
     @PreAuthorize("hasAnyRole('ADMIN', 'INSTRUCTOR')")
     @PostMapping("")

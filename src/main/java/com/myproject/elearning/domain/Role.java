@@ -4,23 +4,26 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 
 /**
  * A role.
  */
 @Setter
 @Getter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "roles")
 public class Role {
     @Id
-    private String name;
+    String name;
 
     @JsonIgnoreProperties("roles")
     @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
-    private Set<User> users = new HashSet<>();
+    Set<User> users = new HashSet<>();
 
     /* Uncomment when need
     @ManyToMany(fetch = FetchType.LAZY)

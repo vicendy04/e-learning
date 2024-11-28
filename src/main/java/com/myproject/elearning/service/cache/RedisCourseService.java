@@ -4,18 +4,22 @@ import com.myproject.elearning.dto.response.course.CourseGetResponse;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
 public class RedisCourseService {
-    private static final String COURSE_CACHE_KEY = "course:";
-    private static final long DEFAULT_CACHE_DURATION = 3600;
-    private static final long MAX_RANDOM_EXPIRY = 600;
+    static String COURSE_CACHE_KEY = "course:";
+    static long DEFAULT_CACHE_DURATION = 3600;
+    static long MAX_RANDOM_EXPIRY = 600;
+    static String ENROLLMENT_COUNT_CACHE_KEY = "enrollmentCount:";
 
-    private final RedisTemplate<String, Object> redisTemplate;
-    private final ValueOperations<String, Object> valueOps;
+    RedisTemplate<String, Object> redisTemplate;
+    ValueOperations<String, Object> valueOps;
 
     public RedisCourseService(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
@@ -26,10 +30,22 @@ public class RedisCourseService {
         return COURSE_CACHE_KEY + id;
     }
 
+    private String getEnrollmentCountKey(Long id) {
+        return ENROLLMENT_COUNT_CACHE_KEY + id;
+    }
+
     public CourseGetResponse getCachedCourse(Long id) {
         Object obj = valueOps.get(getCourseKey(id));
         if (obj != null) {
             return (CourseGetResponse) obj;
+        }
+        return null;
+    }
+
+    public Integer getCachedEnrollmentCount(Long id) {
+        Object obj = valueOps.get(getEnrollmentCountKey(id));
+        if (obj != null) {
+            return (Integer) obj;
         }
         return null;
     }
@@ -42,6 +58,12 @@ public class RedisCourseService {
         Random random = new Random();
         long randomExpiry = DEFAULT_CACHE_DURATION + random.nextInt((int) MAX_RANDOM_EXPIRY);
         valueOps.set(getCourseKey(id), course, randomExpiry, TimeUnit.SECONDS);
+    }
+
+    public void setCachedEnrollmentCount(Long id, Integer count) {
+        Random random = new Random();
+        long randomExpiry = DEFAULT_CACHE_DURATION + random.nextInt((int) MAX_RANDOM_EXPIRY);
+        valueOps.set(getEnrollmentCountKey(id), count, randomExpiry, TimeUnit.SECONDS);
     }
 
     public void invalidateCache(Long id) {

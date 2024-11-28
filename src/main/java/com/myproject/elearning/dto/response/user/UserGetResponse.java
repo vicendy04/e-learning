@@ -1,18 +1,17 @@
 package com.myproject.elearning.dto.response.user;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserGetResponse {
-    private Long id;
-    private String email;
-    private String username;
-    private String imageUrl;
-    //    private Set<Role> roles;
+    Long id;
+    String email;
+    String username;
+    String imageUrl;
+    //    Set<Role> roles;
 }

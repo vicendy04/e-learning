@@ -3,23 +3,22 @@ package com.myproject.elearning.dto.request.course;
 import com.myproject.elearning.domain.Course;
 import jakarta.validation.constraints.PositiveOrZero;
 import java.math.BigDecimal;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class CourseUpdateRequest {
-    private String description;
+    String description;
 
     @PositiveOrZero
-    private int duration;
+    int duration;
 
     @PositiveOrZero
-    private BigDecimal price;
+    BigDecimal price;
 
-    private Course.CourseCategory category;
+    Course.CourseCategory category;
 }

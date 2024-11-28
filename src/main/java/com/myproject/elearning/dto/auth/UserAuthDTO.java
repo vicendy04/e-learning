@@ -3,16 +3,19 @@ package com.myproject.elearning.dto.auth;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserAuthDTO implements Serializable {
-    private Long id;
-    private String email;
-    private String password;
-    private Set<String> roles;
+    Long id;
+    String email;
+    String password;
+    Set<String> roles;
 
     public UserAuthDTO() {}
 

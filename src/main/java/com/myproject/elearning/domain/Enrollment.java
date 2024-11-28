@@ -3,34 +3,37 @@ package com.myproject.elearning.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.Instant;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 
-@Entity
-@Table(name = "enrollments")
 @Getter
 @Setter
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@Entity
+@Table(name = "enrollments")
 public class Enrollment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonIgnoreProperties({"enrollments", "refreshToken", "password"})
-    private User user;
+    User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id")
     @JsonIgnoreProperties({"enrollments", "contents"})
-    private Course course;
+    Course course;
 
     @Column(name = "enrolled_at")
-    private Instant enrolledAt;
+    Instant enrolledAt;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private EnrollmentStatus status = EnrollmentStatus.ACTIVE;
+    EnrollmentStatus status = EnrollmentStatus.ACTIVE;
 
     public enum EnrollmentStatus {
         ACTIVE,

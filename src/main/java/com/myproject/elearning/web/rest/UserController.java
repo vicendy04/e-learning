@@ -10,7 +10,9 @@ import com.myproject.elearning.dto.request.user.UserUpdateRequest;
 import com.myproject.elearning.dto.response.user.UserGetResponse;
 import com.myproject.elearning.service.UserService;
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -22,11 +24,12 @@ import org.springframework.web.bind.annotation.*;
 /**
  * REST controller for managing users
  */
-@RestController
-@RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequestMapping("/api/v1/users")
+@RestController
 public class UserController {
-    private final UserService userService;
+    UserService userService;
 
     @PostMapping("")
     public ResponseEntity<ApiResponse<UserGetResponse>> createUser(
@@ -37,6 +40,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<ApiResponse<UserGetResponse>> getUser(@PathVariable(name = "id") Long id) {
         UserGetResponse user = userService.getUser(id);
         ApiResponse<UserGetResponse> response = wrapSuccessResponse("User retrieved successfully", user);
@@ -45,11 +49,11 @@ public class UserController {
 
     @GetMapping("")
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public ResponseEntity<ApiResponse<PagedResponse<UserGetResponse>>> getAllUsers(
+    public ResponseEntity<ApiResponse<PagedResponse<UserGetResponse>>> getUsers(
             @ModelAttribute UserSearchDTO searchDTO,
             @PageableDefault(size = 5, page = 0, sort = "username", direction = Sort.Direction.ASC) Pageable pageable) {
 
-        PagedResponse<UserGetResponse> users = userService.getAllUsers(searchDTO, pageable);
+        PagedResponse<UserGetResponse> users = userService.getUsers(searchDTO, pageable);
         ApiResponse<PagedResponse<UserGetResponse>> response =
                 wrapSuccessResponse("Users retrieved successfully", users);
         return ResponseEntity.status(HttpStatus.OK).body(response);

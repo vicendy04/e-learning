@@ -6,13 +6,15 @@ import com.myproject.elearning.dto.request.course.CourseCreateRequest;
 import com.myproject.elearning.dto.request.course.CourseSearchDTO;
 import com.myproject.elearning.dto.request.course.CourseUpdateRequest;
 import com.myproject.elearning.dto.response.course.CourseGetResponse;
+import com.myproject.elearning.dto.response.course.CourseListResponse;
 import com.myproject.elearning.dto.response.course.CourseUpdateResponse;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.mapper.CourseMapper;
 import com.myproject.elearning.repository.CourseRepository;
 import com.myproject.elearning.repository.specification.CourseSpecification;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -21,22 +23,27 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Service class for managing courses.
  */
-@Service
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Service
 public class CourseService {
-    private final CourseRepository courseRepository;
-    private final CourseMapper courseMapper;
+    CourseRepository courseRepository;
+    CourseMapper courseMapper;
 
-    public CourseGetResponse createBlankCourse(CourseCreateRequest courseCreateRequest) {
+    @Transactional
+    public CourseGetResponse createCourse(CourseCreateRequest courseCreateRequest) {
         Course course = courseMapper.toEntity(courseCreateRequest);
         Course savedCourse = courseRepository.save(course);
         return courseMapper.toGetResponse(savedCourse);
     }
 
-    // custom query here
     public CourseGetResponse getCourse(Long id) {
-        Course course = courseRepository.findWithEnrollmentsById(id).orElseThrow(() -> new InvalidIdException(id));
+        Course course = courseRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
         return courseMapper.toGetResponse(course);
+    }
+
+    public int countEnrollments(Long id) {
+        return courseRepository.countEnrollmentsByCourseId(id);
     }
 
     @Transactional
@@ -52,18 +59,8 @@ public class CourseService {
         courseRepository.delete(course);
     }
 
-    public PagedResponse<CourseGetResponse> getAllCourses(CourseSearchDTO searchDTO, Pageable pageable) {
+    public PagedResponse<CourseListResponse> getCourses(CourseSearchDTO searchDTO, Pageable pageable) {
         Specification<Course> spec = CourseSpecification.filterCourses(searchDTO);
-        Page<Object[]> coursesWithCount = courseRepository.findAllWithEnrollmentCount(spec, pageable);
-
-        Page<CourseGetResponse> courses = coursesWithCount.map(array -> {
-            Course course = (Course) array[0];
-            Long enrollmentCount = (Long) array[1];
-            CourseGetResponse response = courseMapper.toGetResponse(course);
-            response.setEnrollmentCount(enrollmentCount.intValue());
-            return response;
-        });
-
-        return PagedResponse.from(courses);
+        return PagedResponse.from(courseRepository.findAll(spec, pageable).map(courseMapper::toCourseListResponse));
     }
 }

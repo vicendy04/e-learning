@@ -2,33 +2,36 @@ package com.myproject.elearning.domain;
 
 import jakarta.persistence.*;
 import java.time.Instant;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 
 /**
  * A refresh token which associated with a user.
  */
 @Getter
 @Setter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "refresh_tokens")
 public class RefreshToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
     @Column(nullable = false, unique = true)
-    private String token;
+    String token;
 
     @Column(name = "device_name")
-    private String deviceName;
+    String deviceName;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    User user;
 
     @Column(name = "expiry_date", nullable = false)
-    private Instant expiryDate;
+    Instant expiryDate;
 
     //    @Column(nullable = false)
     //    private boolean revoked = false;

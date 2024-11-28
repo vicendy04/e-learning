@@ -5,7 +5,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -13,13 +15,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
-@RestController
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequestMapping("/api/redis-test")
+@RestController
 public class RedisTestController {
 
-    private static final Logger logger = LoggerFactory.getLogger(RedisTestController.class);
+    static Logger logger = LoggerFactory.getLogger(RedisTestController.class);
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    RedisTemplate<String, Object> redisTemplate;
 
     @PostMapping("/set")
     public ResponseEntity<Object> setValue(@RequestParam String key, @RequestParam String value) {

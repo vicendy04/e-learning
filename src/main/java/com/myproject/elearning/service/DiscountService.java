@@ -15,18 +15,21 @@ import com.myproject.elearning.security.AuthoritiesConstants;
 import com.myproject.elearning.security.SecurityUtils;
 import java.time.LocalDateTime;
 import java.util.Set;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Service
 public class DiscountService {
-    private final DiscountRepository discountRepository;
-    private final CourseRepository courseRepository;
-    private final DiscountMapper discountMapper;
+    DiscountRepository discountRepository;
+    CourseRepository courseRepository;
+    DiscountMapper discountMapper;
 
     @Transactional
     public String generateDiscountCode(DiscountCreateRequest request) {

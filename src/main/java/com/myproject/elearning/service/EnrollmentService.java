@@ -14,20 +14,23 @@ import com.myproject.elearning.repository.EnrollmentRepository;
 import com.myproject.elearning.security.AuthoritiesConstants;
 import com.myproject.elearning.security.SecurityUtils;
 import java.util.Objects;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Service
 public class EnrollmentService {
-    private final EnrollmentRepository enrollmentRepository;
-    private final UserService userService;
-    private final CourseRepository courseRepository;
-    private final EnrollmentMapper enrollmentMapper;
+    EnrollmentRepository enrollmentRepository;
+    UserService userService;
+    CourseRepository courseRepository;
+    EnrollmentMapper enrollmentMapper;
 
     @Transactional
     public EnrollmentResponse enrollCourse(String email, Long courseId) {
@@ -85,7 +88,6 @@ public class EnrollmentService {
 
     private void validateStatusTransition(
             Enrollment.EnrollmentStatus currentStatus, Enrollment.EnrollmentStatus newStatus) {
-        // Implement your status transition rules here
         if (currentStatus == Enrollment.EnrollmentStatus.COMPLETED && newStatus == Enrollment.EnrollmentStatus.ACTIVE) {
             throw new IllegalStateException("Cannot change status from COMPLETED to ACTIVE");
         }

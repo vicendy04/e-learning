@@ -79,9 +79,9 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
     @Query("SELECT c.id FROM Course c WHERE c.instructor.id = :instructorId")
     Set<Long> findCourseIdsByInstructorId(@Param("instructorId") Long instructorId);
 
-    //    @EntityGraph(attributePaths = "enrollments")
-    //    Page<Course> findAll(Specification<Course> spec, Pageable pageable);
-
     @Query("SELECT c, COUNT(e) FROM Course c LEFT JOIN c.enrollments e GROUP BY c")
     Page<Object[]> findAllWithEnrollmentCount(Specification<Course> spec, Pageable pageable);
+
+    @Query("SELECT COUNT(e) FROM Enrollment e WHERE e.course.id =:courseId")
+    int countEnrollmentsByCourseId(@Param("courseId") Long courseId);
 }

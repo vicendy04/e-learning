@@ -1,20 +1,19 @@
 package com.myproject.elearning.dto.response.content;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ContentGetResponse {
-    private Long id;
-    private String title;
-    private Integer orderIndex;
-    private String contentType;
-    private String status;
-    private Long courseId;
-    private String courseTitle;
+    Long id;
+    String title;
+    Integer orderIndex;
+    String contentType;
+    String status;
+    Long courseId;
+    String courseTitle;
 }

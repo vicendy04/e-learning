@@ -3,41 +3,42 @@ package com.myproject.elearning.dto.response.enrollment;
 import com.myproject.elearning.domain.Course;
 import java.math.BigDecimal;
 import java.time.Instant;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class EnrollmentResponse {
-    private Long id;
-    private UserInfo user;
-    private CourseInfo course;
-    private Instant enrolledAt;
-    private String status;
+    Long id;
+    UserInfo user;
+    CourseInfo course;
+    Instant enrolledAt;
+    String status;
 
     @Getter
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
+    @FieldDefaults(level = AccessLevel.PRIVATE)
     public static class UserInfo {
-        private Long id;
-        private String email;
-        private String username;
+        Long id;
+        String email;
+        String username;
     }
 
     @Getter
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
+    @FieldDefaults(level = AccessLevel.PRIVATE)
     public static class CourseInfo {
-        private Long id;
-        private String title;
-        private String description;
-        private BigDecimal price;
-        private Course.CourseCategory category;
+        Long id;
+        String title;
+        String description;
+        BigDecimal price;
+        Course.CourseCategory category;
     }
 }

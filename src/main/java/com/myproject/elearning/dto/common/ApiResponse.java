@@ -1,7 +1,9 @@
 package com.myproject.elearning.dto.common;
 
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.experimental.FieldDefaults;
 
 /**
  * A generic API response wrapper.
@@ -10,8 +12,9 @@ import lombok.Getter;
  */
 @Getter
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ApiResponse<T> {
-    private Boolean success;
-    private String message;
-    private T data;
+    Boolean success;
+    String message;
+    T data;
 }

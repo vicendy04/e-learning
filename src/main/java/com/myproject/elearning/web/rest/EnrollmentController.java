@@ -10,7 +10,9 @@ import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
 import com.myproject.elearning.security.SecurityUtils;
 import com.myproject.elearning.service.EnrollmentService;
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -21,11 +23,12 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/api/v1")
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequestMapping("/api/v1")
+@RestController
 public class EnrollmentController {
-    private final EnrollmentService enrollmentService;
+    EnrollmentService enrollmentService;
 
     @PostMapping("/courses/{courseId}/enroll")
     public ResponseEntity<ApiResponse<EnrollmentResponse>> enrollCourse(@PathVariable Long courseId) {

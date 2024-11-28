@@ -1,17 +1,16 @@
 package com.myproject.elearning.dto.request.user;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserSearchDTO {
-    private String roles;
-    private String email;
-    private String username;
-    private String keyword;
+    String roles;
+    String email;
+    String username;
+    String keyword;
 }

@@ -1,5 +1,6 @@
-package com.myproject.elearning.dto.response.content;
+package com.myproject.elearning.dto.response.course;
 
+import com.myproject.elearning.domain.Course;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -8,10 +9,9 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ContentListResponse {
+public class CourseListResponse {
     Long id;
     String title;
-    Integer orderIndex;
-    String contentType;
-    String status;
+    int duration;
+    Course.CourseCategory category;
 }

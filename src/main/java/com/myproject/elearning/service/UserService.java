@@ -20,7 +20,9 @@ import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -30,15 +32,17 @@ import org.springframework.stereotype.Service;
 /**
  * Service class for managing users.
  */
-@Service
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Service
 public class UserService {
-    private final UserRepository userRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
-    private final RoleRepository roleRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final UserMapper userMapper;
+    UserRepository userRepository;
+    RefreshTokenRepository refreshTokenRepository;
+    RoleRepository roleRepository;
+    PasswordEncoder passwordEncoder;
+    UserMapper userMapper;
 
+    @Transactional
     public UserGetResponse createUser(RegisterRequest registerRequest) {
         String encryptedPassword = passwordEncoder.encode(registerRequest.getPassword());
         registerRequest.setPassword(encryptedPassword);
@@ -95,7 +99,7 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    public PagedResponse<UserGetResponse> getAllUsers(UserSearchDTO searchDTO, Pageable pageable) {
+    public PagedResponse<UserGetResponse> getUsers(UserSearchDTO searchDTO, Pageable pageable) {
         Specification<User> spec = UserSpecification.filterUsers(searchDTO);
         Page<UserGetResponse> users = userRepository.findAll(spec, pageable).map(userMapper::toGetResponse);
         return PagedResponse.from(users);

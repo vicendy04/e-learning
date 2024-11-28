@@ -2,18 +2,21 @@ package com.myproject.elearning.service.cache;
 
 import java.time.Duration;
 import java.time.Instant;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
 public class RedisTokenBlacklistService {
-    private static final String BLACKLIST_PREFIX = "token:blacklist:";
-    private static final long DEFAULT_CACHE_DURATION = 3600;
-    private static final long MAX_RANDOM_EXPIRY = 600;
+    static String BLACKLIST_PREFIX = "token:blacklist:";
+    static long DEFAULT_CACHE_DURATION = 3600;
+    static long MAX_RANDOM_EXPIRY = 600;
 
-    private final RedisTemplate<String, Object> redisTemplate;
-    private final ValueOperations<String, Object> valueOps;
+    RedisTemplate<String, Object> redisTemplate;
+    ValueOperations<String, Object> valueOps;
 
     public RedisTokenBlacklistService(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;

@@ -5,27 +5,26 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import java.math.BigDecimal;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class CourseCreateRequest {
     @NotBlank
-    private String title;
+    String title;
 
-    private String description;
-
-    @PositiveOrZero
-    private int duration;
+    String description;
 
     @PositiveOrZero
-    private BigDecimal price;
+    int duration;
+
+    @PositiveOrZero
+    BigDecimal price;
 
     @NotNull
-    private Course.CourseCategory category;
+    Course.CourseCategory category;
 }

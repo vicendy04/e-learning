@@ -11,7 +11,9 @@ import com.myproject.elearning.dto.response.content.ContentListResponse;
 import com.myproject.elearning.service.ContentService;
 import jakarta.validation.Valid;
 import java.util.List;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -22,11 +24,12 @@ import org.springframework.web.bind.annotation.*;
 /**
  * REST controller for managing contents within courses
  */
-@RestController
-@RequestMapping("/api/v1/courses/{courseId}/contents")
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequestMapping("/api/v1/courses/{courseId}/contents")
+@RestController
 public class CourseContentController {
-    private final ContentService contentService;
+    ContentService contentService;
 
     @GetMapping("")
     public ResponseEntity<ApiResponse<PagedResponse<ContentListResponse>>> getContentsByCourseId(

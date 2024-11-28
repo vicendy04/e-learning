@@ -4,29 +4,28 @@ import com.myproject.elearning.domain.Discount;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class DiscountResponse {
-    private Long id;
-    private String discountName;
-    private String discountDescription;
-    private Discount.DiscountType discountType;
-    private BigDecimal discountValue;
-    private String discountCode;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
-    private Integer maxUses;
-    private Integer usesCount;
-    private Integer maxUsesPerUser;
-    private BigDecimal minOrderValue;
-    private Boolean isActive;
-    private Discount.DiscountAppliesTo appliesTo;
-    private Set<Long> specificCourseIds;
+    Long id;
+    String discountName;
+    String discountDescription;
+    Discount.DiscountType discountType;
+    BigDecimal discountValue;
+    String discountCode;
+    LocalDateTime startDate;
+    LocalDateTime endDate;
+    Integer maxUses;
+    Integer usesCount;
+    Integer maxUsesPerUser;
+    BigDecimal minOrderValue;
+    Boolean isActive;
+    Discount.DiscountAppliesTo appliesTo;
+    Set<Long> specificCourseIds;
 }

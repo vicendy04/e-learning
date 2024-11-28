@@ -6,70 +6,73 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "discounts")
 public class Discount {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
     @Column(name = "discount_name", nullable = false)
-    private String discountName;
+    String discountName;
 
     @Column(name = "discount_description", nullable = false)
-    private String discountDescription;
+    String discountDescription;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "discount_type")
-    private DiscountType discountType = DiscountType.FIXED_AMOUNT;
+    DiscountType discountType = DiscountType.FIXED_AMOUNT;
 
     @Column(name = "discount_value", nullable = false)
-    private BigDecimal discountValue;
+    BigDecimal discountValue;
 
     @Column(name = "discount_code", unique = true, nullable = false)
-    private String discountCode;
+    String discountCode;
 
     @Column(name = "start_date", nullable = false)
-    private LocalDateTime startDate;
+    LocalDateTime startDate;
 
     @Column(name = "end_date", nullable = false)
-    private LocalDateTime endDate;
+    LocalDateTime endDate;
 
     @Column(name = "max_uses", nullable = false)
-    private Integer maxUses;
+    Integer maxUses;
 
     @Column(name = "uses_count", nullable = false)
-    private Integer usesCount = 0;
+    Integer usesCount = 0;
 
     @Column(name = "max_uses_per_user", nullable = false)
-    private Integer maxUsesPerUser;
+    Integer maxUsesPerUser;
 
     @Column(name = "min_order_value", nullable = false)
-    private BigDecimal minOrderValue;
+    BigDecimal minOrderValue;
 
     @Column(name = "is_active")
-    private Boolean isActive = true;
+    Boolean isActive = true;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "applies_to", nullable = false)
-    private DiscountAppliesTo appliesTo = DiscountAppliesTo.ALL;
+    DiscountAppliesTo appliesTo = DiscountAppliesTo.ALL;
 
     //    @ManyToOne(fetch = FetchType.LAZY)
     //    @JoinColumn(name = "instructor_id", nullable = false)
     //    private User instructor;
 
     @Column(name = "instructor_id", nullable = false)
-    private Long instructorId;
+    Long instructorId;
 
     @ElementCollection
     @CollectionTable(name = "discount_specific_course_ids", joinColumns = @JoinColumn(name = "discount_id"))
     @Column(name = "course_id")
-    private Set<Long> specificCourseIds = new HashSet<>();
+    Set<Long> specificCourseIds = new HashSet<>();
 
     public enum DiscountType {
         FIXED_AMOUNT,

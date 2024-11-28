@@ -14,7 +14,9 @@ import com.myproject.elearning.repository.CourseRepository;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,12 +24,13 @@ import org.springframework.stereotype.Service;
 /**
  * Service class for managing contents.
  */
-@Service
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Service
 public class ContentService {
-    private final ContentRepository contentRepository;
-    private final CourseRepository courseRepository;
-    private final ContentMapper contentMapper;
+    ContentRepository contentRepository;
+    CourseRepository courseRepository;
+    ContentMapper contentMapper;
 
     public ContentGetResponse createContent(ContentCreateRequest request) {
         Content content = contentMapper.toEntity(request);

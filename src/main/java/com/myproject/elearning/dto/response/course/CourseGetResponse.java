@@ -2,36 +2,33 @@ package com.myproject.elearning.dto.response.course;
 
 import com.myproject.elearning.domain.Course;
 import java.math.BigDecimal;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class CourseGetResponse {
-    private Long id;
-    private String title;
-    private String description;
-    private int duration;
-    private BigDecimal price;
-    private Course.CourseCategory category;
-    private int enrollmentCount;
-    //    private List<ContentDTO> contents;
+    Long id;
+    String title;
+    String description;
+    int duration;
+    BigDecimal price;
+    Course.CourseCategory category;
+    int enrollmentCount;
+    //     List<ContentDTO> contents;
 
     //    @Getter
     //    @Setter
     //    @NoArgsConstructor
     //    @AllArgsConstructor
+    //    @FieldDefaults(level = AccessLevel.PRIVATE)
     //    public static class ContentDTO {
-    //        private Long id;
-    //        private String title;
-    //        private int orderIndex;
-    //        private String status;
+    //         Long id;
+    //         String title;
+    //         int orderIndex;
+    //         String status;
     //    }
-    public void setEnrollmentCount(int enrollmentCount) {
-        this.enrollmentCount = enrollmentCount;
-    }
 }

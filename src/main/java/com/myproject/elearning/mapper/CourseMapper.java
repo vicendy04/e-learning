@@ -4,6 +4,7 @@ import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.dto.request.course.CourseCreateRequest;
 import com.myproject.elearning.dto.request.course.CourseUpdateRequest;
 import com.myproject.elearning.dto.response.course.CourseGetResponse;
+import com.myproject.elearning.dto.response.course.CourseListResponse;
 import com.myproject.elearning.dto.response.course.CourseUpdateResponse;
 import com.myproject.elearning.mapper.base.MapperConfig;
 import org.mapstruct.*;
@@ -24,9 +25,11 @@ public interface CourseMapper {
     void partialUpdate(@MappingTarget Course entity, CourseUpdateRequest request);
 
     // Get operations
-    // @Mapping(target = "enrollmentCount", expression = "java(course.getEnrollments().size())")
-    //    @Mapping(target = "contents", expression = "java(mapContents(course.getContents()))")
+    //     @Mapping(target = "enrollmentCount", expression = "java(entity.getEnrollments().size())")
+    //    @Mapping(target = "contents", expression = "java(mapContents(entity.getContents()))")
     CourseGetResponse toGetResponse(Course entity);
+
+    CourseListResponse toCourseListResponse(Course entity);
 
     // List operations
 

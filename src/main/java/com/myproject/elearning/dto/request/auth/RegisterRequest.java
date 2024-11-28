@@ -3,21 +3,24 @@ package com.myproject.elearning.dto.request.auth;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class RegisterRequest {
     @NotBlank
     @Email
-    private String email;
+    String email;
 
     @NotBlank
     @Size(max = 50)
-    private String username;
+    String username;
 
     @NotBlank
     @Size(min = 4)
-    private String password;
+    String password;
 }

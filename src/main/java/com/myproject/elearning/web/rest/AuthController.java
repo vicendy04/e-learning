@@ -6,13 +6,15 @@ import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessRe
 import com.myproject.elearning.dto.common.ApiResponse;
 import com.myproject.elearning.dto.common.TokenPair;
 import com.myproject.elearning.dto.request.auth.LoginRequest;
-import com.myproject.elearning.service.AuthenticateService;
+import com.myproject.elearning.service.AuthService;
 import com.myproject.elearning.web.rest.utils.CookieUtils;
 import jakarta.validation.Valid;
 import java.security.Principal;
 import java.text.ParseException;
 import java.util.Objects;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -21,16 +23,17 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
-public class AuthenticateController {
-    private final AuthenticateService authenticateService;
-    private final JwtDecoder refreshTokenDecoder;
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequestMapping("/api/v1/auth")
+@RestController
+public class AuthController {
+    AuthService authService;
+    JwtDecoder refreshTokenDecoder;
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<String>> authorize(@Valid @RequestBody LoginRequest loginRequest) {
-        TokenPair authenticationResponse = authenticateService.authenticate(loginRequest);
+        TokenPair authenticationResponse = authService.authenticate(loginRequest);
         ApiResponse<String> response = wrapSuccessResponse("Success", authenticationResponse.getAccessToken());
         ResponseCookie refreshTokenCookie =
                 CookieUtils.createRefreshTokenCookie(authenticationResponse.getRefreshToken());
@@ -46,7 +49,7 @@ public class AuthenticateController {
             ApiResponse<Void> response = wrapErrorResponse("Refresh token is missing", null);
             return ResponseEntity.badRequest().body(response);
         }
-        authenticateService.revoke(refreshTokenCookie);
+        authService.revoke(refreshTokenCookie);
         ApiResponse<Void> response = wrapSuccessResponse("Log out successfully", null);
         ResponseCookie clearCookie = CookieUtils.deleteRefreshTokenCookie();
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
@@ -54,12 +57,6 @@ public class AuthenticateController {
                 .body(response);
     }
 
-    /**
-     * REST request to check if the current user is authenticated.
-     *
-     * @param principal the authentication principal.
-     * @return the login name if the user is authenticated.
-     */
     @GetMapping(value = "/info")
     public ResponseEntity<ApiResponse<String>> isAuthenticated(Principal principal) {
         ApiResponse<String> response;
@@ -80,11 +77,11 @@ public class AuthenticateController {
             return ResponseEntity.badRequest().body(response);
         }
         Jwt jwt = refreshTokenDecoder.decode(refreshTokenCookie);
-        if (!authenticateService.isRefreshTokenValidForUser(jwt)) {
+        if (!authService.isRefreshTokenValidForUser(jwt)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(wrapErrorResponse("Invalid refresh token", null));
         }
-        TokenPair authenticationResponse = authenticateService.refresh(jwt);
+        TokenPair authenticationResponse = authService.refresh(jwt);
         ApiResponse<String> response = wrapSuccessResponse("Success", authenticationResponse.getAccessToken());
         ResponseCookie responseCookie = CookieUtils.createRefreshTokenCookie(authenticationResponse.getRefreshToken());
         return ResponseEntity.status(HttpStatus.OK)

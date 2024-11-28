@@ -2,21 +2,20 @@ package com.myproject.elearning.dto.request.user;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserUpdateRequest {
     @Email
-    private String email;
+    String email;
 
     @Size(max = 50)
-    private String username;
+    String username;
 
-    private String imageUrl;
+    String imageUrl;
 }

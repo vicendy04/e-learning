@@ -5,36 +5,39 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 
 /**
  * A course.
  */
 @Getter
 @Setter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "courses")
 public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
     @Column(name = "title", nullable = false)
-    private String title;
+    String title;
 
     @Column(name = "description", columnDefinition = "MEDIUMTEXT")
-    private String description;
+    String description;
 
     @Column(name = "duration")
-    private int duration;
+    int duration;
 
     @Column(name = "price", precision = 10, scale = 2)
-    private BigDecimal price;
+    BigDecimal price;
 
     @Column(name = "category")
     @Enumerated(EnumType.STRING)
-    private CourseCategory category;
+    CourseCategory category;
 
     /**
      * The {@link JsonIgnoreProperties} annotation is used to create an empty course (without contents).
@@ -46,18 +49,18 @@ public class Course {
             allowSetters = true)
     @OrderBy("orderIndex ASC")
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "course", orphanRemoval = true)
-    private List<Content> contents = new ArrayList<>();
+    List<Content> contents = new ArrayList<>();
 
     @JsonIgnoreProperties("course")
     @OneToMany(
             mappedBy = "course",
             cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             fetch = FetchType.LAZY)
-    private List<Enrollment> enrollments = new ArrayList<>();
+    List<Enrollment> enrollments = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "instructor_id", nullable = false)
-    private User instructor;
+    User instructor;
 
     //    @JsonIgnoreProperties("courses")
     //    @ManyToMany(mappedBy = "specificCourses")

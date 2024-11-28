@@ -5,48 +5,47 @@ import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class DiscountCreateRequest {
     @NotBlank
-    private String discountName;
+    String discountName;
 
-    private String discountDescription;
-
-    @NotNull
-    private Discount.DiscountType discountType;
+    String discountDescription;
 
     @NotNull
-    private BigDecimal discountValue;
+    Discount.DiscountType discountType;
+
+    @NotNull
+    BigDecimal discountValue;
 
     @NotBlank
-    private String discountCode;
+    String discountCode;
 
     @FutureOrPresent
-    private LocalDateTime startDate;
+    LocalDateTime startDate;
 
     @Future
-    private LocalDateTime endDate;
+    LocalDateTime endDate;
 
     @NotNull(message = "Max uses is required")
     @Min(value = 1, message = "Max uses must be at least 1")
-    private Integer maxUses;
+    Integer maxUses;
 
     @NotNull(message = "Max uses per user is required")
     @Min(value = 1, message = "Max uses per user must be at least 1")
-    private Integer maxUsesPerUser;
+    Integer maxUsesPerUser;
 
-    private BigDecimal minOrderValue;
-    private Boolean isActive;
-    private Discount.DiscountAppliesTo appliesTo;
-    private Set<Long> specificCourseIds;
+    BigDecimal minOrderValue;
+    Boolean isActive;
+    Discount.DiscountAppliesTo appliesTo;
+    Set<Long> specificCourseIds;
 
     @AssertTrue(message = "Specific course IDs must not be empty when applies to SPECIFIC")
     private boolean isValidSpecificCourses() {

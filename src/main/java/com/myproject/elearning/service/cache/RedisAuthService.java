@@ -2,17 +2,20 @@ package com.myproject.elearning.service.cache;
 
 import com.myproject.elearning.dto.auth.UserAuthDTO;
 import java.util.concurrent.TimeUnit;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
 public class RedisAuthService {
-    private static final String USER_AUTH_CACHE_KEY = "auth:user:";
-    private static final long DEFAULT_CACHE_DURATION = 3600;
+    static String USER_AUTH_CACHE_KEY = "auth:user:";
+    static long DEFAULT_CACHE_DURATION = 3600;
 
-    private final RedisTemplate<String, Object> redisTemplate;
-    private final ValueOperations<String, Object> valueOps;
+    RedisTemplate<String, Object> redisTemplate;
+    ValueOperations<String, Object> valueOps;
 
     public RedisAuthService(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;

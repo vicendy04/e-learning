@@ -9,7 +9,9 @@ import com.myproject.elearning.dto.request.content.ContentUpdateRequest;
 import com.myproject.elearning.dto.response.content.ContentGetResponse;
 import com.myproject.elearning.service.ContentService;
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -20,11 +22,12 @@ import org.springframework.web.bind.annotation.*;
 /**
  * REST controller for managing contents.
  */
-@RestController
-@RequestMapping("/api/v1/contents")
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequestMapping("/api/v1/contents")
+@RestController
 public class ContentController {
-    private final ContentService contentService;
+    ContentService contentService;
 
     @PostMapping("")
     public ResponseEntity<ApiResponse<ContentGetResponse>> createContent(

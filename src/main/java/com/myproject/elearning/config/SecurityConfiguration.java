@@ -5,6 +5,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 import com.myproject.elearning.security.JwtAccessDeniedHandler;
 import com.myproject.elearning.security.JwtAuthenticationEntryPoint;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -27,16 +28,22 @@ import org.springframework.security.web.SecurityFilterChain;
  * <a href="https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html#oauth2resourceserver-jwt-authorization-extraction">...</a>
  * Extracting Authorities Manually {@link #jwtAuthenticationConverter()}
  */
-@Configuration
-@EnableMethodSecurity
+@RequiredArgsConstructor
 @EnableWebSecurity
+@EnableMethodSecurity
+@Configuration
 public class SecurityConfiguration {
 
     private final JwtDecoder jwtDecoder;
-
-    public SecurityConfiguration(JwtDecoder jwtDecoder) {
-        this.jwtDecoder = jwtDecoder;
-    }
+    private static final String[] PUBLIC_URLS = {
+        "/swagger-ui/**",
+        "/swagger-ui.html",
+        "/v3/api-docs/**",
+        "/api-docs/**",
+        "/api/v1/auth/login",
+        "/api/v1/auth/refresh",
+        "/api/v1/auth/logout"
+    };
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -53,9 +60,7 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authz ->
                         // prettier-ignore
-                        authz.requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/api-docs/**")
-                                .permitAll()
-                                .requestMatchers("/api/v1/auth/login", "/api/v1/auth/refresh", "/api/v1/auth/logout")
+                        authz.requestMatchers(PUBLIC_URLS)
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated())

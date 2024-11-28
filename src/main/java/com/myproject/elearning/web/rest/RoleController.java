@@ -7,7 +7,9 @@ import com.myproject.elearning.dto.common.PagedResponse;
 import com.myproject.elearning.dto.response.role.RoleDTO;
 import com.myproject.elearning.service.RoleService;
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -18,11 +20,12 @@ import org.springframework.web.bind.annotation.*;
 /**
  * REST controller for managing roles.
  */
-@RestController
-@RequestMapping("/api/v1/roles")
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequestMapping("/api/v1/roles")
+@RestController
 public class RoleController {
-    private final RoleService roleService;
+    RoleService roleService;
 
     @PostMapping("")
     public ResponseEntity<ApiResponse<RoleDTO>> createRole(@Valid @RequestBody RoleDTO role) {
