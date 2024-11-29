@@ -1,8 +1,8 @@
 package com.myproject.elearning.security;
 
-import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapErrorResponse;
+import static com.myproject.elearning.web.rest.utils.ResponseUtils.errorRes;
 
-import com.myproject.elearning.dto.common.ApiResponse;
+import com.myproject.elearning.dto.common.ApiRes;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -19,15 +19,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class CustomMethodAuthorizationDeniedHandler implements MethodAuthorizationDeniedHandler {
     @Override
-    public ResponseEntity<ApiResponse<ProblemDetail>> handleDeniedInvocation(
+    public ResponseEntity<ApiRes<ProblemDetail>> handleDeniedInvocation(
             MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
         problemDetail.setTitle("Access Denied");
         problemDetail.setDetail("Access denied to this resource");
         problemDetail.setProperty("isGranted", authorizationResult.isGranted());
 
-        ApiResponse<ProblemDetail> accessDeniedToThisResource =
-                wrapErrorResponse("Access denied to this resource", problemDetail);
+        ApiRes<ProblemDetail> accessDeniedToThisResource = errorRes("Access denied to this resource", problemDetail);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(accessDeniedToThisResource);
     }
 }

@@ -1,11 +1,11 @@
 package com.myproject.elearning.web.rest;
 
-import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapErrorResponse;
-import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
+import static com.myproject.elearning.web.rest.utils.ResponseUtils.errorRes;
+import static com.myproject.elearning.web.rest.utils.ResponseUtils.successRes;
 
-import com.myproject.elearning.dto.common.ApiResponse;
+import com.myproject.elearning.dto.common.ApiRes;
 import com.myproject.elearning.dto.common.TokenPair;
-import com.myproject.elearning.dto.request.auth.LoginRequest;
+import com.myproject.elearning.dto.request.auth.LoginReq;
 import com.myproject.elearning.service.AuthService;
 import com.myproject.elearning.web.rest.utils.CookieUtils;
 import jakarta.validation.Valid;
@@ -32,59 +32,57 @@ public class AuthController {
     JwtDecoder refreshTokenDecoder;
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<String>> authorize(@Valid @RequestBody LoginRequest loginRequest) {
-        TokenPair authenticationResponse = authService.authenticate(loginRequest);
-        ApiResponse<String> response = wrapSuccessResponse("Success", authenticationResponse.getAccessToken());
-        ResponseCookie refreshTokenCookie =
-                CookieUtils.createRefreshTokenCookie(authenticationResponse.getRefreshToken());
+    public ResponseEntity<ApiRes<String>> authorize(@Valid @RequestBody LoginReq loginReq) {
+        TokenPair authenticationResponse = authService.authenticate(loginReq);
+        ApiRes<String> response = successRes("Success", authenticationResponse.getAccessToken());
+        ResponseCookie refreshTokenCookie = CookieUtils.addRefreshCookie(authenticationResponse.getRefreshToken());
         return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
                 .body(response);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logout(
+    public ResponseEntity<ApiRes<Void>> logout(
             @CookieValue(name = "refresh_token", required = false) String refreshTokenCookie) throws ParseException {
         if (refreshTokenCookie == null) {
-            ApiResponse<Void> response = wrapErrorResponse("Refresh token is missing", null);
+            ApiRes<Void> response = errorRes("Refresh token is missing", null);
             return ResponseEntity.badRequest().body(response);
         }
         Jwt jwt = refreshTokenDecoder.decode(refreshTokenCookie);
         authService.logout(jwt);
-        ApiResponse<Void> response = wrapSuccessResponse("Log out successfully", null);
-        ResponseCookie clearCookie = CookieUtils.deleteRefreshTokenCookie();
+        ApiRes<Void> response = successRes("Log out successfully", null);
+        ResponseCookie clearCookie = CookieUtils.delRefreshCookie();
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .header(HttpHeaders.SET_COOKIE, clearCookie.toString())
                 .body(response);
     }
 
     @GetMapping(value = "/info")
-    public ResponseEntity<ApiResponse<String>> isAuthenticated(Principal principal) {
-        ApiResponse<String> response;
+    public ResponseEntity<ApiRes<String>> isAuthenticated(Principal principal) {
+        ApiRes<String> response;
         if (Objects.isNull(principal)) {
-            response = wrapErrorResponse("Not authenticated", "GUEST");
+            response = errorRes("Not authenticated", "GUEST");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         } else {
-            response = wrapSuccessResponse("Authenticated", principal.getName());
+            response = successRes("Authenticated", principal.getName());
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }
     }
 
     @PostMapping(value = "/refresh")
-    public ResponseEntity<ApiResponse<String>> refreshToken(
+    public ResponseEntity<ApiRes<String>> refreshToken(
             @CookieValue(name = "refresh_token", required = false) String refreshTokenCookie) throws ParseException {
         if (refreshTokenCookie == null) {
-            ApiResponse<String> response = wrapErrorResponse("Refresh token is missing", null);
+            ApiRes<String> response = errorRes("Refresh token is missing", null);
             return ResponseEntity.badRequest().body(response);
         }
         Jwt jwt = refreshTokenDecoder.decode(refreshTokenCookie);
         if (!authService.isRefreshTokenValidForUser(jwt)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(wrapErrorResponse("Invalid refresh token", null));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorRes("Invalid refresh token", null));
         }
         TokenPair authenticationResponse = authService.refresh(jwt);
-        ApiResponse<String> response = wrapSuccessResponse("Success", authenticationResponse.getAccessToken());
-        ResponseCookie responseCookie = CookieUtils.createRefreshTokenCookie(authenticationResponse.getRefreshToken());
+        ApiRes<String> response = successRes("Success", authenticationResponse.getAccessToken());
+        ResponseCookie responseCookie = CookieUtils.addRefreshCookie(authenticationResponse.getRefreshToken());
         return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
                 .body(response);

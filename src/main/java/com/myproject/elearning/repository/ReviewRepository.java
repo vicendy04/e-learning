@@ -1,8 +1,8 @@
 package com.myproject.elearning.repository;
 
 import com.myproject.elearning.domain.Review;
-import com.myproject.elearning.dto.response.review.ReviewCourseResponse;
-import com.myproject.elearning.dto.response.review.ReviewUserResponse;
+import com.myproject.elearning.dto.response.review.ReviewCourseRes;
+import com.myproject.elearning.dto.response.review.ReviewUserRes;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,7 +16,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     @Query(
             """
-			SELECT new com.myproject.elearning.dto.response.review.ReviewCourseResponse(
+			SELECT new com.myproject.elearning.dto.response.review.ReviewCourseRes(
 				r.id, r.rating, r.comment, r.createdAt, r.updatedAt,
 				u.id, u.username
 			)
@@ -25,11 +25,11 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 			LEFT JOIN r.course c
 			WHERE c.id = :courseId
 			""")
-    Page<ReviewCourseResponse> findAllByCourseId(@Param("courseId") Long courseId, Pageable pageable);
+    Page<ReviewCourseRes> findAllByCourseId(@Param("courseId") Long courseId, Pageable pageable);
 
     @Query(
             """
-			SELECT new com.myproject.elearning.dto.response.review.ReviewUserResponse(
+			SELECT new com.myproject.elearning.dto.response.review.ReviewUserRes(
 				r.id, r.rating, r.comment, r.createdAt, r.updatedAt,
 				c.id, c.title
 			)
@@ -38,7 +38,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 			JOIN r.user u
 			WHERE u.id = :userId
 			""")
-    Page<ReviewUserResponse> findAllByUserId(@Param("userId") Long userId, Pageable pageable);
+    Page<ReviewUserRes> findAllByUserId(@Param("userId") Long userId, Pageable pageable);
 
     boolean existsByUserIdAndCourseId(Long userId, Long courseId);
 

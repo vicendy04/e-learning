@@ -1,11 +1,11 @@
 package com.myproject.elearning.mapper;
 
 import com.myproject.elearning.domain.Course;
-import com.myproject.elearning.dto.request.course.CourseCreateRequest;
-import com.myproject.elearning.dto.request.course.CourseUpdateRequest;
-import com.myproject.elearning.dto.response.course.CourseGetResponse;
-import com.myproject.elearning.dto.response.course.CourseListResponse;
-import com.myproject.elearning.dto.response.course.CourseUpdateResponse;
+import com.myproject.elearning.dto.request.course.CourseCreateReq;
+import com.myproject.elearning.dto.request.course.CourseUpdateReq;
+import com.myproject.elearning.dto.response.course.CourseGetRes;
+import com.myproject.elearning.dto.response.course.CourseListRes;
+import com.myproject.elearning.dto.response.course.CourseUpdateRes;
 import com.myproject.elearning.mapper.base.MapperConfig;
 import org.mapstruct.*;
 
@@ -13,23 +13,23 @@ import org.mapstruct.*;
 public interface CourseMapper {
 
     // Create operations
-    Course toEntity(CourseCreateRequest request);
+    Course toEntity(CourseCreateReq request);
 
     // Update operations
-    Course toEntity(CourseUpdateRequest request);
+    Course toEntity(CourseUpdateReq request);
 
-    CourseUpdateResponse toUpdateResponse(Course entity);
+    CourseUpdateRes toUpdateResponse(Course entity);
 
     @Named("partialUpdate")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void partialUpdate(@MappingTarget Course entity, CourseUpdateRequest request);
+    void partialUpdate(@MappingTarget Course entity, CourseUpdateReq request);
 
     // Get operations
     //     @Mapping(target = "enrollmentCount", expression = "java(entity.getEnrollments().size())")
     //    @Mapping(target = "contents", expression = "java(mapContents(entity.getContents()))")
-    CourseGetResponse toGetResponse(Course entity);
+    CourseGetRes toGetResponse(Course entity);
 
-    CourseListResponse toCourseListResponse(Course entity);
+    CourseListRes toCourseListResponse(Course entity);
 
     // List operations
 

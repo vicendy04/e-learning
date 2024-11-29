@@ -2,13 +2,13 @@ package com.myproject.elearning.service;
 
 import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.domain.User;
-import com.myproject.elearning.dto.common.PagedResponse;
-import com.myproject.elearning.dto.request.course.CourseCreateRequest;
+import com.myproject.elearning.dto.common.PagedRes;
+import com.myproject.elearning.dto.request.course.CourseCreateReq;
 import com.myproject.elearning.dto.request.course.CourseSearchDTO;
-import com.myproject.elearning.dto.request.course.CourseUpdateRequest;
-import com.myproject.elearning.dto.response.course.CourseGetResponse;
-import com.myproject.elearning.dto.response.course.CourseListResponse;
-import com.myproject.elearning.dto.response.course.CourseUpdateResponse;
+import com.myproject.elearning.dto.request.course.CourseUpdateReq;
+import com.myproject.elearning.dto.response.course.CourseGetRes;
+import com.myproject.elearning.dto.response.course.CourseListRes;
+import com.myproject.elearning.dto.response.course.CourseUpdateRes;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.mapper.CourseMapper;
 import com.myproject.elearning.repository.CourseRepository;
@@ -34,15 +34,15 @@ public class CourseService {
     UserRepository userRepository;
 
     @Transactional
-    public CourseGetResponse createCourse(Long instructorId, CourseCreateRequest courseCreateRequest) {
-        Course course = courseMapper.toEntity(courseCreateRequest);
+    public CourseGetRes addCourse(Long instructorId, CourseCreateReq courseCreateReq) {
+        Course course = courseMapper.toEntity(courseCreateReq);
         User userRef = userRepository.getReferenceById(instructorId);
         course.setInstructor(userRef);
         Course savedCourse = courseRepository.save(course);
         return courseMapper.toGetResponse(savedCourse);
     }
 
-    public CourseGetResponse getCourse(Long id) {
+    public CourseGetRes getCourse(Long id) {
         Course course = courseRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
         return courseMapper.toGetResponse(course);
     }
@@ -52,20 +52,20 @@ public class CourseService {
     }
 
     @Transactional
-    public CourseUpdateResponse updateCourse(Long id, CourseUpdateRequest request) {
+    public CourseUpdateRes editCourse(Long id, CourseUpdateReq request) {
         Course course = courseRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
         courseMapper.partialUpdate(course, request);
         Course savedCourse = courseRepository.save(course);
         return courseMapper.toUpdateResponse(savedCourse);
     }
 
-    public void deleteCourse(Long id) {
+    public void delCourse(Long id) {
         Course course = courseRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
         courseRepository.delete(course);
     }
 
-    public PagedResponse<CourseListResponse> getCourses(CourseSearchDTO searchDTO, Pageable pageable) {
+    public PagedRes<CourseListRes> getCourses(CourseSearchDTO searchDTO, Pageable pageable) {
         Specification<Course> spec = CourseSpecification.filterCourses(searchDTO);
-        return PagedResponse.from(courseRepository.findAll(spec, pageable).map(courseMapper::toCourseListResponse));
+        return PagedRes.from(courseRepository.findAll(spec, pageable).map(courseMapper::toCourseListResponse));
     }
 }

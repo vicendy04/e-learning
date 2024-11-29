@@ -2,10 +2,10 @@ package com.myproject.elearning.mapper;
 
 import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.domain.User;
-import com.myproject.elearning.dto.request.auth.RegisterRequest;
-import com.myproject.elearning.dto.request.course.CourseCreateRequest;
-import com.myproject.elearning.dto.request.user.UserUpdateRequest;
-import com.myproject.elearning.dto.response.user.UserGetResponse;
+import com.myproject.elearning.dto.request.auth.RegisterReq;
+import com.myproject.elearning.dto.request.course.CourseCreateReq;
+import com.myproject.elearning.dto.request.user.UserUpdateReq;
+import com.myproject.elearning.dto.response.user.UserGetRes;
 import com.myproject.elearning.mapper.base.MapperConfig;
 import org.mapstruct.*;
 
@@ -13,23 +13,23 @@ import org.mapstruct.*;
 public interface UserMapper {
 
     // Create operations
-    Course toEntity(CourseCreateRequest request);
+    Course toEntity(CourseCreateReq request);
 
     // Update operations
 
-    UserUpdateRequest toUpdateResponse(User entity);
+    UserUpdateReq toUpdateResponse(User entity);
 
     @Named("partialUpdate")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void partialUpdate(@MappingTarget User entity, UserUpdateRequest request);
+    void partialUpdate(@MappingTarget User entity, UserUpdateReq request);
 
     // Register operations
-    RegisterRequest toRegisterRequest(User entity);
+    RegisterReq toRegisterRequest(User entity);
 
-    User toEntity(RegisterRequest request);
+    User toEntity(RegisterReq request);
 
     // Get operations
-    UserGetResponse toGetResponse(User entity);
+    UserGetRes toGetResponse(User entity);
 
     // List operations
 

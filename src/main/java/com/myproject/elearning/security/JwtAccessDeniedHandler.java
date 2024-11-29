@@ -1,9 +1,9 @@
 package com.myproject.elearning.security;
 
-import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapErrorResponse;
+import static com.myproject.elearning.web.rest.utils.ResponseUtils.errorRes;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.myproject.elearning.dto.common.ApiResponse;
+import com.myproject.elearning.dto.common.ApiRes;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -39,9 +39,9 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
         problemDetail.setTitle("Access Denied");
         problemDetail.setDetail(accessDeniedException.getMessage());
 
-        ApiResponse<ProblemDetail> apiResponse = wrapErrorResponse("Access denied to this resource", problemDetail);
+        ApiRes<ProblemDetail> apiRes = errorRes("Access denied to this resource", problemDetail);
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        objectMapper.writeValue(response.getOutputStream(), apiResponse);
+        objectMapper.writeValue(response.getOutputStream(), apiRes);
     }
 }

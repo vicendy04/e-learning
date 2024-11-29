@@ -1,13 +1,13 @@
 package com.myproject.elearning.web.rest;
 
-import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
+import static com.myproject.elearning.web.rest.utils.ResponseUtils.successRes;
 
-import com.myproject.elearning.dto.common.ApiResponse;
-import com.myproject.elearning.dto.common.PagedResponse;
-import com.myproject.elearning.dto.request.content.ContentCreateRequest;
-import com.myproject.elearning.dto.request.content.ContentOrderRequest;
-import com.myproject.elearning.dto.response.content.ContentGetResponse;
-import com.myproject.elearning.dto.response.content.ContentListResponse;
+import com.myproject.elearning.dto.common.ApiRes;
+import com.myproject.elearning.dto.common.PagedRes;
+import com.myproject.elearning.dto.request.content.ContentCreateReq;
+import com.myproject.elearning.dto.request.content.ContentOrderReq;
+import com.myproject.elearning.dto.response.content.ContentGetRes;
+import com.myproject.elearning.dto.response.content.ContentListRes;
 import com.myproject.elearning.service.ContentService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -32,27 +32,26 @@ public class CourseContentController {
     ContentService contentService;
 
     @GetMapping("")
-    public ResponseEntity<ApiResponse<PagedResponse<ContentListResponse>>> getContentsByCourseId(
+    public ResponseEntity<ApiRes<PagedRes<ContentListRes>>> getContentsByCourseId(
             @PathVariable Long courseId,
             @PageableDefault(size = 5, page = 0, sort = "title", direction = Sort.Direction.ASC) Pageable pageable) {
-        PagedResponse<ContentListResponse> contents = contentService.getContentsByCourseId(courseId, pageable);
-        ApiResponse<PagedResponse<ContentListResponse>> response =
-                wrapSuccessResponse("Contents retrieved successfully", contents);
+        PagedRes<ContentListRes> contents = contentService.getContentsByCourseId(courseId, pageable);
+        ApiRes<PagedRes<ContentListRes>> response = successRes("Contents retrieved successfully", contents);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("")
-    public ResponseEntity<ApiResponse<Void>> deleteContentsOfCourse(@PathVariable Long courseId) {
-        contentService.deleteContentsOfCourse(courseId);
-        ApiResponse<Void> response = wrapSuccessResponse("Contents deleted successfully", null);
+    public ResponseEntity<ApiRes<Void>> delContentsOfCourse(@PathVariable Long courseId) {
+        contentService.delContentsOfCourse(courseId);
+        ApiRes<Void> response = successRes("Contents deleted successfully", null);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
     }
 
     @PostMapping("")
-    public ResponseEntity<ApiResponse<ContentGetResponse>> addContentToCourse(
-            @PathVariable Long courseId, @Valid @RequestBody ContentCreateRequest request) {
-        ContentGetResponse createdContent = contentService.addContentToCourse(courseId, request);
-        ApiResponse<ContentGetResponse> response = wrapSuccessResponse("Content added successfully", createdContent);
+    public ResponseEntity<ApiRes<ContentGetRes>> addContentToCourse(
+            @PathVariable Long courseId, @Valid @RequestBody ContentCreateReq request) {
+        ContentGetRes createdContent = contentService.addContentToCourse(courseId, request);
+        ApiRes<ContentGetRes> response = successRes("Content added successfully", createdContent);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -60,16 +59,15 @@ public class CourseContentController {
      * Reorders the contents of a specific course.
      *
      * @param courseId            The ID of the course whose contents will be reordered.
-     * @param contentOrderRequest The new order of contents.
-     * @return The {@link ResponseEntity} with status {@code 200 (OK)} and the reordered contents wrapped in {@link ApiResponse}.
+     * @param contentOrderReq The new order of contents.
+     * @return The {@link ResponseEntity} with status {@code 200 (OK)} and the reordered contents wrapped in {@link ApiRes}.
      */
     @PostMapping("/reorder")
-    public ResponseEntity<ApiResponse<List<ContentListResponse>>> reorderContents(
-            @PathVariable Long courseId, @RequestBody ContentOrderRequest contentOrderRequest) {
-        List<ContentListResponse> reorderedContents =
-                contentService.reorderContents(courseId, contentOrderRequest.getOrderMapping());
-        ApiResponse<List<ContentListResponse>> response =
-                wrapSuccessResponse("Contents reordered successfully", reorderedContents);
+    public ResponseEntity<ApiRes<List<ContentListRes>>> reorderContents(
+            @PathVariable Long courseId, @RequestBody ContentOrderReq contentOrderReq) {
+        List<ContentListRes> reorderedContents =
+                contentService.reorderContents(courseId, contentOrderReq.getOrderMapping());
+        ApiRes<List<ContentListRes>> response = successRes("Contents reordered successfully", reorderedContents);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

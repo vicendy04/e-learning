@@ -3,11 +3,11 @@ package com.myproject.elearning.service;
 import com.myproject.elearning.domain.RefreshToken;
 import com.myproject.elearning.domain.Role;
 import com.myproject.elearning.domain.User;
-import com.myproject.elearning.dto.common.PagedResponse;
-import com.myproject.elearning.dto.request.auth.RegisterRequest;
+import com.myproject.elearning.dto.common.PagedRes;
+import com.myproject.elearning.dto.request.auth.RegisterReq;
 import com.myproject.elearning.dto.request.user.UserSearchDTO;
-import com.myproject.elearning.dto.request.user.UserUpdateRequest;
-import com.myproject.elearning.dto.response.user.UserGetResponse;
+import com.myproject.elearning.dto.request.user.UserUpdateReq;
+import com.myproject.elearning.dto.response.user.UserGetRes;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.mapper.UserMapper;
 import com.myproject.elearning.repository.RefreshTokenRepository;
@@ -42,10 +42,10 @@ public class UserService {
     UserMapper userMapper;
 
     @Transactional
-    public UserGetResponse createUser(RegisterRequest registerRequest) {
-        String encryptedPassword = passwordEncoder.encode(registerRequest.getPassword());
-        registerRequest.setPassword(encryptedPassword);
-        User user = userMapper.toEntity(registerRequest);
+    public UserGetRes addUser(RegisterReq registerReq) {
+        String encryptedPassword = passwordEncoder.encode(registerReq.getPassword());
+        registerReq.setPassword(encryptedPassword);
+        User user = userMapper.toEntity(registerReq);
         Set<Role> roles = new HashSet<>();
         if (userRepository.count() == 0) {
             roles.add(roleRepository.getReferenceById(AuthoritiesConstants.ADMIN));
@@ -58,7 +58,7 @@ public class UserService {
         return userMapper.toGetResponse(user);
     }
 
-    public UserGetResponse getUser(Long id) {
+    public UserGetRes getUser(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
         return userMapper.toGetResponse(user);
     }
@@ -82,21 +82,21 @@ public class UserService {
         return refreshToken;
     }
 
-    public UserGetResponse updateUser(Long id, UserUpdateRequest userUpdateRequest) {
+    public UserGetRes editUser(Long id, UserUpdateReq userUpdateReq) {
         User user = userRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
-        userMapper.partialUpdate(user, userUpdateRequest);
+        userMapper.partialUpdate(user, userUpdateReq);
         userRepository.save(user);
         return userMapper.toGetResponse(user);
     }
 
-    public void deleteUser(Long id) {
+    public void delUser(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
         userRepository.delete(user);
     }
 
-    public PagedResponse<UserGetResponse> getUsers(UserSearchDTO searchDTO, Pageable pageable) {
+    public PagedRes<UserGetRes> getUsers(UserSearchDTO searchDTO, Pageable pageable) {
         Specification<User> spec = UserSpecification.filterUsers(searchDTO);
-        Page<UserGetResponse> users = userRepository.findAll(spec, pageable).map(userMapper::toGetResponse);
-        return PagedResponse.from(users);
+        Page<UserGetRes> users = userRepository.findAll(spec, pageable).map(userMapper::toGetResponse);
+        return PagedRes.from(users);
     }
 }

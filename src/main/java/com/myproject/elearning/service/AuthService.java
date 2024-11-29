@@ -3,14 +3,14 @@ package com.myproject.elearning.service;
 import static com.myproject.elearning.security.SecurityUtils.CLAIM_KEY_AUTHORITIES;
 
 import com.myproject.elearning.dto.common.TokenPair;
-import com.myproject.elearning.dto.request.auth.LoginRequest;
+import com.myproject.elearning.dto.request.auth.LoginReq;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.repository.RefreshTokenRepository;
 import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.security.CustomUserDetailsService;
 import com.myproject.elearning.security.JwtTokenUtils;
 import com.myproject.elearning.security.SecurityUtils;
-import com.myproject.elearning.service.cache.RedisTokenBlacklistService;
+import com.myproject.elearning.service.cache.RedisBlackListService;
 import com.nimbusds.jwt.SignedJWT;
 import jakarta.transaction.Transactional;
 import java.text.ParseException;
@@ -44,8 +44,8 @@ public class AuthService {
     long refreshTokenValidityInSeconds;
 
     AuthenticationManagerBuilder authenticationManagerBuilder;
-    TokenBlacklistService tokenBlacklistService;
-    RedisTokenBlacklistService redisTokenBlacklistService;
+    BlackListService blackListService;
+    RedisBlackListService redisBlackListService;
     CustomUserDetailsService userDetailsService;
     JwtTokenUtils jwtTokenUtils;
     UserRepository userRepository;
@@ -53,9 +53,9 @@ public class AuthService {
     JwtEncoder jwtEncoder;
     UserService userService;
 
-    public TokenPair authenticate(LoginRequest loginRequest) {
+    public TokenPair authenticate(LoginReq loginReq) {
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsernameOrEmail(), loginRequest.getPassword());
+                new UsernamePasswordAuthenticationToken(loginReq.getUsernameOrEmail(), loginReq.getPassword());
         /* https://docs.spring.io/spring-security/reference/servlet/authentication/architecture.html#servlet-authentication-authentication */
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -94,8 +94,8 @@ public class AuthService {
         SignedJWT signedJWT = jwtTokenUtils.getClaims(token);
         String jti = signedJWT.getJWTClaimsSet().getJWTID();
         Instant expireTime = signedJWT.getJWTClaimsSet().getExpirationTime().toInstant();
-        tokenBlacklistService.revokeToken(jti, expireTime); // db save
-        redisTokenBlacklistService.revokeToken(jti, expireTime); // redis set
+        blackListService.revokeToken(jti, expireTime); // db save
+        redisBlackListService.revokeToken(jti, expireTime); // redis set
     }
 
     /**

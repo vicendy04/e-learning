@@ -1,6 +1,6 @@
 package com.myproject.elearning.service.cache;
 
-import com.myproject.elearning.dto.response.course.CourseGetResponse;
+import com.myproject.elearning.dto.response.course.CourseGetRes;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -34,10 +34,10 @@ public class RedisCourseService {
         return ENROLLMENT_COUNT_CACHE_KEY + id;
     }
 
-    public CourseGetResponse getCachedCourse(Long id) {
+    public CourseGetRes getCachedCourse(Long id) {
         Object obj = valueOps.get(getCourseKey(id));
         if (obj != null) {
-            return (CourseGetResponse) obj;
+            return (CourseGetRes) obj;
         }
         return null;
     }
@@ -50,11 +50,11 @@ public class RedisCourseService {
         return null;
     }
 
-    public void setCachedCourse(Long id, CourseGetResponse course, long expiryTimeInSeconds) {
+    public void setCachedCourse(Long id, CourseGetRes course, long expiryTimeInSeconds) {
         valueOps.set(getCourseKey(id), course, expiryTimeInSeconds, TimeUnit.SECONDS);
     }
 
-    public void setCachedCourse(Long id, CourseGetResponse course) {
+    public void setCachedCourse(Long id, CourseGetRes course) {
         Random random = new Random();
         long randomExpiry = DEFAULT_CACHE_DURATION + random.nextInt((int) MAX_RANDOM_EXPIRY);
         valueOps.set(getCourseKey(id), course, randomExpiry, TimeUnit.SECONDS);

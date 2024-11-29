@@ -1,10 +1,10 @@
 package com.myproject.elearning.mapper;
 
 import com.myproject.elearning.domain.Content;
-import com.myproject.elearning.dto.request.content.ContentCreateRequest;
-import com.myproject.elearning.dto.request.content.ContentUpdateRequest;
-import com.myproject.elearning.dto.response.content.ContentGetResponse;
-import com.myproject.elearning.dto.response.content.ContentListResponse;
+import com.myproject.elearning.dto.request.content.ContentCreateReq;
+import com.myproject.elearning.dto.request.content.ContentUpdateReq;
+import com.myproject.elearning.dto.response.content.ContentGetRes;
+import com.myproject.elearning.dto.response.content.ContentListRes;
 import com.myproject.elearning.mapper.base.MapperConfig;
 import java.util.List;
 import org.mapstruct.*;
@@ -16,30 +16,30 @@ public interface ContentMapper {
     @Mapping(target = "contentType", expression = "java(Content.ContentType.valueOf(request.getContentType()))")
     @Mapping(target = "status", expression = "java(Content.ContentStatus.valueOf(request.getStatus()))")
     //    @Mapping(target = "course", source = "courseId", qualifiedByName = "toCourse")
-    Content toEntity(ContentCreateRequest request);
+    Content toEntity(ContentCreateReq request);
 
     // Update operations
     @Mapping(target = "contentType", expression = "java(Content.ContentType.valueOf(request.getContentType()))")
     @Mapping(target = "status", expression = "java(Content.ContentStatus.valueOf(request.getStatus()))")
-    Content toEntity(ContentUpdateRequest request);
+    Content toEntity(ContentUpdateReq request);
 
     @Named("partialUpdate")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void partialUpdate(@MappingTarget Content entity, ContentUpdateRequest request);
+    void partialUpdate(@MappingTarget Content entity, ContentUpdateReq request);
 
     // Get operations
     @Mapping(target = "contentType", expression = "java(entity.getContentType().name())")
     @Mapping(target = "status", expression = "java(entity.getStatus().name())")
     @Mapping(target = "courseId", source = "course.id")
     @Mapping(target = "courseTitle", source = "course.title")
-    ContentGetResponse toGetResponse(Content entity);
+    ContentGetRes toGetResponse(Content entity);
 
     // List operations
     @Mapping(target = "contentType", expression = "java(entity.getContentType().name())")
     @Mapping(target = "status", expression = "java(entity.getStatus().name())")
-    ContentListResponse toListResponse(Content entity);
+    ContentListRes toListResponse(Content entity);
 
-    List<ContentListResponse> toListResponse(List<Content> entities);
+    List<ContentListRes> toListResponse(List<Content> entities);
 
     //    @Named("toCourse")
     //    default Course toCourse(Long courseId) {

@@ -1,15 +1,15 @@
 package com.myproject.elearning.web.rest;
 
-import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
+import static com.myproject.elearning.web.rest.utils.ResponseUtils.successRes;
 
-import com.myproject.elearning.dto.common.ApiResponse;
-import com.myproject.elearning.dto.common.PagedResponse;
-import com.myproject.elearning.dto.request.course.CourseCreateRequest;
+import com.myproject.elearning.dto.common.ApiRes;
+import com.myproject.elearning.dto.common.PagedRes;
+import com.myproject.elearning.dto.request.course.CourseCreateReq;
 import com.myproject.elearning.dto.request.course.CourseSearchDTO;
-import com.myproject.elearning.dto.request.course.CourseUpdateRequest;
-import com.myproject.elearning.dto.response.course.CourseGetResponse;
-import com.myproject.elearning.dto.response.course.CourseListResponse;
-import com.myproject.elearning.dto.response.course.CourseUpdateResponse;
+import com.myproject.elearning.dto.request.course.CourseUpdateReq;
+import com.myproject.elearning.dto.response.course.CourseGetRes;
+import com.myproject.elearning.dto.response.course.CourseListRes;
+import com.myproject.elearning.dto.response.course.CourseUpdateRes;
 import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
 import com.myproject.elearning.security.SecurityUtils;
 import com.myproject.elearning.service.CourseService;
@@ -39,57 +39,54 @@ public class CourseController {
 
     @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     @PostMapping("")
-    public ResponseEntity<ApiResponse<CourseGetResponse>> createCourse(
-            @Valid @RequestBody CourseCreateRequest courseCreateRequest) {
-        Long curUserId = SecurityUtils.getCurrentUserLoginId().orElseThrow(AnonymousUserException::new);
-        CourseGetResponse courseResponse = courseService.createCourse(curUserId, courseCreateRequest);
-        ApiResponse<CourseGetResponse> response = wrapSuccessResponse("Course created successfully", courseResponse);
+    public ResponseEntity<ApiRes<CourseGetRes>> addCourse(@Valid @RequestBody CourseCreateReq courseCreateReq) {
+        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
+        CourseGetRes courseResponse = courseService.addCourse(curUserId, courseCreateReq);
+        ApiRes<CourseGetRes> response = successRes("Course created successfully", courseResponse);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<CourseGetResponse>> getCourse(@PathVariable(name = "id") Long id) {
-        CourseGetResponse courseGetResponse = redisCourseService.getCachedCourse(id);
-        if (courseGetResponse == null) {
-            courseGetResponse = courseService.getCourse(id);
-            redisCourseService.setCachedCourse(id, courseGetResponse);
+    public ResponseEntity<ApiRes<CourseGetRes>> getCourse(@PathVariable(name = "id") Long id) {
+        CourseGetRes courseGetRes = redisCourseService.getCachedCourse(id);
+        if (courseGetRes == null) {
+            courseGetRes = courseService.getCourse(id);
+            redisCourseService.setCachedCourse(id, courseGetRes);
         }
         Integer enrollmentCount = redisCourseService.getCachedEnrollmentCount(id);
         if (enrollmentCount == null) {
             enrollmentCount = courseService.countEnrollments(id);
             redisCourseService.setCachedEnrollmentCount(id, enrollmentCount);
         }
-        courseGetResponse.setEnrollmentCount(enrollmentCount);
+        courseGetRes.setEnrollmentCount(enrollmentCount);
 
-        ApiResponse<CourseGetResponse> response =
-                wrapSuccessResponse("Course retrieved successfully", courseGetResponse);
+        ApiRes<CourseGetRes> response = successRes("Course retrieved successfully", courseGetRes);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("")
-    public ResponseEntity<ApiResponse<PagedResponse<CourseListResponse>>> getCourses(
+    public ResponseEntity<ApiRes<PagedRes<CourseListRes>>> getCourses(
             @ModelAttribute CourseSearchDTO searchDTO,
             @PageableDefault(size = 10, page = 0, sort = "title", direction = Sort.Direction.ASC) Pageable pageable) {
-        PagedResponse<CourseListResponse> courses = courseService.getCourses(searchDTO, pageable);
-        ApiResponse<PagedResponse<CourseListResponse>> response =
-                wrapSuccessResponse("Courses retrieved successfully", courses);
+        PagedRes<CourseListRes> courses = courseService.getCourses(searchDTO, pageable);
+        ApiRes<PagedRes<CourseListRes>> response = successRes("Courses retrieved successfully", courses);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<CourseUpdateResponse>> updateCourse(
-            @PathVariable(name = "id") Long id, @RequestBody CourseUpdateRequest courseUpdateRequest) {
-        CourseUpdateResponse updatedCourse = courseService.updateCourse(id, courseUpdateRequest);
+    public ResponseEntity<ApiRes<CourseUpdateRes>> editCourse(
+            @PathVariable(name = "id") Long id, @RequestBody CourseUpdateReq courseUpdateReq) {
+        CourseUpdateRes updatedCourse = courseService.editCourse(id, courseUpdateReq);
         //        courseCacheService.invalidateCache(id); // note
-        ApiResponse<CourseUpdateResponse> response = wrapSuccessResponse("Course updated successfully", updatedCourse);
+        ApiRes<CourseUpdateRes> response = successRes("Course updated successfully", updatedCourse);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteCourse(@PathVariable(name = "id") Long id) {
-        courseService.deleteCourse(id);
+    public ResponseEntity<ApiRes<Void>> delCourse(@PathVariable(name = "id") Long id) {
+        courseService.delCourse(id);
         //        courseCacheService.invalidateCache(id); // note
-        ApiResponse<Void> response = wrapSuccessResponse("Course deleted successfully", null);
+        ApiRes<Void> response = successRes("Course deleted successfully", null);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
     }
 }

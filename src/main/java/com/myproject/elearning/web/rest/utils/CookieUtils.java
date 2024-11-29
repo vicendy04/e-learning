@@ -24,7 +24,7 @@ public final class CookieUtils {
         staticRefreshTokenValidityInSeconds = this.refreshTokenValidityInSeconds;
     }
 
-    public static ResponseCookie createRefreshTokenCookie(String refreshToken) {
+    public static ResponseCookie addRefreshCookie(String refreshToken) {
         return ResponseCookie.from(REFRESH_TOKEN_COOKIE_NAME, refreshToken)
                 .httpOnly(true)
                 .secure(true)
@@ -34,7 +34,7 @@ public final class CookieUtils {
                 .build();
     }
 
-    public static ResponseCookie deleteRefreshTokenCookie() {
+    public static ResponseCookie delRefreshCookie() {
         return ResponseCookie.from(REFRESH_TOKEN_COOKIE_NAME, "")
                 .httpOnly(true)
                 .secure(true)

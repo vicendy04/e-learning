@@ -3,13 +3,13 @@ package com.myproject.elearning.service;
 import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.domain.Review;
 import com.myproject.elearning.domain.User;
-import com.myproject.elearning.dto.common.PagedResponse;
-import com.myproject.elearning.dto.request.review.ReviewCreateRequest;
-import com.myproject.elearning.dto.request.review.ReviewUpdateRequest;
-import com.myproject.elearning.dto.response.review.ReviewCourseResponse;
-import com.myproject.elearning.dto.response.review.ReviewResponse;
-import com.myproject.elearning.dto.response.review.ReviewUpdateResponse;
-import com.myproject.elearning.dto.response.review.ReviewUserResponse;
+import com.myproject.elearning.dto.common.PagedRes;
+import com.myproject.elearning.dto.request.review.ReviewCreateReq;
+import com.myproject.elearning.dto.request.review.ReviewUpdateReq;
+import com.myproject.elearning.dto.response.review.ReviewCourseRes;
+import com.myproject.elearning.dto.response.review.ReviewRes;
+import com.myproject.elearning.dto.response.review.ReviewUpdateRes;
+import com.myproject.elearning.dto.response.review.ReviewUserRes;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.mapper.ReviewMapper;
 import com.myproject.elearning.repository.CourseRepository;
@@ -33,7 +33,7 @@ public class ReviewService {
     ReviewMapper reviewMapper;
 
     @Transactional
-    public ReviewResponse createReview(Long userId, Long courseId, ReviewCreateRequest request) {
+    public ReviewRes addReview(Long userId, Long courseId, ReviewCreateReq request) {
         if (reviewRepository.existsByUserIdAndCourseId(userId, courseId)) {
             throw new IllegalStateException("Người dùng đã đánh giá khóa học này");
         }
@@ -49,25 +49,25 @@ public class ReviewService {
     }
 
     @Transactional
-    public ReviewUpdateResponse updateReview(Long reviewId, ReviewUpdateRequest request) {
+    public ReviewUpdateRes editReview(Long reviewId, ReviewUpdateReq request) {
         Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new InvalidIdException(reviewId));
         reviewMapper.partialUpdate(review, request);
         return reviewMapper.toUpdateResponse(reviewRepository.save(review));
     }
 
-    public void deleteReview(Long reviewId) {
+    public void delReview(Long reviewId) {
         int deletedCount = reviewRepository.deleteByReviewId(reviewId);
         if (deletedCount == 0) throw new InvalidIdException(reviewId);
     }
 
-    public PagedResponse<ReviewCourseResponse> getReviewsByCourse(Long courseId, Pageable pageable) {
-        Page<ReviewCourseResponse> reviews = reviewRepository.findAllByCourseId(courseId, pageable);
-        return PagedResponse.from(reviews);
+    public PagedRes<ReviewCourseRes> getReviewsByCourse(Long courseId, Pageable pageable) {
+        Page<ReviewCourseRes> reviews = reviewRepository.findAllByCourseId(courseId, pageable);
+        return PagedRes.from(reviews);
     }
 
-    public PagedResponse<ReviewUserResponse> getReviewsByUser(Long userId, Pageable pageable) {
-        Page<ReviewUserResponse> reviews = reviewRepository.findAllByUserId(userId, pageable);
-        return PagedResponse.from(reviews);
+    public PagedRes<ReviewUserRes> getReviewsByUser(Long userId, Pageable pageable) {
+        Page<ReviewUserRes> reviews = reviewRepository.findAllByUserId(userId, pageable);
+        return PagedRes.from(reviews);
     }
 
     public Double getAverageRating(Long courseId) {

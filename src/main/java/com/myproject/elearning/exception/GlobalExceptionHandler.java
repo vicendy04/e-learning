@@ -1,8 +1,8 @@
 package com.myproject.elearning.exception;
 
-import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapErrorResponse;
+import static com.myproject.elearning.web.rest.utils.ResponseUtils.errorRes;
 
-import com.myproject.elearning.dto.common.ApiResponse;
+import com.myproject.elearning.dto.common.ApiRes;
 import com.myproject.elearning.exception.problemdetails.EmailAlreadyUsedException;
 import com.myproject.elearning.exception.problemdetails.InvalidDiscountException;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
@@ -54,12 +54,12 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({AccessDeniedException.class, AuthorizationDeniedException.class})
-    public ResponseEntity<ApiResponse<ProblemDetail>> handleSecurityException(Exception ex) {
+    public ResponseEntity<ApiRes<ProblemDetail>> handleSecurityException(Exception ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
         problemDetail.setTitle("Access Denied");
         problemDetail.setDetail(ex.getMessage());
 
-        ApiResponse<ProblemDetail> response = wrapErrorResponse("Access denied to this resource", problemDetail);
+        ApiRes<ProblemDetail> response = errorRes("Access denied to this resource", problemDetail);
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }

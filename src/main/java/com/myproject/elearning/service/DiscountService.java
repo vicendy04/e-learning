@@ -1,9 +1,9 @@
 package com.myproject.elearning.service;
 
 import com.myproject.elearning.domain.Discount;
-import com.myproject.elearning.dto.common.PagedResponse;
-import com.myproject.elearning.dto.request.discount.DiscountCreateRequest;
-import com.myproject.elearning.dto.response.discount.DiscountGetResponse;
+import com.myproject.elearning.dto.common.PagedRes;
+import com.myproject.elearning.dto.request.discount.DiscountCreateReq;
+import com.myproject.elearning.dto.response.discount.DiscountGetRes;
 import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
 import com.myproject.elearning.exception.problemdetails.InvalidDiscountException;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
@@ -32,8 +32,8 @@ public class DiscountService {
     DiscountMapper discountMapper;
 
     @Transactional
-    public String generateDiscountCode(DiscountCreateRequest request) {
-        Long instructorId = SecurityUtils.getCurrentUserLoginId().orElseThrow(AnonymousUserException::new);
+    public String addDiscount(DiscountCreateReq request) {
+        Long instructorId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
         if (discountRepository.existsByInstructorIdAndDiscountCode(instructorId, request.getDiscountCode())) {
             throw new InvalidDiscountException("Mã giảm giá đã tồn tại");
         }
@@ -51,13 +51,13 @@ public class DiscountService {
         return request.getDiscountCode();
     }
 
-    public PagedResponse<DiscountGetResponse> getDiscountsForInstructor(Pageable pageable) {
-        Long id = SecurityUtils.getCurrentUserLoginId().orElseThrow(AnonymousUserException::new);
-        Page<DiscountGetResponse> discounts = Page.empty();
+    public PagedRes<DiscountGetRes> getDiscountsForInstructor(Pageable pageable) {
+        Long id = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
+        Page<DiscountGetRes> discounts = Page.empty();
         if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.INSTRUCTOR)) {
             discounts = discountRepository.findAllByInstructorId(pageable, id).map(discountMapper::toGetResponse);
         }
-        return PagedResponse.from(discounts);
+        return PagedRes.from(discounts);
     }
 
     //    3. Get all product by discount code [User/Student]
@@ -110,8 +110,8 @@ public class DiscountService {
     }
 
     @Transactional
-    public void deleteDiscountCode(Long discountId) {
-        Long id = SecurityUtils.getCurrentUserLoginId().orElseThrow(AnonymousUserException::new);
+    public void delDiscountVoucher(Long discountId) {
+        Long id = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
         int rowsDeleted = discountRepository.deleteByIdAndInstructorId(discountId, id);
         if (rowsDeleted == 0) {
             throw new InvalidDiscountException("Mã giảm giá không tồn tại hoặc không thuộc về bạn");

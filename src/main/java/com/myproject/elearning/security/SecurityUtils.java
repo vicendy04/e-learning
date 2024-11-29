@@ -34,7 +34,12 @@ public final class SecurityUtils {
         return Optional.ofNullable(extractPrincipal(securityContext.getAuthentication()));
     }
 
-    public static Optional<Long> getCurrentUserLoginId() {
+    /**
+     * Get the login of the current user.
+     *
+     * @return the login of the current user.
+     */
+    public static Optional<Long> getLoginId() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         String userLogin = extractPrincipal(securityContext.getAuthentication());
 

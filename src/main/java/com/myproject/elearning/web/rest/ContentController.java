@@ -1,12 +1,12 @@
 package com.myproject.elearning.web.rest;
 
-import static com.myproject.elearning.web.rest.utils.ResponseUtils.wrapSuccessResponse;
+import static com.myproject.elearning.web.rest.utils.ResponseUtils.successRes;
 
-import com.myproject.elearning.dto.common.ApiResponse;
-import com.myproject.elearning.dto.common.PagedResponse;
-import com.myproject.elearning.dto.request.content.ContentCreateRequest;
-import com.myproject.elearning.dto.request.content.ContentUpdateRequest;
-import com.myproject.elearning.dto.response.content.ContentGetResponse;
+import com.myproject.elearning.dto.common.ApiRes;
+import com.myproject.elearning.dto.common.PagedRes;
+import com.myproject.elearning.dto.request.content.ContentCreateReq;
+import com.myproject.elearning.dto.request.content.ContentUpdateReq;
+import com.myproject.elearning.dto.response.content.ContentGetRes;
 import com.myproject.elearning.service.ContentService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -30,41 +30,39 @@ public class ContentController {
     ContentService contentService;
 
     @PostMapping("")
-    public ResponseEntity<ApiResponse<ContentGetResponse>> createContent(
-            @Valid @RequestBody ContentCreateRequest request) {
-        ContentGetResponse newContent = contentService.createContent(request);
-        ApiResponse<ContentGetResponse> response = wrapSuccessResponse("Content created successfully", newContent);
+    public ResponseEntity<ApiRes<ContentGetRes>> addContent(@Valid @RequestBody ContentCreateReq request) {
+        ContentGetRes newContent = contentService.addContent(request);
+        ApiRes<ContentGetRes> response = successRes("Content created successfully", newContent);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ContentGetResponse>> getContent(@PathVariable(name = "id") Long id) {
-        ContentGetResponse content = contentService.getContent(id);
-        ApiResponse<ContentGetResponse> response = wrapSuccessResponse("Content retrieved successfully", content);
+    public ResponseEntity<ApiRes<ContentGetRes>> getContent(@PathVariable(name = "id") Long id) {
+        ContentGetRes content = contentService.getContent(id);
+        ApiRes<ContentGetRes> response = successRes("Content retrieved successfully", content);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("")
-    public ResponseEntity<ApiResponse<PagedResponse<ContentGetResponse>>> getAllContents(
+    public ResponseEntity<ApiRes<PagedRes<ContentGetRes>>> getContents(
             @PageableDefault(size = 5, page = 0, sort = "title", direction = Sort.Direction.ASC) Pageable pageable) {
-        PagedResponse<ContentGetResponse> contents = contentService.getAllContents(pageable);
-        ApiResponse<PagedResponse<ContentGetResponse>> response =
-                wrapSuccessResponse("Contents retrieved successfully", contents);
+        PagedRes<ContentGetRes> contents = contentService.getContents(pageable);
+        ApiRes<PagedRes<ContentGetRes>> response = successRes("Contents retrieved successfully", contents);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<ContentGetResponse>> updateContent(
-            @PathVariable(name = "id") Long id, @Valid @RequestBody ContentUpdateRequest request) {
-        ContentGetResponse updatedContent = contentService.updateContent(id, request);
-        ApiResponse<ContentGetResponse> response = wrapSuccessResponse("Content updated successfully", updatedContent);
+    public ResponseEntity<ApiRes<ContentGetRes>> editContent(
+            @PathVariable(name = "id") Long id, @Valid @RequestBody ContentUpdateReq request) {
+        ContentGetRes updatedContent = contentService.editContent(id, request);
+        ApiRes<ContentGetRes> response = successRes("Content updated successfully", updatedContent);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteContent(@PathVariable(name = "id") Long id) {
-        contentService.deleteContent(id);
-        ApiResponse<Void> response = wrapSuccessResponse("Content deleted successfully", null);
+    public ResponseEntity<ApiRes<Void>> delContent(@PathVariable(name = "id") Long id) {
+        contentService.delContent(id);
+        ApiRes<Void> response = successRes("Content deleted successfully", null);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
     }
 }
