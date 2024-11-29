@@ -1,6 +1,7 @@
 package com.myproject.elearning.service;
 
 import com.myproject.elearning.domain.Course;
+import com.myproject.elearning.domain.User;
 import com.myproject.elearning.dto.common.PagedResponse;
 import com.myproject.elearning.dto.request.course.CourseCreateRequest;
 import com.myproject.elearning.dto.request.course.CourseSearchDTO;
@@ -11,6 +12,7 @@ import com.myproject.elearning.dto.response.course.CourseUpdateResponse;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.mapper.CourseMapper;
 import com.myproject.elearning.repository.CourseRepository;
+import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.repository.specification.CourseSpecification;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -29,10 +31,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class CourseService {
     CourseRepository courseRepository;
     CourseMapper courseMapper;
+    UserRepository userRepository;
 
     @Transactional
-    public CourseGetResponse createCourse(CourseCreateRequest courseCreateRequest) {
+    public CourseGetResponse createCourse(Long instructorId, CourseCreateRequest courseCreateRequest) {
         Course course = courseMapper.toEntity(courseCreateRequest);
+        User userRef = userRepository.getReferenceById(instructorId);
+        course.setInstructor(userRef);
         Course savedCourse = courseRepository.save(course);
         return courseMapper.toGetResponse(savedCourse);
     }

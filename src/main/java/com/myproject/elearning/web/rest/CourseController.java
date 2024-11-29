@@ -10,6 +10,8 @@ import com.myproject.elearning.dto.request.course.CourseUpdateRequest;
 import com.myproject.elearning.dto.response.course.CourseGetResponse;
 import com.myproject.elearning.dto.response.course.CourseListResponse;
 import com.myproject.elearning.dto.response.course.CourseUpdateResponse;
+import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
+import com.myproject.elearning.security.SecurityUtils;
 import com.myproject.elearning.service.CourseService;
 import com.myproject.elearning.service.cache.RedisCourseService;
 import jakarta.validation.Valid;
@@ -21,6 +23,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -34,10 +37,12 @@ public class CourseController {
     CourseService courseService;
     RedisCourseService redisCourseService;
 
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     @PostMapping("")
     public ResponseEntity<ApiResponse<CourseGetResponse>> createCourse(
             @Valid @RequestBody CourseCreateRequest courseCreateRequest) {
-        CourseGetResponse courseResponse = courseService.createCourse(courseCreateRequest);
+        Long curUserId = SecurityUtils.getCurrentUserLoginId().orElseThrow(AnonymousUserException::new);
+        CourseGetResponse courseResponse = courseService.createCourse(curUserId, courseCreateRequest);
         ApiResponse<CourseGetResponse> response = wrapSuccessResponse("Course created successfully", courseResponse);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

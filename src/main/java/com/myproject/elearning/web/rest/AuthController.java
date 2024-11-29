@@ -49,7 +49,8 @@ public class AuthController {
             ApiResponse<Void> response = wrapErrorResponse("Refresh token is missing", null);
             return ResponseEntity.badRequest().body(response);
         }
-        authService.revoke(refreshTokenCookie);
+        Jwt jwt = refreshTokenDecoder.decode(refreshTokenCookie);
+        authService.logout(jwt);
         ApiResponse<Void> response = wrapSuccessResponse("Log out successfully", null);
         ResponseCookie clearCookie = CookieUtils.deleteRefreshTokenCookie();
         return ResponseEntity.status(HttpStatus.NO_CONTENT)

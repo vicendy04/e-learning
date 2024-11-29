@@ -66,6 +66,12 @@ public class Course {
     //    @ManyToMany(mappedBy = "specificCourses")
     //    private Set<Discount> discounts = new HashSet<>();
 
+    @JsonIgnoreProperties("course")
+    @OneToMany(
+            mappedBy = "course",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    List<Review> reviews = new ArrayList<>();
+
     public enum CourseCategory {
         FITNESS,
         DESIGN,

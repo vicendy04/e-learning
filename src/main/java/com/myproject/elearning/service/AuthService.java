@@ -78,12 +78,16 @@ public class AuthService {
         String newRefreshToken;
         //      * Checks if the given token is near its refresh threshold.
         if (jwtTokenUtils.isTokenReadyForRefresh(jwt.getTokenValue())) {
-            this.revoke(jwt.getTokenValue());
+            revoke(jwt.getTokenValue());
             newRefreshToken = generateAndStoreNewRefreshToken(authentication.getName());
         } else {
             newRefreshToken = jwt.getTokenValue(); // old token
         }
         return new TokenPair(newAccessToken, newRefreshToken);
+    }
+
+    public void logout(Jwt jwt) throws ParseException {
+        revoke(jwt.getTokenValue());
     }
 
     public void revoke(String token) throws ParseException {

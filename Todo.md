@@ -1,10 +1,10 @@
 - dùng kafka để send notification
-- comment
+- comment, review
 - register teacher
 - chỉnh tên ngắn laại
 - my courses (teacher controller)
-- fix create course no instructor id
 - upload file
 - change password
-- fix bug logout logic, chong token da revoke, access token nen duoc invalid
+- access token nen duoc invalid
 - tach logic instructedCourses trong user ra bang rieng
+- fix trigger n + 1 from mapping dto

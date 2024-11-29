@@ -72,6 +72,12 @@ public class User {
             cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     List<Course> instructedCourses = new ArrayList<>();
 
+    @JsonIgnoreProperties("user")
+    @OneToMany(
+            mappedBy = "user",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    List<Review> reviews = new ArrayList<>();
+
     public void addEnrollment(Enrollment enrollment) {
         enrollments.add(enrollment);
         enrollment.setUser(this);

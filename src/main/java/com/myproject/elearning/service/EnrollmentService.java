@@ -4,6 +4,7 @@ import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.domain.Enrollment;
 import com.myproject.elearning.domain.User;
 import com.myproject.elearning.dto.common.PagedResponse;
+import com.myproject.elearning.dto.response.enrollment.EnrollmentGetResponse;
 import com.myproject.elearning.dto.response.enrollment.EnrollmentResponse;
 import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
 import com.myproject.elearning.exception.problemdetails.EmailAlreadyUsedException;
@@ -11,6 +12,7 @@ import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.mapper.EnrollmentMapper;
 import com.myproject.elearning.repository.CourseRepository;
 import com.myproject.elearning.repository.EnrollmentRepository;
+import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.security.AuthoritiesConstants;
 import com.myproject.elearning.security.SecurityUtils;
 import java.util.Objects;
@@ -28,62 +30,57 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class EnrollmentService {
     EnrollmentRepository enrollmentRepository;
-    UserService userService;
     CourseRepository courseRepository;
+    UserRepository userRepository;
     EnrollmentMapper enrollmentMapper;
 
     @Transactional
-    public EnrollmentResponse enrollCourse(String email, Long courseId) {
-        if (enrollmentRepository.existsByUserEmailAndCourseId(email, courseId)) {
+    public EnrollmentResponse enrollCourse(Long userId, Long courseId) {
+        if (enrollmentRepository.existsByUserIdAndCourseId(userId, courseId)) {
             throw new EmailAlreadyUsedException("User already enrolled in this course");
         }
-
-        User user = userService.getUser(email);
-        Course course = courseRepository.findById(courseId).orElseThrow(() -> new InvalidIdException(courseId));
-
+        User userRef = userRepository.getReferenceIfExists(userId);
+        Course courseRef = courseRepository.getReferenceIfExists(courseId);
         Enrollment enrollment = new Enrollment();
-        user.addEnrollment(enrollment);
-        course.addEnrollment(enrollment);
-
+        enrollment.setUser(userRef);
+        enrollment.setCourse(courseRef);
         return enrollmentMapper.toEnrollmentResponse(enrollmentRepository.save(enrollment));
     }
 
-    public void unrollCourse(String email, Long courseId) {
-        Enrollment enrollment = enrollmentRepository
-                .findByUserEmailAndCourseId(email, courseId)
-                .orElseThrow(() -> new InvalidIdException("Enrollment not found"));
-        enrollmentRepository.delete(enrollment);
+    public void unrollCourse(Long userId, Long courseId) {
+        int deletedCount = enrollmentRepository.deleteByUserIdAndCourseId(userId, courseId);
+        if (deletedCount == 0) throw new InvalidIdException("Enrollment not found");
     }
 
-    public PagedResponse<EnrollmentResponse> getUserEnrollments(String email, Pageable pageable) {
-        Page<Enrollment> enrollments = enrollmentRepository.findAllByUserEmail(email, pageable);
-        return PagedResponse.from(enrollments.map(enrollmentMapper::toEnrollmentResponse));
+    public PagedResponse<EnrollmentGetResponse> getUserEnrollments(Long userId, Pageable pageable) {
+        Page<Enrollment> enrollments = enrollmentRepository.findAllByUserId(userId, pageable);
+        return PagedResponse.from(enrollments.map(enrollmentMapper::toEnrollmentGetResponse));
     }
 
     @Transactional(readOnly = true)
-    public EnrollmentResponse getEnrollment(Long enrollmentId) {
-        return enrollmentMapper.toEnrollmentResponse(enrollmentRepository
+    public EnrollmentGetResponse getEnrollment(Long enrollmentId) {
+        return enrollmentMapper.toEnrollmentGetResponse(enrollmentRepository
                 .findByIdWithDetails(enrollmentId)
                 .orElseThrow(() -> new InvalidIdException(enrollmentId)));
     }
 
-    public PagedResponse<EnrollmentResponse> getCourseEnrollments(Long courseId, Pageable pageable) {
+    public PagedResponse<EnrollmentGetResponse> getCourseEnrollments(Long courseId, Pageable pageable) {
         Page<Enrollment> enrollments = enrollmentRepository.findAllByCourseId(courseId, pageable);
-        return PagedResponse.from(enrollments.map(enrollmentMapper::toEnrollmentResponse));
+        return PagedResponse.from(enrollments.map(enrollmentMapper::toEnrollmentGetResponse));
     }
 
     @Transactional
-    public EnrollmentResponse changeEnrollmentStatus(Long enrollmentId, String newStatus) {
+    public EnrollmentGetResponse changeEnrollmentStatus(Long enrollmentId, String newStatus) {
         Enrollment enrollment = enrollmentRepository
                 .findByIdWithDetails(enrollmentId)
                 .orElseThrow(() -> new InvalidIdException(enrollmentId));
-        String email = SecurityUtils.getCurrentUserLogin().orElseThrow(AnonymousUserException::new);
+        Long curUserId = SecurityUtils.getCurrentUserLoginId().orElseThrow(AnonymousUserException::new);
         if (SecurityUtils.hasCurrentUserNoneOfAuthorities(AuthoritiesConstants.ADMIN)
-                && !Objects.equals(email, enrollment.getUser().getEmail())) {
+                && !Objects.equals(curUserId, enrollment.getUser().getId())) {
             throw new AccessDeniedException("You don't have permission to change this enrollment status");
         }
         enrollment.setStatus(Enrollment.EnrollmentStatus.valueOf(newStatus));
-        return enrollmentMapper.toEnrollmentResponse(enrollmentRepository.save(enrollment));
+        return enrollmentMapper.toEnrollmentGetResponse(enrollmentRepository.save(enrollment));
     }
 
     private void validateStatusTransition(

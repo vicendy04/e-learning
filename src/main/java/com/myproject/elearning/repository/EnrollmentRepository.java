@@ -5,20 +5,25 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
-    boolean existsByUserEmailAndCourseId(String email, Long courseId);
+    boolean existsByUserIdAndCourseId(Long id, Long courseId);
 
-    Optional<Enrollment> findByUserEmailAndCourseId(String email, Long courseId);
+    Optional<Enrollment> findByUserIdAndCourseId(Long userId, Long courseId);
+
+    @Modifying
+    @Query("DELETE FROM Enrollment e WHERE e.user.id = :userId AND e.course.id = :courseId")
+    int deleteByUserIdAndCourseId(@Param("userId") Long userId, @Param("courseId") Long courseId);
 
     @Query("SELECT e FROM Enrollment e " + "LEFT JOIN FETCH e.user u "
             + "LEFT JOIN FETCH e.course c "
-            + "WHERE u.email = :email")
-    Page<Enrollment> findAllByUserEmail(String email, Pageable pageable);
+            + "WHERE u.id= :id")
+    Page<Enrollment> findAllByUserId(Long id, Pageable pageable);
 
     @Query("SELECT e FROM Enrollment e " + "LEFT JOIN FETCH e.user u "
             + "LEFT JOIN FETCH e.course c "

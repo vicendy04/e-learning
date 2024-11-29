@@ -8,7 +8,6 @@ import com.myproject.elearning.dto.request.auth.RegisterRequest;
 import com.myproject.elearning.dto.request.user.UserSearchDTO;
 import com.myproject.elearning.dto.request.user.UserUpdateRequest;
 import com.myproject.elearning.dto.response.user.UserGetResponse;
-import com.myproject.elearning.exception.problemdetails.EmailAlreadyUsedException;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.mapper.UserMapper;
 import com.myproject.elearning.repository.RefreshTokenRepository;
@@ -62,10 +61,6 @@ public class UserService {
     public UserGetResponse getUser(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
         return userMapper.toGetResponse(user);
-    }
-
-    public User getUser(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new EmailAlreadyUsedException(email));
     }
 
     @Transactional

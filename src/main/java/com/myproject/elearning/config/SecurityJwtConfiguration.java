@@ -49,20 +49,16 @@ public class SecurityJwtConfiguration {
             @Override
             public Jwt decode(String token) throws TokenException {
                 Jwt jwt = jwtDecoder.decode(token);
-                try {
-                    String jti = jwt.getId();
-                    Instant expiresAt = jwt.getExpiresAt();
-                    if (jti == null) {
-                        throw new JwtException("Missing token identifier (jti)");
-                    }
-                    if (redisTokenBlacklistService.isTokenRevoked(jti)) {
-                        throw new JwtException("Token has been revoked");
-                    } else if (tokenBlacklistService.isTokenRevoked(jti)) {
-                        redisTokenBlacklistService.revokeToken(jti, expiresAt);
-                        throw new JwtException("Token has been revoked");
-                    }
-                } catch (JwtException e) {
-                    throw new TokenException("Error checking token revocation status", e);
+                String jti = jwt.getId();
+                Instant expiresAt = jwt.getExpiresAt();
+                if (jti == null) {
+                    throw new JwtException("Missing token identifier (jti)");
+                }
+                if (redisTokenBlacklistService.isTokenRevoked(jti)) {
+                    throw new JwtException("Token has been revoked");
+                } else if (tokenBlacklistService.isTokenRevoked(jti)) {
+                    redisTokenBlacklistService.revokeToken(jti, expiresAt);
+                    throw new JwtException("Token has been revoked");
                 }
                 return jwt;
             }

@@ -1,6 +1,7 @@
 package com.myproject.elearning.repository;
 
 import com.myproject.elearning.domain.Course;
+import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +21,13 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecificationExecutor<Course> {
+    default Course getReferenceIfExists(Long id) {
+        if (!existsById(id)) {
+            throw new InvalidIdException("Entity with ID " + id + " not found");
+        }
+        return getReferenceById(id);
+    }
+
     @Query("SELECT c FROM Course c ORDER BY c.title")
     Page<Course> findAllCourses(Pageable pageable);
 
