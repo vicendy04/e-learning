@@ -29,26 +29,26 @@ public class RoleService {
         return roleMapper.toDto(save);
     }
 
-    public RoleDTO getRole(String name) {
+    public RoleDTO getRole(Long id) {
         Role role = roleRepository
-                .findById(name)
-                .orElseThrow(() -> new InvalidIdException(ErrorMessageConstants.ROLE_NOT_FOUND + name));
+                .findById(id)
+                .orElseThrow(() -> new InvalidIdException(ErrorMessageConstants.ROLE_NOT_FOUND + id));
         return roleMapper.toDto(role);
     }
 
     public RoleDTO editRole(RoleDTO roleDTO) {
         Role role = roleRepository
-                .findById(roleDTO.getName())
-                .orElseThrow(() -> new InvalidIdException(ErrorMessageConstants.ROLE_NOT_FOUND + roleDTO.getName()));
+                .findById(roleDTO.getId())
+                .orElseThrow(() -> new InvalidIdException(ErrorMessageConstants.ROLE_NOT_FOUND + roleDTO.getId()));
         role.setName(roleDTO.getName());
         Role savedRole = roleRepository.save(role);
         return roleMapper.toDto(savedRole);
     }
 
-    public void delRole(String name) {
+    public void delRole(Long id) {
         Role role = roleRepository
-                .findById(name)
-                .orElseThrow(() -> new InvalidIdException(ErrorMessageConstants.ROLE_NOT_FOUND + name));
+                .findById(id)
+                .orElseThrow(() -> new InvalidIdException(ErrorMessageConstants.ROLE_NOT_FOUND + id));
         roleRepository.delete(role);
     }
 

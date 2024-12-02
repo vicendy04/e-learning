@@ -14,7 +14,6 @@ import com.myproject.elearning.repository.RefreshTokenRepository;
 import com.myproject.elearning.repository.RoleRepository;
 import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.repository.specification.UserSpecification;
-import com.myproject.elearning.security.AuthoritiesConstants;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.HashSet;
@@ -48,10 +47,10 @@ public class UserService {
         User user = userMapper.toEntity(registerReq);
         Set<Role> roles = new HashSet<>();
         if (userRepository.count() == 0) {
-            roles.add(roleRepository.getReferenceById(AuthoritiesConstants.ADMIN));
-            roles.add(roleRepository.getReferenceById(AuthoritiesConstants.USER));
+            roles.add(roleRepository.getReferenceById(1L));
+            roles.add(roleRepository.getReferenceById(2L));
         } else {
-            roles.add(roleRepository.getReferenceById(AuthoritiesConstants.USER));
+            roles.add(roleRepository.getReferenceById(3L));
         }
         user.setRoles(roles);
         userRepository.save(user);

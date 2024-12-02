@@ -1,6 +1,6 @@
 package com.myproject.elearning.service.cache;
 
-import com.myproject.elearning.dto.auth.UserAuthDTO;
+import com.myproject.elearning.dto.projection.UserAuthDTO;
 import java.util.concurrent.TimeUnit;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;

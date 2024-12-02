@@ -23,18 +23,14 @@ public interface ContentRepository extends JpaRepository<Content, Long>, JpaSpec
     @Query("SELECT c FROM Content c LEFT JOIN FETCH c.course WHERE c.course.id = :courseId")
     Page<Content> findByCourseIdWithCourse(@Param("courseId") Long courseId, Pageable pageable);
 
-    // don't use distinct
     @Query("SELECT c FROM Content c LEFT JOIN FETCH c.course")
     Page<Content> findAllWithCourse(Pageable pageable);
+
+    @Query("SELECT COUNT(c) FROM Content c WHERE c.course.id = :courseId")
+    int countByCourseId(@Param("courseId") Long courseId);
 
     //  specification
     @Query("SELECT c FROM Content c WHERE c.course.id = :courseId AND c.status = :status")
     List<Content> findByCourseIdAndStatus(
             @Param("courseId") Long courseId, @Param("status") Content.ContentStatus status);
-
-    // don't use join fetch
-    @Query("SELECT COUNT(c) FROM Content c WHERE c.course.id = :courseId")
-    int countByCourseId(@Param("courseId") Long courseId);
-
-    Page<Content> findByCourseId(Long courseId, Pageable pageable);
 }

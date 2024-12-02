@@ -1,3 +1,4 @@
+- batching insert, update
 - dùng kafka để send notification
 - comment, review
 - register teacher

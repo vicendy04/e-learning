@@ -19,7 +19,11 @@ import lombok.experimental.FieldDefaults;
 @Table(name = "roles")
 public class Role {
     @Id
-    String name;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "name", unique = true, nullable = false)
+    private String name;
 
     @JsonIgnoreProperties("roles")
     @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)

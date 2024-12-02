@@ -1,8 +1,9 @@
-package com.myproject.elearning.dto.auth;
+package com.myproject.elearning.dto.projection;
 
 import java.io.Serializable;
-import java.util.HashSet;
+import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,15 +16,14 @@ public class UserAuthDTO implements Serializable {
     Long id;
     String email;
     String password;
-    Set<String> roles;
+    Set<String> roleNames;
 
     public UserAuthDTO() {}
 
-    public UserAuthDTO(Long id, String email, String password, String role) {
+    public UserAuthDTO(Long id, String email, String password, String roleNames) {
         this.id = id;
         this.email = email;
         this.password = password;
-        this.roles = new HashSet<>();
-        this.roles.add(role);
+        this.roleNames = Arrays.stream(roleNames.split(",")).collect(Collectors.toSet());
     }
 }

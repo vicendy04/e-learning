@@ -34,9 +34,9 @@ public class RoleController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/{name}")
-    public ResponseEntity<ApiRes<RoleDTO>> getRole(@PathVariable String name) {
-        RoleDTO role = roleService.getRole(name);
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiRes<RoleDTO>> getRole(@PathVariable Long id) {
+        RoleDTO role = roleService.getRole(id);
         ApiRes<RoleDTO> response = successRes("Role retrieved successfully", role);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -56,9 +56,9 @@ public class RoleController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @DeleteMapping("/{name}")
-    public ResponseEntity<ApiRes<Void>> delRole(@PathVariable String name) {
-        roleService.delRole(name);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiRes<Void>> delRole(@PathVariable Long id) {
+        roleService.delRole(id);
         ApiRes<Void> response = successRes("Role deleted successfully", null);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
     }

@@ -1,13 +1,15 @@
 package com.myproject.elearning.repository;
 
 import com.myproject.elearning.domain.RefreshToken;
-import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
+    boolean existsByTokenAndUserIdAndDeviceName(String token, Long userId, String deviceName);
+
+    Optional<RefreshToken> findByUserIdAndDeviceName(Long userId, String deviceName);
 
     //    @Query(value = "select count(rt.id) > 0 from refresh_tokens rt " +
     //            "join users u on u.id = rt.user_id " +
@@ -17,10 +19,4 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
     //    boolean existsByTokenAndUserEmailAndDeviceName(String token,
     //                                                   String email,
     //                                                   String deviceName);
-
-    boolean existsByTokenAndUserIdAndDeviceName(String token, Long userId, String deviceName);
-
-    Optional<RefreshToken> findByUserIdAndDeviceName(Long userId, String deviceName);
-
-    List<RefreshToken> findAllByUserId(Long userId);
 }

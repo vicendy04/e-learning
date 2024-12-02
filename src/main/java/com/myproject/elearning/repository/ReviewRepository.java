@@ -17,7 +17,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query(
             """
 			SELECT new com.myproject.elearning.dto.response.review.ReviewCourseRes(
-				r.id, r.rating, r.comment, r.createdAt, r.updatedAt,
+				r.id, r.rating, r.comment,
+				r.createdAt, r.updatedAt,
 				u.id, u.username
 			)
 			FROM Review r
@@ -30,12 +31,13 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query(
             """
 			SELECT new com.myproject.elearning.dto.response.review.ReviewUserRes(
-				r.id, r.rating, r.comment, r.createdAt, r.updatedAt,
+				r.id, r.rating, r.comment,
+				r.createdAt, r.updatedAt,
 				c.id, c.title
 			)
 			FROM Review r
-			JOIN r.course c
-			JOIN r.user u
+			LEFT JOIN r.course c
+			LEFT JOIN r.user u
 			WHERE u.id = :userId
 			""")
     Page<ReviewUserRes> findAllByUserId(@Param("userId") Long userId, Pageable pageable);

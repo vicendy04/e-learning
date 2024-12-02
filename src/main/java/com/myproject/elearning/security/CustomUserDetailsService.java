@@ -1,6 +1,6 @@
 package com.myproject.elearning.security;
 
-import com.myproject.elearning.dto.auth.UserAuthDTO;
+import com.myproject.elearning.dto.projection.UserAuthDTO;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.service.cache.RedisAuthService;
@@ -46,8 +46,9 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     private org.springframework.security.core.userdetails.User createSpringSecurityUser(UserAuthDTO userAuthDTO) {
-        List<GrantedAuthority> grantedAuthorities =
-                userAuthDTO.getRoles().stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+        List<GrantedAuthority> grantedAuthorities = userAuthDTO.getRoleNames().stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
         return new org.springframework.security.core.userdetails.User(
                 userAuthDTO.getId().toString(), userAuthDTO.getPassword(), grantedAuthorities);
     }

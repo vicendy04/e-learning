@@ -3,7 +3,6 @@ package com.myproject.elearning.repository;
 import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.springframework.data.domain.Page;
@@ -28,52 +27,35 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
         return getReferenceById(id);
     }
 
-    @Query("SELECT c FROM Course c ORDER BY c.title")
-    Page<Course> findAllCourses(Pageable pageable);
-
-    @Query("SELECT c FROM Course c LEFT JOIN FETCH c.contents WHERE c.id IN :ids ORDER BY c.title")
-    List<Course> findCoursesWithContents(List<Long> ids);
+    @Query("SELECT COUNT(e) FROM Enrollment e WHERE e.course.id =:courseId")
+    int countEnrollmentsByCourseId(@Param("courseId") Long courseId);
 
     @EntityGraph(attributePaths = "contents")
     Optional<Course> findWithContentsById(Long id);
 
-    @EntityGraph(attributePaths = "enrollments")
-    Optional<Course> findWithEnrollmentsById(Long id);
-
-    //    loi
-    //    @Query("SELECT DISTINCT c FROM Course c " +
-    //            "LEFT JOIN FETCH c.contents " +
-    //            "LEFT JOIN FETCH c.enrollments " +
-    //            "WHERE c.id = :id")
-    //    Optional<Course> findWithContentsAndEnrollmentsById(@Param("id") Long id);
+    @Query("SELECT c.id FROM Course c WHERE c.instructor.id = :instructorId")
+    Set<Long> findCourseIdsByInstructorId(@Param("instructorId") Long instructorId);
 
     @Query("SELECT c FROM Course c LEFT JOIN FETCH c.contents ORDER BY c.title")
     Page<Course> findAllWithContents(Pageable pageable);
 
-    // Thêm method để lấy courses theo category
-    //    @Query("SELECT DISTINCT c FROM Course c LEFT JOIN FETCH c.contents " +
-    //            "WHERE c.category = :category")
-    //    List<Course> findByCategoryWithContents(@Param("category") String category);
-
-    // Thêm method để lấy courses với số lượng contents
-    //    @Query("SELECT c, COUNT(cnt) FROM Course c " +
-    //            "LEFT JOIN c.contents cnt " +
-    //            "GROUP BY c.id")
-    //    List<Object[]> findAllWithContentCount();
+    @Query("SELECT c, COUNT(e) FROM Course c LEFT JOIN c.enrollments e GROUP BY c")
+    Page<Object[]> findAllWithEnrollmentCount(Specification<Course> spec, Pageable pageable);
 
     // Tối ưu cho tìm kiếm
+    // Specification
     @Query("SELECT c FROM Course c " + "WHERE LOWER(c.title) LIKE LOWER(CONCAT('%', :keyword, '%')) "
             + "OR LOWER(c.description) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<Course> searchCourses(@Param("keyword") String keyword, Pageable pageable);
 
     @Query(
             """
-					SELECT c.id as id,
-						c.price as price,
-						c.instructor.id as instructorId
-					FROM Course c
-					WHERE c.id = :courseId
-					""")
+			SELECT c.id as id,
+				c.price as price,
+				c.instructor.id as instructorId
+			FROM Course c
+			WHERE c.id = :courseId
+			""")
     Optional<CourseForValidDiscount> findCourseWithInstructor(@Param("courseId") Long courseId);
 
     interface CourseForValidDiscount {
@@ -83,13 +65,4 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
 
         Long getInstructorId();
     }
-
-    @Query("SELECT c.id FROM Course c WHERE c.instructor.id = :instructorId")
-    Set<Long> findCourseIdsByInstructorId(@Param("instructorId") Long instructorId);
-
-    @Query("SELECT c, COUNT(e) FROM Course c LEFT JOIN c.enrollments e GROUP BY c")
-    Page<Object[]> findAllWithEnrollmentCount(Specification<Course> spec, Pageable pageable);
-
-    @Query("SELECT COUNT(e) FROM Enrollment e WHERE e.course.id =:courseId")
-    int countEnrollmentsByCourseId(@Param("courseId") Long courseId);
 }

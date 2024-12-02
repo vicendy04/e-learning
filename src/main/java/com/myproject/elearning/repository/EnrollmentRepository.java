@@ -11,10 +11,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
+public interface EnrollmentRepository extends JpaRepository<Enrollment, Long>, EnrollmentRepositoryCustom {
     boolean existsByUserIdAndCourseId(Long id, Long courseId);
-
-    Optional<Enrollment> findByUserIdAndCourseId(Long userId, Long courseId);
 
     @Modifying
     @Query("DELETE FROM Enrollment e WHERE e.user.id = :userId AND e.course.id = :courseId")
@@ -30,18 +28,17 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
             + "WHERE c.id= :courseId")
     Page<Enrollment> findAllByCourseId(Long courseId, Pageable pageable);
 
+    @Query("SELECT e FROM Enrollment e " + "LEFT JOIN FETCH e.user u "
+            + "LEFT JOIN FETCH e.course c "
+            + "WHERE e.id = :enrollmentId")
+    Optional<Enrollment> findByIdWithDetails(@Param("enrollmentId") Long enrollmentId);
+
     // specification
     @Query("SELECT e FROM Enrollment e WHERE e.user.id = :userId AND e.status = :status")
     Page<Enrollment> findByUserIdAndStatus(
             @Param("userId") Long userId, @Param("status") Enrollment.EnrollmentStatus status, Pageable pageable);
 
-    // specification
     @Query("SELECT e FROM Enrollment e WHERE e.course.id = :courseId AND e.status = :status")
     Page<Enrollment> findByCourseIdAndStatus(
             @Param("courseId") Long courseId, @Param("status") Enrollment.EnrollmentStatus status, Pageable pageable);
-
-    @Query("SELECT e FROM Enrollment e " + "LEFT JOIN FETCH e.user u "
-            + "LEFT JOIN FETCH e.course c "
-            + "WHERE e.id = :enrollmentId")
-    Optional<Enrollment> findByIdWithDetails(@Param("enrollmentId") Long enrollmentId);
 }
