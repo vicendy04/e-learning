@@ -32,12 +32,6 @@ public class ContentService {
     CourseRepository courseRepository;
     ContentMapper contentMapper;
 
-    public ContentGetRes addContent(ContentCreateReq request) {
-        Content content = contentMapper.toEntity(request);
-        Content savedContent = contentRepository.save(content);
-        return contentMapper.toGetResponse(savedContent);
-    }
-
     public ContentGetRes getContent(Long id) {
         Content content = contentRepository.findByIdWithCourse(id).orElseThrow(() -> new InvalidIdException(id));
         return contentMapper.toGetResponse(content);
@@ -52,8 +46,10 @@ public class ContentService {
     }
 
     public void delContent(Long id) {
-        Content content = contentRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
-        contentRepository.delete(content);
+        if (!contentRepository.existsById(id)) {
+            throw new InvalidIdException(id);
+        }
+        contentRepository.deleteByContentId(id);
     }
 
     public PagedRes<ContentGetRes> getContents(Pageable pageable) {
@@ -72,8 +68,9 @@ public class ContentService {
         Course courseOnlyId = courseRepository.getReferenceById(courseId);
         Content content = contentMapper.toEntity(request);
         content.setCourse(courseOnlyId);
-        contentRepository.save(content);
-        return contentMapper.toGetResponse(content);
+        Content save = contentRepository.save(content); // note
+        System.out.println("hi");
+        return contentMapper.toGetResponse(save);
     }
 
     public List<ContentListRes> reorderContents(Long courseId, Map<Long, Integer> orderMapping) {
@@ -90,6 +87,7 @@ public class ContentService {
         return contentMapper.toListResponse(contents);
     }
 
+    // note
     @Transactional
     public void delContentsOfCourse(Long courseId) {
         Course course =

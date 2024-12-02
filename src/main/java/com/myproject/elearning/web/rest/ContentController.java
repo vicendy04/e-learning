@@ -4,7 +4,6 @@ import static com.myproject.elearning.web.rest.utils.ResponseUtils.successRes;
 
 import com.myproject.elearning.dto.common.ApiRes;
 import com.myproject.elearning.dto.common.PagedRes;
-import com.myproject.elearning.dto.request.content.ContentCreateReq;
 import com.myproject.elearning.dto.request.content.ContentUpdateReq;
 import com.myproject.elearning.dto.response.content.ContentGetRes;
 import com.myproject.elearning.service.ContentService;
@@ -28,13 +27,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class ContentController {
     ContentService contentService;
-
-    @PostMapping("")
-    public ResponseEntity<ApiRes<ContentGetRes>> addContent(@Valid @RequestBody ContentCreateReq request) {
-        ContentGetRes newContent = contentService.addContent(request);
-        ApiRes<ContentGetRes> response = successRes("Content created successfully", newContent);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiRes<ContentGetRes>> getContent(@PathVariable(name = "id") Long id) {

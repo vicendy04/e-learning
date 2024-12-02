@@ -4,6 +4,7 @@ import static com.myproject.elearning.web.rest.utils.ResponseUtils.successRes;
 
 import com.myproject.elearning.dto.common.ApiRes;
 import com.myproject.elearning.dto.common.PagedRes;
+import com.myproject.elearning.dto.request.role.CreateRoleReq;
 import com.myproject.elearning.dto.response.role.RoleDTO;
 import com.myproject.elearning.service.RoleService;
 import jakarta.validation.Valid;
@@ -28,8 +29,8 @@ public class RoleController {
     RoleService roleService;
 
     @PostMapping("")
-    public ResponseEntity<ApiRes<RoleDTO>> addRole(@Valid @RequestBody RoleDTO role) {
-        RoleDTO newRole = roleService.addRole(role);
+    public ResponseEntity<ApiRes<RoleDTO>> addRole(@Valid @RequestBody CreateRoleReq req) {
+        RoleDTO newRole = roleService.addRole(req);
         ApiRes<RoleDTO> response = successRes("Role created successfully", newRole);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

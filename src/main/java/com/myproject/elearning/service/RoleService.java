@@ -2,6 +2,7 @@ package com.myproject.elearning.service;
 
 import com.myproject.elearning.domain.Role;
 import com.myproject.elearning.dto.common.PagedRes;
+import com.myproject.elearning.dto.request.role.CreateRoleReq;
 import com.myproject.elearning.dto.response.role.RoleDTO;
 import com.myproject.elearning.exception.constants.ErrorMessageConstants;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
@@ -24,9 +25,11 @@ public class RoleService {
     RoleRepository roleRepository;
     RoleMapper roleMapper;
 
-    public RoleDTO addRole(RoleDTO role) {
-        Role save = roleRepository.save(roleMapper.toEntity(role));
-        return roleMapper.toDto(save);
+    public RoleDTO addRole(CreateRoleReq req) {
+        Role role = new Role();
+        role.setName(req.getName());
+        Role saved = roleRepository.save(role);
+        return roleMapper.toDto(saved);
     }
 
     public RoleDTO getRole(Long id) {
@@ -46,10 +49,10 @@ public class RoleService {
     }
 
     public void delRole(Long id) {
-        Role role = roleRepository
-                .findById(id)
-                .orElseThrow(() -> new InvalidIdException(ErrorMessageConstants.ROLE_NOT_FOUND + id));
-        roleRepository.delete(role);
+        if (!roleRepository.existsById(id)) {
+            throw new InvalidIdException(ErrorMessageConstants.ROLE_NOT_FOUND + id);
+        }
+        roleRepository.deleteById(id);
     }
 
     public PagedRes<RoleDTO> getRoles(Pageable pageable) {

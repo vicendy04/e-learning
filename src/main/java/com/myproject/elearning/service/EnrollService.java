@@ -48,8 +48,10 @@ public class EnrollService {
     }
 
     public void unrollCourse(Long userId, Long courseId) {
-        int deletedCount = enrollmentRepository.deleteByUserIdAndCourseId(userId, courseId);
-        if (deletedCount == 0) throw new InvalidIdException("Enrollment not found");
+        if (!enrollmentRepository.existsByUserIdAndCourseId(userId, courseId)) {
+            throw new InvalidIdException("Enrollment not found");
+        }
+        enrollmentRepository.deleteByUserIdAndCourseId(userId, courseId);
     }
 
     public PagedRes<EnrollmentGetRes> getUserEnrollments(Long userId, Pageable pageable) {

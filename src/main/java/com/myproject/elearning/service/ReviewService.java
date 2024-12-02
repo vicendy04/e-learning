@@ -56,8 +56,10 @@ public class ReviewService {
     }
 
     public void delReview(Long reviewId) {
-        int deletedCount = reviewRepository.deleteByReviewId(reviewId);
-        if (deletedCount == 0) throw new InvalidIdException(reviewId);
+        if (!reviewRepository.existsById(reviewId)) {
+            throw new InvalidIdException(reviewId);
+        }
+        reviewRepository.deleteByReviewId(reviewId);
     }
 
     public PagedRes<ReviewCourseRes> getReviewsByCourse(Long courseId, Pageable pageable) {

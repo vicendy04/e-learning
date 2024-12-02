@@ -69,6 +69,6 @@ public class UserController {
     public ResponseEntity<ApiRes<Void>> delUser(@PathVariable(name = "id") Long id) {
         userService.delUser(id);
         ApiRes<Void> response = successRes("User deleted successfully", null);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

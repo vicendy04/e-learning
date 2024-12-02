@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
 public class RedisBlackListService {
-    static String BLACKLIST_PREFIX = "token:blacklist:";
-    static long DEFAULT_CACHE_DURATION = 7 * 24 * 3600;
+    static final String BLACKLIST_PREFIX = "token:blacklist:";
+    static final long DEFAULT_CACHE_DURATION = 7 * 24 * 3600;
     static long MAX_RANDOM_EXPIRY = 600;
 
     RedisTemplate<String, Object> redisTemplate;
@@ -22,14 +22,18 @@ public class RedisBlackListService {
         this.valueOps = redisTemplate.opsForValue();
     }
 
+    private String getCourseKey(String jti) {
+        return BLACKLIST_PREFIX + jti;
+    }
+
     public void revokeToken(String jti, Instant expireTime) {
-        String key = BLACKLIST_PREFIX + jti;
+        // check expireTime to choose appropriate ttl
         //        Duration ttl = Duration.between(Instant.now(), expireTime);
         //        valueOps.set(key, "revoked", ttl);
-        valueOps.set(key, "revoked", DEFAULT_CACHE_DURATION);
+        valueOps.set(getCourseKey(jti), "revoked", DEFAULT_CACHE_DURATION);
     }
 
     public Boolean isTokenRevoked(String jti) {
-        return redisTemplate.hasKey(BLACKLIST_PREFIX + jti);
+        return redisTemplate.hasKey(getCourseKey(jti));
     }
 }

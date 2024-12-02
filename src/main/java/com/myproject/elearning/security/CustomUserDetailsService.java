@@ -10,7 +10,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 /**
@@ -28,16 +27,25 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserAuthDTO userAuthDTO = redisAuthService.getCachedUser(username);
+    public UserDetails loadUserByUsername(String username) {
+        Object cachedUser = redisAuthService.getCachedUser(username);
 
-        if (userAuthDTO == null) {
-            userAuthDTO = userRepository
-                    .findAuthDTOByEmail(username)
-                    .orElseThrow(() -> new InvalidIdException("Email not found!"));
-            redisAuthService.setCachedUser(username, userAuthDTO);
+        if (cachedUser instanceof String s) {
+            if ("empty".equals(s)) {
+                throw new InvalidIdException("Email not found");
+            }
         }
 
+        if (cachedUser instanceof UserAuthDTO userAuthDTO) {
+            return createSpringSecurityUser(userAuthDTO);
+        }
+
+        UserAuthDTO userAuthDTO = userRepository.findAuthDTOByEmail(username).orElseGet(() -> {
+            redisAuthService.setEmptyCache(username);
+            throw new InvalidIdException("Email not found");
+        });
+
+        redisAuthService.setCachedUser(username, userAuthDTO);
         return createSpringSecurityUser(userAuthDTO);
     }
 

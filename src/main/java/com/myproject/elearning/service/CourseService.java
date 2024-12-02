@@ -53,15 +53,17 @@ public class CourseService {
 
     @Transactional
     public CourseUpdateRes editCourse(Long id, CourseUpdateReq request) {
-        Course course = courseRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
+        Course course = courseRepository.getReferenceIfExists(id);
         courseMapper.partialUpdate(course, request);
         Course savedCourse = courseRepository.save(course);
         return courseMapper.toUpdateResponse(savedCourse);
     }
 
     public void delCourse(Long id) {
-        Course course = courseRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
-        courseRepository.delete(course);
+        if (!courseRepository.existsById(id)) {
+            throw new InvalidIdException(id);
+        }
+        courseRepository.deleteByCourseId(id);
     }
 
     public PagedRes<CourseListRes> getCourses(CourseSearchDTO searchDTO, Pageable pageable) {

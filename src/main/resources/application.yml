@@ -21,8 +21,8 @@ spring:
       hibernate:
         format_sql: true
         use_sql_comments: true
-#        order_inserts: true
-#        order_updates: true
+  #        order_inserts: true
+  #        order_updates: true
 
   #  devtools:
   #    restart:
@@ -56,21 +56,6 @@ jwt:
   access-token-expiration: 2592000
   refresh-token-expiration: 2592000
   token-refresh-threshold: 300000
-
-redis:
-  key:
-    course:
-      prefix: 'course:'
-      ttl: 3600
-    course-detail:
-      prefix: 'course-detail:'
-      ttl: 3600
-    course-list:
-      prefix: 'course-list:'
-      ttl: 1800
-    content: 'content:'
-    user: 'user:'
-    enrollment: 'enrollment'
 
 #logging:
 #  level:

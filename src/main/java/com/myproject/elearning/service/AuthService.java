@@ -94,8 +94,8 @@ public class AuthService {
         SignedJWT signedJWT = jwtTokenUtils.getClaims(token);
         String jti = signedJWT.getJWTClaimsSet().getJWTID();
         Instant expireTime = signedJWT.getJWTClaimsSet().getExpirationTime().toInstant();
-        blackListService.revokeToken(jti, expireTime); // db save
-        redisBlackListService.revokeToken(jti, expireTime); // redis set
+        blackListService.revokeToken(jti, expireTime);
+        redisBlackListService.revokeToken(jti, expireTime);
     }
 
     /**

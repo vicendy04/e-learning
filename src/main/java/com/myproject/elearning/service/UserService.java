@@ -48,9 +48,9 @@ public class UserService {
         Set<Role> roles = new HashSet<>();
         if (userRepository.count() == 0) {
             roles.add(roleRepository.getReferenceById(1L));
-            roles.add(roleRepository.getReferenceById(2L));
-        } else {
             roles.add(roleRepository.getReferenceById(3L));
+        } else {
+            roles.add(roleRepository.getReferenceById(2L));
         }
         user.setRoles(roles);
         userRepository.save(user);
@@ -81,16 +81,19 @@ public class UserService {
         return refreshToken;
     }
 
+    @Transactional
     public UserGetRes editUser(Long id, UserUpdateReq userUpdateReq) {
-        User user = userRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
+        User user = userRepository.getReferenceIfExists(id);
         userMapper.partialUpdate(user, userUpdateReq);
-        userRepository.save(user);
-        return userMapper.toGetResponse(user);
+        User savedUser = userRepository.save(user);
+        return userMapper.toGetResponse(savedUser);
     }
 
     public void delUser(Long id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
-        userRepository.delete(user);
+        if (!userRepository.existsById(id)) {
+            throw new InvalidIdException(id);
+        }
+        userRepository.deleteByUserId(id);
     }
 
     public PagedRes<UserGetRes> getUsers(UserSearchDTO searchDTO, Pageable pageable) {

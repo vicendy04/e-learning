@@ -9,14 +9,16 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface EnrollmentRepository extends JpaRepository<Enrollment, Long>, EnrollmentRepositoryCustom {
     boolean existsByUserIdAndCourseId(Long id, Long courseId);
 
+    @Transactional
     @Modifying
     @Query("DELETE FROM Enrollment e WHERE e.user.id = :userId AND e.course.id = :courseId")
-    int deleteByUserIdAndCourseId(@Param("userId") Long userId, @Param("courseId") Long courseId);
+    void deleteByUserIdAndCourseId(@Param("userId") Long userId, @Param("courseId") Long courseId);
 
     @Query("SELECT e FROM Enrollment e " + "LEFT JOIN FETCH e.user u "
             + "LEFT JOIN FETCH e.course c "

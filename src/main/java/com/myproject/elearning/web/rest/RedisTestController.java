@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class RedisTestController {
 
-    static Logger logger = LoggerFactory.getLogger(RedisTestController.class);
+    static final Logger logger = LoggerFactory.getLogger(RedisTestController.class);
 
     RedisTemplate<String, Object> redisTemplate;
 

@@ -13,17 +13,19 @@ import org.springframework.stereotype.Service;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
 public class RedisCourseService {
-    static String COURSE_CACHE_KEY = "course:";
-    static long DEFAULT_CACHE_DURATION = 3600;
-    static long MAX_RANDOM_EXPIRY = 600;
-    static String ENROLLMENT_COUNT_CACHE_KEY = "enrollmentCount:";
+    static final String COURSE_CACHE_KEY = "course:";
+    static final String ENROLLMENT_COUNT_CACHE_KEY = "enrollmentCount:";
+    static final long DEFAULT_CACHE_DURATION = 3600;
+    static final long MAX_RANDOM_EXPIRY = 600;
 
     RedisTemplate<String, Object> redisTemplate;
     ValueOperations<String, Object> valueOps;
+    Random random;
 
     public RedisCourseService(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
         this.valueOps = redisTemplate.opsForValue();
+        this.random = new Random();
     }
 
     private String getCourseKey(Long id) {
@@ -55,13 +57,11 @@ public class RedisCourseService {
     }
 
     public void setCachedCourse(Long id, CourseGetRes course) {
-        Random random = new Random();
         long randomExpiry = DEFAULT_CACHE_DURATION + random.nextInt((int) MAX_RANDOM_EXPIRY);
         valueOps.set(getCourseKey(id), course, randomExpiry, TimeUnit.SECONDS);
     }
 
     public void setCachedEnrollmentCount(Long id, Integer count) {
-        Random random = new Random();
         long randomExpiry = DEFAULT_CACHE_DURATION + random.nextInt((int) MAX_RANDOM_EXPIRY);
         valueOps.set(getEnrollmentCountKey(id), count, randomExpiry, TimeUnit.SECONDS);
     }
