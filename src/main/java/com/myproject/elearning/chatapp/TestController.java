@@ -1,5 +1,7 @@
-package com.myproject.elearning.web.rest;
+package com.myproject.elearning.chatapp;
 
+import com.myproject.elearning.chatapp.ChatMessage;
+import com.myproject.elearning.chatapp.RedisSubscriber;
 import com.myproject.elearning.dto.projection.UserAuthDTO;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.repository.UserRepository;
@@ -7,17 +9,25 @@ import com.myproject.elearning.service.cache.RedisAuthService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.Instant;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequestMapping("/api/v1/test")
 @RestController
 public class TestController {
-    private final UserRepository userRepository;
-    private final RedisAuthService redisAuthService;
+    UserRepository userRepository;
+    RedisAuthService redisAuthService;
+    RedisMessageListenerContainer redisMessageListener;
+    RedisSubscriber redisSubscriber;
 
     @GetMapping("")
     public Object getUser() {
@@ -42,5 +52,12 @@ public class TestController {
 
         redisAuthService.setCachedUser(username, userAuthDTO);
         return userAuthDTO;
+    }
+
+    @PostMapping("/room/{roomId}")
+    public void createChatRoom(@PathVariable String roomId) {
+        ChannelTopic topic = ChannelTopic.of(roomId);
+        System.out.println(topic.getTopic());
+        redisMessageListener.addMessageListener(redisSubscriber, topic);
     }
 }
