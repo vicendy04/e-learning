@@ -1,5 +1,6 @@
 package com.myproject.elearning.chatapp;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -28,11 +29,19 @@ public class RedisSubscriber implements MessageListener {
             String publishMessage = new String(message.getBody());
             logger.info("Received message: {}", publishMessage);
 
-            ChatMessage chatMessage = objectMapper.readValue(publishMessage, ChatMessage.class);
-            String destination = "/sub/" + chatMessage.getRoomId();
+            JsonNode jsonNode = objectMapper.readTree(publishMessage);
+            ChatMessage chatMessage;
+            if (jsonNode.isArray() && jsonNode.size() > 1) {
+                chatMessage = objectMapper.treeToValue(jsonNode.get(1), ChatMessage.class);
+            } else {
+                chatMessage = objectMapper.readValue(publishMessage, ChatMessage.class);
+            }
 
-            logger.info("Sending to destination: {}", destination);
+            String destination = "/sub/chat/rooms/" + chatMessage.getRoomId();
+            logger.info("Forwarding message to WebSocket destination: {}", destination);
+
             messagingTemplate.convertAndSend(destination, chatMessage);
+            logger.info("Message forwarded successfully");
         } catch (Exception e) {
             logger.error("Error processing message", e);
         }

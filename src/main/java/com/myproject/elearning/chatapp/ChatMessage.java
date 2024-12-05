@@ -5,17 +5,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
+import java.io.Serializable;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatMessage {
+public class ChatMessage implements Serializable {
     private String roomId;
     private String content;
     private String sender;
-    private Instant timestamp;
     private MessageType type;
 
     public enum MessageType {

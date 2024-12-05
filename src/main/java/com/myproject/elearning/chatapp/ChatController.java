@@ -9,8 +9,6 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 
-import java.time.Instant;
-
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Controller
@@ -20,13 +18,16 @@ public class ChatController {
 
     @MessageMapping("/chat")
     public void sendMessage(ChatMessage message) {
-        logger.info("Received message: {}", message);
+        logger.debug("Raw message received: {}", message);
+
+        if (message.getRoomId() == null || message.getRoomId().isEmpty()) {
+            logger.error("Room ID is null or empty");
+            return;
+        }
+
         String topic = message.getRoomId();
-        message.setSender("a");
-        message.setType(ChatMessage.MessageType.CHAT);
-        message.setTimestamp(Instant.now());
+
+        logger.info("Publishing message to topic {}: {}", topic, message);
         customWebSocketService.publish(ChannelTopic.of(topic), message);
     }
-
-
 }

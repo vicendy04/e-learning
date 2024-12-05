@@ -17,12 +17,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureMessageBroker(MessageBrokerRegistry config) {
         config.enableSimpleBroker("/sub");
         config.setApplicationDestinationPrefixes("/pub");
-        logger.info("Message broker configured");
+        logger.info("Message broker configured with prefix /pub and broker /sub");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws").setAllowedOrigins("*");
-        logger.info("WebSocket endpoint registered at /ws");
+        registry.addEndpoint("/ws/chat")
+                .setAllowedOrigins("*")
+                .withSockJS();
+        logger.debug("WebSocket endpoint registered at /ws/chat");
     }
 }
