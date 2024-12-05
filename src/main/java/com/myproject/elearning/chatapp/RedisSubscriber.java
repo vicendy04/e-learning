@@ -40,6 +40,8 @@ public class RedisSubscriber implements MessageListener {
             String destination = "/sub/chat/rooms/" + chatMessage.getRoomId();
             logger.info("Forwarding message to WebSocket destination: {}", destination);
 
+            // Gửi tới các clients đang subscribe (websocket)
+            //            Clients nhận tin nhắn thông qua subscription /sub/chat/rooms/{roomId}
             messagingTemplate.convertAndSend(destination, chatMessage);
             logger.info("Message forwarded successfully");
         } catch (Exception e) {

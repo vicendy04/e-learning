@@ -1,11 +1,10 @@
 package com.myproject.elearning.chatapp;
 
+import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.io.Serializable;
 
 @Data
 @Builder
@@ -18,7 +17,8 @@ public class ChatMessage implements Serializable {
     private MessageType type;
 
     public enum MessageType {
-        CHAT, JOIN, LEAVE
+        CHAT,
+        JOIN,
+        LEAVE
     }
 }
-

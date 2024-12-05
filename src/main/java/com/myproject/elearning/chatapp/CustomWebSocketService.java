@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 public class CustomWebSocketService {
     RedisTemplate<String, Object> redisTemplate;
 
+    // Publish tin nhắn lên Redis topic tương ứng
     public void publish(ChannelTopic topic, ChatMessage message) {
         redisTemplate.convertAndSend(topic.getTopic(), message);
     }

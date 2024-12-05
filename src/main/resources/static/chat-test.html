@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Chat Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+    <div>
+        <button onclick="connect()">Connect</button>
+        <button onclick="disconnect()">Disconnect</button>
+        <button onclick="subscribe()">Subscribe to room1</button>
+        <button onclick="createRoom()">Create Room</button>
+    </div>
+    <div>
+        <input type="text" id="messageInput" placeholder="Enter message" />
+        <button onclick="sendMessage()">Send Message</button>
+    </div>
+    <div id="messages"></div>
+
+    <script>
+        let stompClient = null;
+        
+        function connect() {
+            addMessage('Attempting to connect...');
+            const socket = new SockJS('/ws/chat');
+            
+            socket.onopen = () => {
+                addMessage('SockJS connection opened');
+            };
+            
+            socket.onclose = (event) => {
+                addMessage('SockJS connection closed: ' + event.reason);
+            };
+            
+            socket.onerror = (error) => {
+                addMessage('SockJS error: ' + error);
+            };
+            
+            stompClient = Stomp.over(socket);
+            stompClient.debug = function(str) {
+                addMessage('STOMP: ' + str);
+            };
+            
+            stompClient.connect({}, 
+                function(frame) {
+                    console.log('Connected: ' + frame);
+                    addMessage('Connected to WebSocket');
+                }, 
+                function(error) {
+                    console.error('STOMP error:', error);
+                    addMessage('Error connecting: ' + error);
+                }
+            );
+        }
+
+        function disconnect() {
+            if (stompClient !== null) {
+                stompClient.disconnect();
+                addMessage('Disconnected');
+            }
+        }
+
+        function subscribe() {
+            if (stompClient !== null && stompClient.connected) {
+                stompClient.subscribe('/sub/chat/rooms/room1', function(message) {
+                    console.log('Received:', message);
+                    addMessage('Received: ' + message.body);
+                });
+                addMessage('Subscribed to room1');
+            } else {
+                addMessage('Not connected. Please connect first');
+            }
+        }
+
+        async function createRoom() {
+            try {
+                const response = await fetch('/api/v1/test/room/room1', {
+                    method: 'POST'
+                });
+                if (response.ok) {
+                    addMessage('Room created successfully');
+                } else {
+                    addMessage('Failed to create room: ' + response.statusText);
+                }
+            } catch (error) {
+                addMessage('Error creating room: ' + error);
+            }
+        }
+
+        function sendMessage() {
+            const messageContent = document.getElementById('messageInput').value;
+            if (stompClient && stompClient.connected && messageContent) {
+                const chatMessage = {
+                    roomId: 'room1',
+                    content: messageContent,
+                    sender: 'user1', // You can change this to the actual sender
+                    type: 'CHAT'
+                };
+                stompClient.send("/pub/chat", {}, JSON.stringify(chatMessage));
+                addMessage('Sent: ' + messageContent);
+                document.getElementById('messageInput').value = '';
+            } else {
+                addMessage('Not connected or message is empty');
+            }
+        }
+
+        function addMessage(message) {
+            const messageDiv = document.getElementById('messages');
+            const timestamp = new Date().toLocaleTimeString();
+            messageDiv.innerHTML = `<div>[${timestamp}] ${message}</div>` + messageDiv.innerHTML;
+        }
+    </script>
+</body>
+</html> 

@@ -1,5 +1,8 @@
 package com.myproject.elearning.config;
 
+import static com.myproject.elearning.security.SecurityUtils.CLAIM_KEY_AUTHORITIES;
+import static org.springframework.security.config.Customizer.withDefaults;
+
 import com.myproject.elearning.security.JwtAccessDeniedHandler;
 import com.myproject.elearning.security.JwtAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +20,6 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
-import static com.myproject.elearning.security.SecurityUtils.CLAIM_KEY_AUTHORITIES;
-import static org.springframework.security.config.Customizer.withDefaults;
-
 /**
  * <a href="https://www.danvega.dev/blog/spring-security-jwt">...</a>
  * little out-date, but useful
@@ -36,15 +36,16 @@ public class SecurityConfig {
 
     private final JwtDecoder jwtDecoder;
     private static final String[] PUBLIC_URLS = {
-            "/swagger-ui/**",
-            "/swagger-ui.html",
-            "/v3/api-docs/**",
-            "/api-docs/**",
-            "/api/v1/auth/login",
-            "/api/v1/auth/refresh",
-            "/api/v1/auth/logout",
-            "/api/v1/test/**",
-            "/ws/**"
+        "/swagger-ui/**",
+        "/swagger-ui.html",
+        "/v3/api-docs/**",
+        "/api-docs/**",
+        "/api/v1/auth/login",
+        "/api/v1/auth/refresh",
+        "/api/v1/auth/logout",
+        "/api/v1/test/**",
+        "/ws/**",
+        "/chat-test.html"
     };
 
     @Bean

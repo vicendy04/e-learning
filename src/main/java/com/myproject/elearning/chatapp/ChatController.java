@@ -16,17 +16,15 @@ public class ChatController {
     CustomWebSocketService customWebSocketService;
     private final Logger logger = LoggerFactory.getLogger(ChatController.class);
 
+    //    Client gửi tin nhắn tới /pub/chat với payload ChatMessage
     @MessageMapping("/chat")
     public void sendMessage(ChatMessage message) {
         logger.debug("Raw message received: {}", message);
-
         if (message.getRoomId() == null || message.getRoomId().isEmpty()) {
             logger.error("Room ID is null or empty");
             return;
         }
-
         String topic = message.getRoomId();
-
         logger.info("Publishing message to topic {}: {}", topic, message);
         customWebSocketService.publish(ChannelTopic.of(topic), message);
     }
