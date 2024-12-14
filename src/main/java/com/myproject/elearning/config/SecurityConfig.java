@@ -45,7 +45,9 @@ public class SecurityConfig {
         "/api/v1/auth/logout",
         "/api/v1/test/**",
         "/ws/**",
-        "/chat-test.html"
+        "api/v1/courses/chat/**",
+        "/chat-test.html",
+        "/actuator/**"
     };
 
     @Bean

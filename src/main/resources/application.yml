@@ -14,6 +14,7 @@ spring:
     password: 123456
 
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: update
     show-sql: true
@@ -67,3 +68,16 @@ jwt:
 #      interceptor: TRACE
 #      support: DEBUG
 #    org.springframework.orm.jpa.JpaTransactionManager: TRACE
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    websocket-sessions:
+      enabled: true
+    health:
+      show-details: always
+  security:
+    enabled: false

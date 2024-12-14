@@ -1,5 +1,6 @@
 package com.myproject.elearning.chatapp;
 
+import com.myproject.elearning.dto.request.chat.MessageCreateReq;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -13,19 +14,20 @@ import org.springframework.stereotype.Controller;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Controller
 public class ChatController {
-    CustomWebSocketService customWebSocketService;
+    RedisPublisher redisPublisher;
     private final Logger logger = LoggerFactory.getLogger(ChatController.class);
 
-    //    Client gửi tin nhắn tới /pub/chat với payload ChatMessage
+    /**
+     * Client gui tin nhan toi /pub/chat voi payload ChatMessage
+     */
     @MessageMapping("/chat")
-    public void sendMessage(ChatMessage message) {
-        logger.debug("Raw message received: {}", message);
+    public void sendMessage(MessageCreateReq message) {
         if (message.getRoomId() == null || message.getRoomId().isEmpty()) {
             logger.error("Room ID is null or empty");
             return;
         }
         String topic = message.getRoomId();
         logger.info("Publishing message to topic {}: {}", topic, message);
-        customWebSocketService.publish(ChannelTopic.of(topic), message);
+        redisPublisher.publish(ChannelTopic.of(topic), message);
     }
 }

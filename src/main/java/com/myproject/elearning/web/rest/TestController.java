@@ -1,4 +1,4 @@
-package com.myproject.elearning.chatapp;
+package com.myproject.elearning.web.rest;
 
 import com.myproject.elearning.dto.projection.UserAuthDTO;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
@@ -7,11 +7,9 @@ import com.myproject.elearning.service.cache.RedisAuthService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.redis.listener.ChannelTopic;
-import org.springframework.data.redis.listener.RedisMessageListenerContainer;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -20,10 +18,6 @@ import org.springframework.web.bind.annotation.*;
 public class TestController {
     UserRepository userRepository;
     RedisAuthService redisAuthService;
-    RedisMessageListenerContainer redisMessageListener;
-    RedisSubscriber redisSubscriber;
-    CustomWebSocketService customWebSocketService;
-    Logger logger = LoggerFactory.getLogger(TestController.class);
 
     @GetMapping("")
     public Object getUser() {
@@ -48,27 +42,5 @@ public class TestController {
 
         redisAuthService.setCachedUser(username, userAuthDTO);
         return userAuthDTO;
-    }
-
-    @PostMapping("/room/{roomId}")
-    public void createChatRoom(@PathVariable String roomId) {
-        ChannelTopic topic = ChannelTopic.of(roomId);
-        logger.info("Creating chat room with ID: {}", roomId);
-
-        redisMessageListener.addMessageListener(redisSubscriber, topic);
-        logger.info("Added Redis subscriber for topic: {}", topic.getTopic());
-    }
-
-    @PostMapping("/room/{roomId}/test")
-    public void testRoom(@PathVariable String roomId) {
-        ChatMessage testMessage = ChatMessage.builder()
-                .roomId(roomId)
-                .content("Test connection message")
-                .sender("System")
-                .type(ChatMessage.MessageType.CHAT)
-                .build();
-
-        ChannelTopic topic = ChannelTopic.of(roomId);
-        customWebSocketService.publish(topic, testMessage);
     }
 }

@@ -1,5 +1,6 @@
 package com.myproject.elearning.chatapp;
 
+import com.myproject.elearning.dto.request.chat.MessageCreateReq;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -10,11 +11,13 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
-public class CustomWebSocketService {
+public class RedisPublisher {
     RedisTemplate<String, Object> redisTemplate;
 
-    // Publish tin nhắn lên Redis topic tương ứng
-    public void publish(ChannelTopic topic, ChatMessage message) {
+    /**
+     * Publish tin nhan den Redis topic tuong ung
+     */
+    public void publish(ChannelTopic topic, MessageCreateReq message) {
         redisTemplate.convertAndSend(topic.getTopic(), message);
     }
 }
