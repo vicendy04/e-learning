@@ -1,3 +1,4 @@
+- Adding context to the messages
 - Cache danh sách khóa học phổ biến/trending
   Cache kết quả tìm kiếm khóa học
 - Cache danh sách enrollment của user (kiểu như my course)

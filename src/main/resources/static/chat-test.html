@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Chat Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+<div>
+    <button onclick="connect()">Connect</button>
+    <button onclick="disconnect()">Disconnect</button>
+</div>
+<div>
+    <input type="text" id="courseId" placeholder="Course ID" value="1"/>
+    <input type="text" id="roomName" placeholder="Room Name"/>
+    <button onclick="createChatRoom()">Create Chat Room</button>
+</div>
+<div>
+    <input type="text" id="roomId" placeholder="Room ID to subscribe"/>
+    <button onclick="subscribe()">Subscribe</button>
+</div>
+<div>
+    <input type="text" id="messageInput" placeholder="Enter message" />
+    <button onclick="sendMessage()">Send Message</button>
+</div>
+<div id="messages"></div>
+
+<script>
+    let stompClient = null;
+    let currentRoomId = null;
+
+    function connect() {
+        addMessage('Attempting to connect...');
+        const socket = new SockJS('/ws/chat');
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({},
+            function(frame) {
+                addMessage('Connected to WebSocket');
+            },
+            function(error) {
+                addMessage('Error connecting: ' + error);
+            }
+        );
+    }
+
+    function disconnect() {
+        if (stompClient !== null) {
+            stompClient.disconnect();
+            addMessage('Disconnected');
+        }
+    }
+
+    async function createChatRoom() {
+        const courseId = document.getElementById('courseId').value;
+        const roomName = document.getElementById('roomName').value;
+
+        try {
+            const response = await fetch(`/api/v1/courses/chat/room`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: roomName,
+                    courseId: courseId
+                })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                addMessage('Room created successfully. Room ID: ' + data.data.id);
+                document.getElementById('roomId').value = data.data.id;
+            } else {
+                addMessage('Failed to create room: ' + data.message);
+            }
+        } catch (error) {
+            addMessage('Error creating room: ' + error);
+        }
+    }
+
+    function subscribe() {
+        if (!stompClient || !stompClient.connected) {
+            addMessage('Not connected. Please connect first');
+            return;
+        }
+
+        const roomId = document.getElementById('roomId').value;
+        if (!roomId) {
+            addMessage('Please enter a room ID');
+            return;
+        }
+
+        currentRoomId = roomId;
+        const topic = `/sub/chat/rooms/chat:${roomId}`;
+
+        stompClient.subscribe(topic, function(message) {
+            const messageData = JSON.parse(message.body);
+            addMessage(`Received: ${messageData.content} from ${messageData.sender}`);
+        });
+
+        addMessage(`Subscribed to ${topic}`);
+    }
+
+    function sendMessage() {
+        if (!stompClient || !stompClient.connected) {
+            addMessage('Not connected');
+            return;
+        }
+
+        if (!currentRoomId) {
+            addMessage('Please subscribe to a room first');
+            return;
+        }
+
+        const messageContent = document.getElementById('messageInput').value;
+        if (!messageContent) {
+            addMessage('Please enter a message');
+            return;
+        }
+
+        const chatMessage = {
+            roomId: `chat:${currentRoomId}`,
+            content: messageContent,
+            sender: 'TestUser'
+        };
+
+        stompClient.send("/pub/chat", {}, JSON.stringify(chatMessage));
+        addMessage('Sent: ' + messageContent);
+        document.getElementById('messageInput').value = '';
+    }
+
+    function addMessage(message) {
+        const messageDiv = document.getElementById('messages');
+        const timestamp = new Date().toLocaleTimeString();
+        messageDiv.innerHTML = `<div>[${timestamp}] ${message}</div>` + messageDiv.innerHTML;
+    }
+</script>
+</body>
+</html>

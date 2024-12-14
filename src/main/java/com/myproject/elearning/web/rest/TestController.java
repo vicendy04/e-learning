@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/test")
 @RestController
 public class TestController {
-    private final UserRepository userRepository;
-    private final RedisAuthService redisAuthService;
+    UserRepository userRepository;
+    RedisAuthService redisAuthService;
 
     @GetMapping("")
     public Object getUser() {
