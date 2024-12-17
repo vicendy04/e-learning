@@ -5,6 +5,7 @@ import static com.myproject.elearning.web.rest.utils.ResponseUtils.successRes;
 
 import com.myproject.elearning.dto.common.ApiRes;
 import com.myproject.elearning.dto.common.TokenPair;
+import com.myproject.elearning.dto.request.auth.ChangePasswordReq;
 import com.myproject.elearning.dto.request.auth.LoginReq;
 import com.myproject.elearning.service.AuthService;
 import com.myproject.elearning.web.rest.utils.CookieUtils;
@@ -39,6 +40,13 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
                 .body(response);
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<ApiRes<Void>> changePassword(@RequestBody @Valid ChangePasswordReq request) {
+        authService.changePassword(request);
+        ApiRes<Void> response = successRes("Change password successfully", null);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PostMapping("/logout")

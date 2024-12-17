@@ -1,6 +1,7 @@
-package com.myproject.elearning.chatapp;
+package com.myproject.elearning.web.websocket;
 
-import com.myproject.elearning.dto.request.chat.MessageCreateReq;
+import com.myproject.elearning.dto.request.chat.MessagePayload;
+import com.myproject.elearning.service.RedisPublisher;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -21,7 +22,7 @@ public class ChatController {
      * Client gui tin nhan toi /pub/chat voi payload ChatMessage
      */
     @MessageMapping("/chat")
-    public void sendMessage(MessageCreateReq message) {
+    public void sendMessage(MessagePayload message) {
         if (message.getRoomId() == null || message.getRoomId().isEmpty()) {
             logger.error("Room ID is null or empty");
             return;

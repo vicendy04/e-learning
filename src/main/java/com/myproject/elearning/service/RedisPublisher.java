@@ -1,6 +1,6 @@
-package com.myproject.elearning.chatapp;
+package com.myproject.elearning.service;
 
-import com.myproject.elearning.dto.request.chat.MessageCreateReq;
+import com.myproject.elearning.dto.request.chat.MessagePayload;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -17,7 +17,7 @@ public class RedisPublisher {
     /**
      * Publish tin nhan den Redis topic tuong ung
      */
-    public void publish(ChannelTopic topic, MessageCreateReq message) {
+    public void publish(ChannelTopic topic, MessagePayload message) {
         redisTemplate.convertAndSend(topic.getTopic(), message);
     }
 }

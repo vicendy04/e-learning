@@ -14,7 +14,6 @@ import com.myproject.elearning.repository.RefreshTokenRepository;
 import com.myproject.elearning.repository.RoleRepository;
 import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.repository.specification.UserSpecification;
-import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service class for managing users.

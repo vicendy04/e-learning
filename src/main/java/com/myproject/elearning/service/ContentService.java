@@ -11,7 +11,6 @@ import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.mapper.ContentMapper;
 import com.myproject.elearning.repository.ContentRepository;
 import com.myproject.elearning.repository.CourseRepository;
-import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 import lombok.AccessLevel;
@@ -20,6 +19,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service class for managing contents.

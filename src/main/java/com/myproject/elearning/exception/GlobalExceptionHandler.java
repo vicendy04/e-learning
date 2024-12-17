@@ -3,10 +3,7 @@ package com.myproject.elearning.exception;
 import static com.myproject.elearning.web.rest.utils.ResponseUtils.errorRes;
 
 import com.myproject.elearning.dto.common.ApiRes;
-import com.myproject.elearning.exception.problemdetails.EmailAlreadyUsedException;
-import com.myproject.elearning.exception.problemdetails.InvalidDiscountException;
-import com.myproject.elearning.exception.problemdetails.InvalidIdException;
-import com.myproject.elearning.exception.problemdetails.TokenException;
+import com.myproject.elearning.exception.problemdetails.*;
 import java.net.URI;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -44,6 +41,8 @@ public class GlobalExceptionHandler {
             return iie.getBody();
         } else if (ex instanceof EmailAlreadyUsedException eaue) {
             return eaue.getBody();
+        } else if (ex instanceof InvalidCredentialsException ice) {
+            return ice.getBody();
         } else if (ex instanceof InvalidDiscountException ide) {
             return ide.getBody();
         } else if (ex instanceof MethodArgumentNotValidException manve) {

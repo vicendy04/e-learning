@@ -2,11 +2,11 @@ package com.myproject.elearning.web.rest;
 
 import static com.myproject.elearning.web.rest.utils.ResponseUtils.successRes;
 
-import com.myproject.elearning.chatapp.RedisSubscriber;
 import com.myproject.elearning.dto.common.ApiRes;
 import com.myproject.elearning.dto.request.chat.GroupChatCreateReq;
 import com.myproject.elearning.dto.response.chat.GroupChatRes;
 import com.myproject.elearning.service.GroupChatService;
+import com.myproject.elearning.service.RedisSubscriber;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

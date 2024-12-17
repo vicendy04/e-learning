@@ -47,7 +47,8 @@ public class SecurityConfig {
         "/ws/**",
         "api/v1/courses/chat/**",
         "/chat-test.html",
-        "/actuator/**"
+        "/actuator/**",
+        "/api/demo/**"
     };
 
     @Bean

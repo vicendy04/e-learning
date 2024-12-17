@@ -1,4 +1,4 @@
-package com.myproject.elearning.chatapp;
+package com.myproject.elearning.config;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;

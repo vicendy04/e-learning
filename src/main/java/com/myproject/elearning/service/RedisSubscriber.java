@@ -1,8 +1,8 @@
-package com.myproject.elearning.chatapp;
+package com.myproject.elearning.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.myproject.elearning.dto.request.chat.MessageCreateReq;
+import com.myproject.elearning.dto.request.chat.MessagePayload;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -33,11 +33,11 @@ public class RedisSubscriber implements MessageListener {
             logger.info("Received message: {}", publishMessage);
 
             JsonNode jsonNode = objectMapper.readTree(publishMessage);
-            MessageCreateReq chatMessage;
+            MessagePayload chatMessage;
             if (jsonNode.isArray() && jsonNode.size() > 1) {
-                chatMessage = objectMapper.treeToValue(jsonNode.get(1), MessageCreateReq.class);
+                chatMessage = objectMapper.treeToValue(jsonNode.get(1), MessagePayload.class);
             } else {
-                chatMessage = objectMapper.readValue(publishMessage, MessageCreateReq.class);
+                chatMessage = objectMapper.readValue(publishMessage, MessagePayload.class);
             }
 
             String destination = "/sub/chat/rooms/" + chatMessage.getRoomId();

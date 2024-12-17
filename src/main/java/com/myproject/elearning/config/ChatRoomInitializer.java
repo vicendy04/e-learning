@@ -1,7 +1,8 @@
-package com.myproject.elearning.chatapp;
+package com.myproject.elearning.config;
 
 import com.myproject.elearning.domain.GroupChat;
 import com.myproject.elearning.repository.GroupChatRepository;
+import com.myproject.elearning.service.RedisSubscriber;
 import jakarta.annotation.PostConstruct;
 import java.util.List;
 import lombok.AccessLevel;

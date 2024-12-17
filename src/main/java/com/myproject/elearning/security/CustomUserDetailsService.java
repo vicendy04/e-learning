@@ -1,7 +1,6 @@
 package com.myproject.elearning.security;
 
 import com.myproject.elearning.dto.projection.UserAuthDTO;
-import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.service.cache.RedisAuthService;
 import java.util.List;
@@ -10,11 +9,13 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 /**
  * Load a user from the database.
  * Custom user authentication.
+ * No longer in use.
  */
 @Component("userDetailsService")
 public class CustomUserDetailsService implements UserDetailsService {
@@ -27,12 +28,12 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Object cachedUser = redisAuthService.getCachedUser(username);
 
         if (cachedUser instanceof String s) {
             if ("empty".equals(s)) {
-                throw new InvalidIdException("Email not found");
+                throw new UsernameNotFoundException("Email not found");
             }
         }
 
@@ -42,7 +43,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         UserAuthDTO userAuthDTO = userRepository.findAuthDTOByEmail(username).orElseGet(() -> {
             redisAuthService.setEmptyCache(username);
-            throw new InvalidIdException("Email not found");
+            throw new UsernameNotFoundException("Email not found");
         });
 
         redisAuthService.setCachedUser(username, userAuthDTO);

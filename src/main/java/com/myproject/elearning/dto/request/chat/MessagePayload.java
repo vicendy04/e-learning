@@ -9,7 +9,7 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class MessageCreateReq implements Serializable {
+public class MessagePayload implements Serializable {
     @NotBlank(message = "Nội dung tin nhắn không được để trống")
     String content;
 
