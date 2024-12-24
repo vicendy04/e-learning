@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -37,13 +36,13 @@ public class CourseChatController {
      * Dang ky Redis listener cho group chat mới
      */
     @PostMapping("/room")
-    public ResponseEntity<ApiRes<GroupChatRes>> createChatRoom(@Valid @RequestBody GroupChatCreateReq request) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiRes<GroupChatRes> createChatRoom(@Valid @RequestBody GroupChatCreateReq request) {
         GroupChatRes groupChat = groupChatService.createGroupChat(request);
         String channelName = "chat:" + groupChat.getId();
         ChannelTopic topic = ChannelTopic.of(channelName);
         redisMessageListener.addMessageListener(redisSubscriber, topic);
         logger.info("Created chat room for course: {}", request.getCourseId());
-        ApiRes<GroupChatRes> response = successRes("Chat room created successfully", groupChat);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return successRes("Chat room created successfully", groupChat);
     }
 }

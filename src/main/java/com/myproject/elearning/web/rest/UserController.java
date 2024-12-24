@@ -17,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,43 +31,41 @@ public class UserController {
     UserService userService;
 
     @PostMapping("")
-    public ResponseEntity<ApiRes<UserGetRes>> addUser(@Valid @RequestBody RegisterReq registerReq) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiRes<UserGetRes> addUser(@Valid @RequestBody RegisterReq registerReq) {
         UserGetRes newUser = userService.addUser(registerReq);
-        ApiRes<UserGetRes> response = successRes("User created successfully", newUser);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return successRes("User created successfully", newUser);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public ResponseEntity<ApiRes<UserGetRes>> getUser(@PathVariable(name = "id") Long id) {
+    @ResponseStatus(HttpStatus.OK)
+    public ApiRes<UserGetRes> getUser(@PathVariable(name = "id") Long id) {
         UserGetRes user = userService.getUser(id);
-        ApiRes<UserGetRes> response = successRes("User retrieved successfully", user);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return successRes("User retrieved successfully", user);
     }
 
     @GetMapping("")
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public ResponseEntity<ApiRes<PagedRes<UserGetRes>>> getUsers(
+    @ResponseStatus(HttpStatus.OK)
+    public ApiRes<PagedRes<UserGetRes>> getUsers(
             @ModelAttribute UserSearchDTO searchDTO,
             @PageableDefault(size = 5, page = 0, sort = "username", direction = Sort.Direction.ASC) Pageable pageable) {
-
         PagedRes<UserGetRes> users = userService.getUsers(searchDTO, pageable);
-        ApiRes<PagedRes<UserGetRes>> response = successRes("Users retrieved successfully", users);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return successRes("Users retrieved successfully", users);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiRes<UserGetRes>> editUser(
-            @PathVariable(name = "id") Long id, @RequestBody UserUpdateReq userUpdateReq) {
+    @ResponseStatus(HttpStatus.OK)
+    public ApiRes<UserGetRes> editUser(@PathVariable(name = "id") Long id, @RequestBody UserUpdateReq userUpdateReq) {
         UserGetRes updatedUser = userService.editUser(id, userUpdateReq);
-        ApiRes<UserGetRes> response = successRes("User updated successfully", updatedUser);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return successRes("User updated successfully", updatedUser);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiRes<Void>> delUser(@PathVariable(name = "id") Long id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ApiRes<Void> delUser(@PathVariable(name = "id") Long id) {
         userService.delUser(id);
-        ApiRes<Void> response = successRes("User deleted successfully", null);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return successRes("User deleted successfully", null);
     }
 }

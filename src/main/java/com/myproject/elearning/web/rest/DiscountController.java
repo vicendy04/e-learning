@@ -17,52 +17,51 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
  * REST controller for managing discount.
  */
+@RestController
+@RequestMapping("/api/v1/discounts")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@RequestMapping("/api/v1/discounts")
-@RestController
 public class DiscountController {
     DiscountService discountService;
 
     @PreAuthorize("hasAnyRole('ADMIN', 'INSTRUCTOR')")
     @PostMapping("")
-    public ResponseEntity<?> addDiscountVoucher(@Valid @RequestBody DiscountCreateReq discountCreateReq) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiRes<String> addDiscountVoucher(@Valid @RequestBody DiscountCreateReq discountCreateReq) {
         String discountCode = discountService.addDiscount(discountCreateReq);
-        ApiRes<String> response = successRes("Discount created successfully", discountCode);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return successRes("Discount created successfully", discountCode);
     }
 
     @GetMapping("")
-    public ResponseEntity<?> getDiscountsForInstructor(
+    @ResponseStatus(HttpStatus.OK)
+    public ApiRes<PagedRes<DiscountGetRes>> getDiscountsForInstructor(
             @PageableDefault(size = 5, page = 0, sort = "discountName", direction = Sort.Direction.ASC)
                     Pageable pageable) {
         PagedRes<DiscountGetRes> discounts = discountService.getDiscountsForInstructor(pageable);
-        ApiRes<?> response = successRes("Retrieved successfully", discounts);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return successRes("Retrieved successfully", discounts);
     }
 
     @PostMapping("/valid")
-    public ResponseEntity<?> validateDiscountForCourse(@RequestBody ApplyDiscountReq request) {
+    @ResponseStatus(HttpStatus.OK)
+    public ApiRes<Boolean> validateDiscountForCourse(@RequestBody ApplyDiscountReq request) {
         var isAccept = discountService.validateDiscountForCourse(request.getDiscountCode(), request.getCourseId());
         if (!isAccept) {
             throw new InvalidDiscountException("Mã giảm giá không áp dụng cho khóa học này");
         }
-        ApiRes<?> response = successRes("Retrieved successfully", true);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return successRes("Retrieved successfully", true);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'INSTRUCTOR')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delDiscountVoucher(@PathVariable Long id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ApiRes<Void> delDiscountVoucher(@PathVariable Long id) {
         discountService.delDiscountVoucher(id);
-        ApiRes<?> response = successRes("Deleted successfully", null);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+        return successRes("Deleted successfully", null);
     }
 }

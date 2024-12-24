@@ -10,7 +10,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -21,24 +20,23 @@ public class ChapterController {
     ChapterService chapterService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiRes<ChapterGetRes>> getChapter(@PathVariable Long id) {
+    @ResponseStatus(HttpStatus.OK)
+    public ApiRes<ChapterGetRes> getChapter(@PathVariable Long id) {
         ChapterGetRes chapter = chapterService.getChapter(id);
-        ApiRes<ChapterGetRes> response = successRes("Chapter retrieved successfully", chapter);
-        return ResponseEntity.ok(response);
+        return successRes("Chapter retrieved successfully", chapter);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiRes<ChapterGetRes>> editChapter(
-            @PathVariable Long id, @RequestBody ChapterUpdateReq request) {
+    @ResponseStatus(HttpStatus.OK)
+    public ApiRes<ChapterGetRes> editChapter(@PathVariable Long id, @RequestBody ChapterUpdateReq request) {
         ChapterGetRes chapter = chapterService.editChapter(id, request);
-        ApiRes<ChapterGetRes> response = successRes("Chapter updated successfully", chapter);
-        return ResponseEntity.ok(response);
+        return successRes("Chapter updated successfully", chapter);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiRes<Void>> deleteChapter(@PathVariable Long id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ApiRes<Void> deleteChapter(@PathVariable Long id) {
         chapterService.deleteChapter(id);
-        ApiRes<Void> response = successRes("Chapter deleted successfully", null);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+        return successRes("Chapter deleted successfully", null);
     }
 }

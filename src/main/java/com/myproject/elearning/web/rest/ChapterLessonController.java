@@ -12,7 +12,7 @@ import java.util.List;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -23,17 +23,17 @@ public class ChapterLessonController {
     LessonService lessonService;
 
     @GetMapping("")
-    public ResponseEntity<ApiRes<List<LessonListRes>>> getLessonsByChapterId(@PathVariable Long chapterId) {
+    @ResponseStatus(HttpStatus.OK)
+    public ApiRes<List<LessonListRes>> getLessonsByChapterId(@PathVariable Long chapterId) {
         List<LessonListRes> lessons = lessonService.getLessonsByChapterId(chapterId);
-        ApiRes<List<LessonListRes>> response = successRes("Danh sách bài học", lessons);
-        return ResponseEntity.ok(response);
+        return successRes("Danh sách bài học", lessons);
     }
 
     @PostMapping("")
-    public ResponseEntity<ApiRes<LessonGetRes>> addLessonToChapter(
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiRes<LessonGetRes> addLessonToChapter(
             @PathVariable Long chapterId, @Valid @RequestBody LessonCreateReq request) {
         LessonGetRes createdLesson = lessonService.addLessonToChapter(chapterId, request);
-        ApiRes<LessonGetRes> response = successRes("Thêm bài học thành công", createdLesson);
-        return ResponseEntity.ok(response);
+        return successRes("Thêm bài học thành công", createdLesson);
     }
 }

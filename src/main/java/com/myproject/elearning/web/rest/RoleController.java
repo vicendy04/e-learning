@@ -15,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -29,38 +28,38 @@ public class RoleController {
     RoleService roleService;
 
     @PostMapping("")
-    public ResponseEntity<ApiRes<RoleDTO>> addRole(@Valid @RequestBody CreateRoleReq req) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiRes<RoleDTO> addRole(@Valid @RequestBody CreateRoleReq req) {
         RoleDTO newRole = roleService.addRole(req);
-        ApiRes<RoleDTO> response = successRes("Role created successfully", newRole);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return successRes("Role created successfully", newRole);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiRes<RoleDTO>> getRole(@PathVariable Long id) {
+    @ResponseStatus(HttpStatus.OK)
+    public ApiRes<RoleDTO> getRole(@PathVariable Long id) {
         RoleDTO role = roleService.getRole(id);
-        ApiRes<RoleDTO> response = successRes("Role retrieved successfully", role);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return successRes("Role retrieved successfully", role);
     }
 
     @GetMapping("")
-    public ResponseEntity<ApiRes<PagedRes<RoleDTO>>> getRoles(
+    @ResponseStatus(HttpStatus.OK)
+    public ApiRes<PagedRes<RoleDTO>> getRoles(
             @PageableDefault(size = 5, page = 0, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
         PagedRes<RoleDTO> roles = roleService.getRoles(pageable);
-        ApiRes<PagedRes<RoleDTO>> response = successRes("Roles retrieved successfully", roles);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return successRes("Roles retrieved successfully", roles);
     }
 
     @PutMapping("")
-    public ResponseEntity<ApiRes<RoleDTO>> editRole(@RequestBody RoleDTO role) {
+    @ResponseStatus(HttpStatus.OK)
+    public ApiRes<RoleDTO> editRole(@RequestBody RoleDTO role) {
         RoleDTO updatedRole = roleService.editRole(role);
-        ApiRes<RoleDTO> response = successRes("Role updated successfully", updatedRole);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return successRes("Role updated successfully", updatedRole);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiRes<Void>> delRole(@PathVariable Long id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ApiRes<Void> delRole(@PathVariable Long id) {
         roleService.delRole(id);
-        ApiRes<Void> response = successRes("Role deleted successfully", null);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+        return successRes("Role deleted successfully", null);
     }
 }

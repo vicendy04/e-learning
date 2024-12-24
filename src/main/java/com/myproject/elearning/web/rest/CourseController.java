@@ -22,7 +22,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,68 +38,61 @@ public class CourseController {
 
     @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     @PostMapping("")
-    public ResponseEntity<ApiRes<CourseGetRes>> addCourse(@Valid @RequestBody CourseCreateReq courseCreateReq) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiRes<CourseGetRes> addCourse(@Valid @RequestBody CourseCreateReq courseCreateReq) {
         Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
         CourseGetRes courseResponse = courseService.addCourse(curUserId, courseCreateReq);
-        ApiRes<CourseGetRes> response = successRes("Course created successfully", courseResponse);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return successRes("Course created successfully", courseResponse);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiRes<CourseGetRes>> getCourse(@PathVariable(name = "id") Long id) {
+    @ResponseStatus(HttpStatus.OK)
+    public ApiRes<CourseGetRes> getCourse(@PathVariable(name = "id") Long id) {
         CourseGetRes courseGetRes = redisCourseService.getCachedCourse(id);
         if (courseGetRes == null) {
             courseGetRes = courseService.getCourse(id);
             redisCourseService.setCachedCourse(id, courseGetRes);
         }
-        //        Integer enrollmentCount = redisCourseService.getCachedEnrollmentCount(id);
-        //        if (enrollmentCount == null) {
-        //            enrollmentCount = courseService.countEnrollments(id);
-        //            redisCourseService.setCachedEnrollmentCount(id, enrollmentCount);
-        //        }
-        //        courseGetRes.setEnrollmentCount(enrollmentCount);
-
-        ApiRes<CourseGetRes> response = successRes("Course retrieved successfully", courseGetRes);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return successRes("Course retrieved successfully", courseGetRes);
     }
 
     @GetMapping("")
-    public ResponseEntity<ApiRes<PagedRes<CourseListRes>>> getCourses(
+    @ResponseStatus(HttpStatus.OK)
+    public ApiRes<PagedRes<CourseListRes>> getCourses(
             @ModelAttribute CourseSearchDTO searchDTO,
             @PageableDefault(size = 10, page = 0, sort = "title", direction = Sort.Direction.ASC) Pageable pageable) {
         PagedRes<CourseListRes> courses = courseService.getCourses(searchDTO, pageable);
-        ApiRes<PagedRes<CourseListRes>> response = successRes("Courses retrieved successfully", courses);
-        return ResponseEntity.ok(response);
+        return successRes("Courses retrieved successfully", courses);
     }
 
     @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<ApiRes<CourseUpdateRes>> editCourse(
+    @ResponseStatus(HttpStatus.OK)
+    public ApiRes<CourseUpdateRes> editCourse(
             @PathVariable(name = "id") Long id, @RequestBody CourseUpdateReq courseUpdateReq) {
         Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
         //        courseCacheService.invalidateCache(id); // note
         CourseUpdateRes updatedCourse = courseService.editCourse(id, curUserId, courseUpdateReq);
-        ApiRes<CourseUpdateRes> response = successRes("Course updated successfully", updatedCourse);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return successRes("Course updated successfully", updatedCourse);
     }
 
     @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiRes<Void>> delCourse(@PathVariable(name = "id") Long id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ApiRes<Void> delCourse(@PathVariable(name = "id") Long id) {
         Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
         courseService.delCourse(id, curUserId);
         //        courseCacheService.invalidateCache(id); // note
-        ApiRes<Void> response = successRes("Course deleted successfully", null);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+        return successRes("Course deleted successfully", null);
     }
 
     @GetMapping("/my-courses")
     @PreAuthorize("hasAnyRole('INSTRUCTOR')")
-    public ResponseEntity<ApiRes<PagedRes<CourseListRes>>> getMyCourses(
+    @ResponseStatus(HttpStatus.OK)
+    public ApiRes<PagedRes<CourseListRes>> getMyCourses(
             @PageableDefault(size = 10, page = 0, sort = "title", direction = Sort.Direction.ASC) Pageable pageable) {
         Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
         PagedRes<CourseListRes> courses = courseService.getCoursesByInstructorId(curUserId, pageable);
-        ApiRes<PagedRes<CourseListRes>> response = successRes("Lấy danh sách khóa học thành công", courses);
-        return ResponseEntity.ok(response);
+        return successRes("Lấy danh sách khóa học thành công", courses);
     }
 }

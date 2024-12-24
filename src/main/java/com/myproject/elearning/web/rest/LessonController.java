@@ -11,7 +11,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -22,24 +21,23 @@ public class LessonController {
     LessonService lessonService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiRes<LessonGetRes>> getLesson(@PathVariable Long id) {
+    @ResponseStatus(HttpStatus.OK)
+    public ApiRes<LessonGetRes> getLesson(@PathVariable Long id) {
         LessonGetRes lesson = lessonService.getLesson(id);
-        ApiRes<LessonGetRes> response = successRes("Bài học được tìm thấy", lesson);
-        return ResponseEntity.ok(response);
+        return successRes("Bài học được tìm thấy", lesson);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiRes<LessonGetRes>> editLesson(
-            @PathVariable Long id, @Valid @RequestBody LessonUpdateReq request) {
+    @ResponseStatus(HttpStatus.OK)
+    public ApiRes<LessonGetRes> editLesson(@PathVariable Long id, @Valid @RequestBody LessonUpdateReq request) {
         LessonGetRes updatedLesson = lessonService.editLesson(id, request);
-        ApiRes<LessonGetRes> response = successRes("Cập nhật bài học thành công", updatedLesson);
-        return ResponseEntity.ok(response);
+        return successRes("Cập nhật bài học thành công", updatedLesson);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiRes<Void>> delLesson(@PathVariable Long id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ApiRes<Void> delLesson(@PathVariable Long id) {
         lessonService.delLesson(id);
-        ApiRes<Void> response = successRes("Xóa bài học thành công", null);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+        return successRes("Xóa bài học thành công", null);
     }
 }
