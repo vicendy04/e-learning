@@ -14,4 +14,5 @@ public class CourseListRes {
     String title;
     int duration;
     Course.CourseCategory category;
+    Course.Level level;
 }

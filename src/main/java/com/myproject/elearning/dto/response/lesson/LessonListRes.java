@@ -1,5 +1,6 @@
-package com.myproject.elearning.dto.response.content;
+package com.myproject.elearning.dto.response.lesson;
 
+import com.myproject.elearning.domain.Lesson.LessonType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -7,11 +8,12 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ContentListRes {
+public class LessonListRes {
     Long id;
     String title;
+    String contentUrl;
     Integer orderIndex;
-    String contentType;
-    String status;
+    LessonType contentType;
 }

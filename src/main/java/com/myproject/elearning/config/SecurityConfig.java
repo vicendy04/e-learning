@@ -40,14 +40,14 @@ public class SecurityConfig {
         "/swagger-ui.html",
         "/v3/api-docs/**",
         "/api-docs/**",
+        "/chat-test.html",
         "/api/v1/auth/login",
         "/api/v1/auth/refresh",
         "/api/v1/auth/logout",
-        "/api/v1/test/**",
-        "/ws/**",
         "api/v1/courses/chat/**",
-        "/chat-test.html",
+        "/ws/**",
         "/actuator/**",
+        "/api/v1/test/**",
         "/api/demo/**"
     };
 

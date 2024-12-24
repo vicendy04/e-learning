@@ -17,8 +17,10 @@ import com.myproject.elearning.repository.specification.CourseSpecification;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,16 +54,20 @@ public class CourseService {
     }
 
     @Transactional
-    public CourseUpdateRes editCourse(Long id, CourseUpdateReq request) {
-        Course course = courseRepository.getReferenceIfExists(id);
+    public CourseUpdateRes editCourse(Long id, Long userId, CourseUpdateReq request) {
+        Course course = courseRepository.findWithInstructorById(id).orElseThrow(() -> new InvalidIdException(id));
+        if (!userId.equals(course.getInstructor().getId())) {
+            throw new AccessDeniedException("You don't have permission to edit this course");
+        }
         courseMapper.partialUpdate(course, request);
         Course savedCourse = courseRepository.save(course);
         return courseMapper.toUpdateResponse(savedCourse);
     }
 
-    public void delCourse(Long id) {
-        if (!courseRepository.existsById(id)) {
-            throw new InvalidIdException(id);
+    public void delCourse(Long id, Long userId) {
+        Course course = courseRepository.findWithInstructorById(id).orElseThrow(() -> new InvalidIdException(id));
+        if (!userId.equals(course.getInstructor().getId())) {
+            throw new AccessDeniedException("You don't have permission to delete this course");
         }
         courseRepository.deleteByCourseId(id);
     }
@@ -69,5 +75,10 @@ public class CourseService {
     public PagedRes<CourseListRes> getCourses(CourseSearchDTO searchDTO, Pageable pageable) {
         Specification<Course> spec = CourseSpecification.filterCourses(searchDTO);
         return PagedRes.from(courseRepository.findAll(spec, pageable).map(courseMapper::toCourseListResponse));
+    }
+
+    public PagedRes<CourseListRes> getCoursesByInstructorId(Long instructorId, Pageable pageable) {
+        Page<Course> coursePage = courseRepository.findByInstructorId(instructorId, pageable);
+        return PagedRes.from(coursePage.map(courseMapper::toCourseListResponse));
     }
 }

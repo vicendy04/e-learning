@@ -17,18 +17,6 @@ public class CourseGetRes {
     int duration;
     BigDecimal price;
     Course.CourseCategory category;
-    int enrollmentCount;
-    //     List<ContentDTO> contents;
-
-    //    @Getter
-    //    @Setter
-    //    @NoArgsConstructor
-    //    @AllArgsConstructor
-    //    @FieldDefaults(level = AccessLevel.PRIVATE)
-    //    public static class ContentDTO {
-    //         Long id;
-    //         String title;
-    //         int orderIndex;
-    //         String status;
-    //    }
+    int enrolledCount;
+    Course.Level level;
 }

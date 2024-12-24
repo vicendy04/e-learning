@@ -28,14 +28,14 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
     @Query("SELECT COUNT(e) FROM Enrollment e WHERE e.course.id =:courseId")
     int countEnrollmentsByCourseId(@Param("courseId") Long courseId);
 
-    @EntityGraph(attributePaths = "contents")
-    Optional<Course> findWithContentsById(Long id);
+    @EntityGraph(attributePaths = "chapters")
+    Optional<Course> findWithChaptersById(Long id);
+
+    @EntityGraph(attributePaths = "instructor")
+    Optional<Course> findWithInstructorById(Long id);
 
     @Query("SELECT c.id FROM Course c WHERE c.instructor.id = :instructorId")
     Set<Long> findCourseIdsByInstructorId(@Param("instructorId") Long instructorId);
-
-    @Query("SELECT c FROM Course c LEFT JOIN FETCH c.contents ORDER BY c.title")
-    Page<Course> findAllWithContents(Pageable pageable);
 
     @Query("SELECT c, COUNT(e) FROM Course c LEFT JOIN c.enrollments e GROUP BY c")
     Page<Object[]> findAllWithEnrollmentCount(Specification<Course> spec, Pageable pageable);
@@ -48,18 +48,28 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
 
     @Query(
             """
-			SELECT c.id as id,
-				c.price as price,
-				c.instructor.id as instructorId
-			FROM Course c
-			WHERE c.id = :courseId
-			""")
+					SELECT c.id as id,
+						c.price as price,
+						c.instructor.id as instructorId
+					FROM Course c
+					WHERE c.id = :courseId
+					""")
     Optional<CourseForValidDiscount> findCourseWithInstructor(@Param("courseId") Long courseId);
 
     @Transactional
     @Modifying
     @Query("DELETE FROM Course c WHERE c.id = :id")
     void deleteByCourseId(Long id);
+
+    Page<Course> findByInstructorId(Long instructorId, Pageable pageable);
+
+    @Modifying
+    @Query("UPDATE Course c SET c.enrolledCount = c.enrolledCount + 1 WHERE c.id = :courseId")
+    void incrementEnrollmentCount(@Param("courseId") Long courseId);
+
+    @Modifying
+    @Query("UPDATE Course c SET c.enrolledCount = c.enrolledCount - 1 WHERE c.id = :courseId")
+    void decrementEnrollmentCount(@Param("courseId") Long courseId);
 
     interface CourseForValidDiscount {
         Long getId();

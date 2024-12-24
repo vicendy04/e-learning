@@ -16,4 +16,5 @@ public class CourseUpdateRes {
     String description;
     BigDecimal price;
     Course.CourseCategory category;
+    Course.Level level;
 }

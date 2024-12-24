@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class RedisCourseService {
     static final String COURSE_CACHE_KEY = "course:";
-    static final String ENROLLMENT_COUNT_CACHE_KEY = "enrollmentCount:";
+    static final String ENROLLMENT_COUNT_CACHE_KEY = "course:%d:enrollment_count";
     static final long DEFAULT_CACHE_DURATION = 3600;
     static final long MAX_RANDOM_EXPIRY = 600;
 
@@ -33,7 +33,7 @@ public class RedisCourseService {
     }
 
     private String getEnrollmentCountKey(Long id) {
-        return ENROLLMENT_COUNT_CACHE_KEY + id;
+        return String.format(ENROLLMENT_COUNT_CACHE_KEY, id);
     }
 
     public CourseGetRes getCachedCourse(Long id) {
@@ -90,5 +90,15 @@ public class RedisCourseService {
 
     public Boolean isCachePresent(Long id) {
         return redisTemplate.hasKey(getCourseKey(id));
+    }
+
+    public void incrementEnrollmentCount(Long courseId) {
+        String key = getEnrollmentCountKey(courseId);
+        valueOps.increment(key);
+    }
+
+    public void decrementEnrollmentCount(Long courseId) {
+        String key = getEnrollmentCountKey(courseId);
+        valueOps.decrement(key);
     }
 }

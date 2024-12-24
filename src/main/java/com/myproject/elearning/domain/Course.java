@@ -39,17 +39,12 @@ public class Course {
     @Enumerated(EnumType.STRING)
     CourseCategory category;
 
-    /**
-     * The {@link JsonIgnoreProperties} annotation is used to create an empty course (without contents).
-     * It also resolves the response issue for the "get contents" API.
-     * The {@link List<Content>} is used to avoid fetching the collection when adding elements.
-     */
-    @JsonIgnoreProperties(
-            value = {"course"},
-            allowSetters = true)
-    @OrderBy("orderIndex ASC")
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "course", orphanRemoval = true)
-    List<Content> contents = new ArrayList<>();
+    @Column(name = "level")
+    @Enumerated(EnumType.STRING)
+    Level level;
+
+    @Column(name = "enrolled_count")
+    Integer enrolledCount = 0;
 
     @JsonIgnoreProperties("course")
     @OneToMany(
@@ -72,6 +67,10 @@ public class Course {
             cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     List<Review> reviews = new ArrayList<>();
 
+    @JsonIgnoreProperties("course")
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<Chapter> chapters = new ArrayList<>();
+
     public enum CourseCategory {
         FITNESS,
         DESIGN,
@@ -85,23 +84,10 @@ public class Course {
         COOKING
     }
 
-    public void addContent(Content content) {
-        contents.add(content);
-        content.setCourse(this);
-    }
-
-    public void removeContent(Content content) {
-        contents.remove(content);
-        content.setCourse(null);
-    }
-
-    public void addEnrollment(Enrollment enrollment) {
-        enrollments.add(enrollment);
-        enrollment.setCourse(this);
-    }
-
-    public void removeEnrollment(Enrollment enrollment) {
-        enrollments.remove(enrollment);
-        enrollment.setCourse(null);
+    public enum Level {
+        BEGINNER,
+        INTERMEDIATE,
+        ADVANCED,
+        ALL_LEVELS
     }
 }

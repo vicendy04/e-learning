@@ -44,14 +44,18 @@ public class EnrollService {
         Enrollment enrollment = new Enrollment();
         enrollment.setUser(userRef);
         enrollment.setCourse(courseRef);
-        return enrollmentMapper.toEnrollmentResponse(enrollmentRepository.save(enrollment));
+        Enrollment save = enrollmentRepository.save(enrollment);
+        courseRepository.incrementEnrollmentCount(courseId);
+        return enrollmentMapper.toEnrollmentResponse(save);
     }
 
+    @Transactional
     public void unrollCourse(Long userId, Long courseId) {
         if (!enrollmentRepository.existsByUserIdAndCourseId(userId, courseId)) {
             throw new InvalidIdException("Enrollment not found");
         }
         enrollmentRepository.deleteByUserIdAndCourseId(userId, courseId);
+        courseRepository.decrementEnrollmentCount(courseId);
     }
 
     public PagedRes<EnrollmentGetRes> getUserEnrollments(Long userId, Pageable pageable) {
