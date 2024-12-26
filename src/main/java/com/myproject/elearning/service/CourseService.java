@@ -38,8 +38,8 @@ public class CourseService {
     @Transactional
     public CourseGetRes addCourse(Long instructorId, CourseCreateReq courseCreateReq) {
         Course course = courseMapper.toEntity(courseCreateReq);
-        User userRef = userRepository.getReferenceById(instructorId);
-        course.setInstructor(userRef);
+        User instructor = userRepository.getReferenceById(instructorId);
+        course.setInstructor(instructor);
         Course savedCourse = courseRepository.save(course);
         return courseMapper.toGetResponse(savedCourse);
     }
@@ -53,6 +53,7 @@ public class CourseService {
         return courseRepository.countEnrollmentsByCourseId(id);
     }
 
+    // note
     @Transactional
     public CourseUpdateRes editCourse(Long id, Long userId, CourseUpdateReq request) {
         Course course = courseRepository.findWithInstructorById(id).orElseThrow(() -> new InvalidIdException(id));
@@ -64,6 +65,7 @@ public class CourseService {
         return courseMapper.toUpdateResponse(savedCourse);
     }
 
+    @Transactional
     public void delCourse(Long id, Long userId) {
         Course course = courseRepository.findWithInstructorById(id).orElseThrow(() -> new InvalidIdException(id));
         if (!userId.equals(course.getInstructor().getId())) {

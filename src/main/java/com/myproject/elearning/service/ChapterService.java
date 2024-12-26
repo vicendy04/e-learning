@@ -37,6 +37,7 @@ public class ChapterService {
             List<Chapter> existingChapters = chapterRepository.findByCourseIdOrderByOrderIndexAsc(course.getId());
             chapter.setOrderIndex(existingChapters.size() + 1);
         }
+
         Chapter savedChapter = chapterRepository.save(chapter);
         return chapterMapper.toGetResponse(savedChapter);
     }

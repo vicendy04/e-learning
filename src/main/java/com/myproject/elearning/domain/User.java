@@ -2,7 +2,6 @@ package com.myproject.elearning.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.myproject.elearning.security.AuthoritiesConstants;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -78,26 +77,7 @@ public class User {
             cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     List<Review> reviews = new ArrayList<>();
 
-    public void addEnrollment(Enrollment enrollment) {
-        enrollments.add(enrollment);
-        enrollment.setUser(this);
-    }
-
-    public void removeEnrollment(Enrollment enrollment) {
-        enrollments.remove(enrollment);
-        enrollment.setUser(null);
-    }
-
-    public void addInstructedCourse(Course course) {
-        if (this.roles.stream().noneMatch(role -> role.getName().equals(AuthoritiesConstants.INSTRUCTOR))) {
-            throw new IllegalStateException("Only instructors can create courses");
-        }
-        instructedCourses.add(course);
-        course.setInstructor(this);
-    }
-
-    public void removeInstructedCourse(Course course) {
-        instructedCourses.remove(course);
-        course.setInstructor(null);
-    }
+    @JsonIgnoreProperties("likedUsers")
+    @ManyToMany(mappedBy = "likedUsers", fetch = FetchType.LAZY)
+    Set<Post> likedPosts = new HashSet<>();
 }
