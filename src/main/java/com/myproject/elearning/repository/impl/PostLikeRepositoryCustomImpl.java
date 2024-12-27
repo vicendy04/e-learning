@@ -1,7 +1,7 @@
 package com.myproject.elearning.repository.impl;
 
 import com.myproject.elearning.dto.request.post.PostLikeData;
-import com.myproject.elearning.repository.custom.PostLikeRepositoryCustom;
+import com.myproject.elearning.repository.PostLikeRepositoryCustom;
 import java.util.Set;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;

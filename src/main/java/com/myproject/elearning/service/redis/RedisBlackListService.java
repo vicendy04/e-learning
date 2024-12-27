@@ -17,9 +17,10 @@ public class RedisBlackListService {
     RedisTemplate<String, Object> redisTemplate;
     ValueOperations<String, Object> valueOps;
 
-    public RedisBlackListService(RedisTemplate<String, Object> redisTemplate) {
+    public RedisBlackListService(
+            RedisTemplate<String, Object> redisTemplate, ValueOperations<String, Object> valueOps) {
         this.redisTemplate = redisTemplate;
-        this.valueOps = redisTemplate.opsForValue();
+        this.valueOps = valueOps;
     }
 
     private String getCourseKey(String jti) {

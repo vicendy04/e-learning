@@ -57,10 +57,6 @@ public class Course {
     @JoinColumn(name = "instructor_id", nullable = false)
     User instructor;
 
-    //    @JsonIgnoreProperties("courses")
-    //    @ManyToMany(mappedBy = "specificCourses")
-    //    private Set<Discount> discounts = new HashSet<>();
-
     @JsonIgnoreProperties("course")
     @OneToMany(
             mappedBy = "course",

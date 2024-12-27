@@ -54,10 +54,6 @@ public class PostService {
         redisPostService.toggleLike(postId, userId);
     }
 
-    //    public Long getPostLikes(Long postId) {
-    //        return redisPostService.getLikesCount(postId);
-    //    }
-
     @Transactional
     public void delPost(Long id) {
         if (!postRepository.existsById(id)) {

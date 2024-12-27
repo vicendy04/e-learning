@@ -50,10 +50,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         return createSpringSecurityUser(userAuthDTO);
     }
 
-    public void clearUserCache(String username) {
-        redisAuthService.invalidateUserCache(username);
-    }
-
     private org.springframework.security.core.userdetails.User createSpringSecurityUser(UserAuthDTO userAuthDTO) {
         List<GrantedAuthority> grantedAuthorities = userAuthDTO.getRoleNames().stream()
                 .map(SimpleGrantedAuthority::new)

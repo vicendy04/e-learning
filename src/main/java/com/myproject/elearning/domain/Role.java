@@ -28,17 +28,4 @@ public class Role {
     @JsonIgnoreProperties("roles")
     @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
     Set<User> users = new HashSet<>();
-
-    /* Uncomment when need
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-    		name = "roles_privileges",
-    		joinColumns = @JoinColumn(
-    				name = "role_name",
-    				referencedColumnName = "name"),
-    		inverseJoinColumns = @JoinColumn(
-    				name = "privilege_name",
-    				referencedColumnName = "name"))
-    private Set<Privilege> privileges;
-     */
 }

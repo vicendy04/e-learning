@@ -16,16 +16,13 @@ import org.mapstruct.*;
         imports = {HashSet.class, Collections.class})
 public interface DiscountMapper {
 
-    // Create operations
     @Mapping(target = "id", ignore = true) // fix DiscountCreateMapperImpl
-    //    @Mapping(target = "instructorId", source = "instructorId")
     @Mapping(
             target = "specificCourseIds",
             expression =
                     "java(dto.getAppliesTo() == Discount.DiscountAppliesTo.SPECIFIC ? new HashSet<>(dto.getSpecificCourseIds()) : Collections.EMPTY_SET)")
     Discount toEntity(DiscountCreateReq dto, Long instructorId);
 
-    // Update operations
     Course toEntity(CourseUpdateReq request);
 
     CourseUpdateRes toUpdateResponse(Course entity);
@@ -34,10 +31,5 @@ public interface DiscountMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void partialUpdate(@MappingTarget Course entity, CourseUpdateReq request);
 
-    // Get operations
-    // @Mapping(target = "enrollmentCount", expression = "java(course.getEnrollments().size())")
-    //    @Mapping(target = "contents", expression = "java(mapContents(course.getContents()))")
     DiscountGetRes toGetResponse(Discount entity);
-
-    // List operations
 }

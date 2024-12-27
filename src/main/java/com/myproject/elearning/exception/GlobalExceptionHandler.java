@@ -14,7 +14,6 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
 
 /**
  * Here the key phrases are:
@@ -29,7 +28,7 @@ import org.springframework.web.context.request.WebRequest;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = Exception.class)
-    public ResponseEntity<ProblemDetail> handleAnyException(Exception ex, WebRequest request) {
+    public ResponseEntity<ProblemDetail> handleAnyException(Exception ex) {
         ProblemDetail problemDetail = getProblemDetail(ex);
         return ResponseEntity.status(problemDetail.getStatus()).body(problemDetail);
     }

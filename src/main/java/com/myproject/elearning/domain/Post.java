@@ -23,10 +23,7 @@ public class Post {
     @Column(columnDefinition = "TEXT")
     String content;
 
-    //    @Column(name = "like_count")
-    //    Integer likeCount = 0;
-
-    //    @JsonIgnoreProperties({"likedPosts", "enrollments", "instructedCourses", "reviews", "refreshToken"})
+    @JsonIgnoreProperties("likedPosts")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     User user;

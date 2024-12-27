@@ -33,9 +33,6 @@ public class RefreshToken {
     @Column(name = "expiry_date", nullable = false)
     Instant expiryDate;
 
-    //    @Column(nullable = false)
-    //    private boolean revoked = false;
-
     @PrePersist
     public void prePersist() {
         if (this.deviceName == null) {

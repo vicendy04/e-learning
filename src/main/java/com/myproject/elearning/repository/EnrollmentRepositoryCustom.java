@@ -1,4 +1,4 @@
-package com.myproject.elearning.repository.custom;
+package com.myproject.elearning.repository;
 
 // import com.myproject.elearning.dto.response.enrollment.EnrollmentGetRes;
 // import org.springframework.data.domain.Page;

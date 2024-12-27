@@ -12,10 +12,7 @@ import org.mapstruct.*;
 @Mapper(config = MapperConfig.class)
 public interface UserMapper {
 
-    // Create operations
     Course toEntity(CourseCreateReq request);
-
-    // Update operations
 
     UserUpdateReq toUpdateResponse(User entity);
 
@@ -23,29 +20,9 @@ public interface UserMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void partialUpdate(@MappingTarget User entity, UserUpdateReq request);
 
-    // Register operations
     RegisterReq toRegisterRequest(User entity);
 
     User toEntity(RegisterReq request);
 
-    // Get operations
     UserGetRes toGetResponse(User entity);
-
-    // List operations
-
-    //    @Named("mapContents")
-    //    default List<CourseGetResponse.ContentDTO> mapContents(List<Content> contents) {
-    //        if (contents == null) {
-    //            return Collections.emptyList();
-    //        }
-    //        List<CourseGetResponse.ContentDTO> contentDTOs = new ArrayList<>();
-    //        for (Content content : contents) {
-    //            contentDTOs.add(new CourseGetResponse.ContentDTO(
-    //                    content.getId(),
-    //                    content.getTitle(),
-    //                    content.getOrderIndex(),
-    //                    content.getStatus().name()));
-    //        }
-    //        return contentDTOs;
-    //    }
 }

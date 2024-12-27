@@ -62,10 +62,6 @@ public class Discount {
     @Column(name = "applies_to", nullable = false)
     DiscountAppliesTo appliesTo = DiscountAppliesTo.ALL;
 
-    //    @ManyToOne(fetch = FetchType.LAZY)
-    //    @JoinColumn(name = "instructor_id", nullable = false)
-    //    private User instructor;
-
     @Column(name = "instructor_id", nullable = false)
     Long instructorId;
 

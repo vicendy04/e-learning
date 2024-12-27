@@ -1,7 +1,7 @@
 package com.myproject.elearning.service.redis;
 
 import com.myproject.elearning.dto.request.post.PostLikeData;
-import com.myproject.elearning.repository.custom.PostLikeRepositoryCustom;
+import com.myproject.elearning.repository.PostLikeRepositoryCustom;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.AccessLevel;
@@ -22,9 +22,12 @@ public class RedisPostService {
     PostLikeRepositoryCustom postLikeRepository;
     static final String POST_LIKE_KEY_FORMAT = "posts:%d:likes:%d";
 
-    public RedisPostService(RedisTemplate<String, Object> redisTemplate, PostLikeRepositoryCustom postLikeRepository) {
+    public RedisPostService(
+            RedisTemplate<String, Object> redisTemplate,
+            ValueOperations<String, Object> valueOps,
+            PostLikeRepositoryCustom postLikeRepository) {
         this.redisTemplate = redisTemplate;
-        this.valueOps = redisTemplate.opsForValue();
+        this.valueOps = valueOps;
         this.postLikeRepository = postLikeRepository;
     }
 

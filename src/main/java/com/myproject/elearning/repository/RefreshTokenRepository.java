@@ -10,13 +10,4 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
     boolean existsByTokenAndUserIdAndDeviceName(String token, Long userId, String deviceName);
 
     Optional<RefreshToken> findByUserIdAndDeviceName(Long userId, String deviceName);
-
-    //    @Query(value = "select count(rt.id) > 0 from refresh_tokens rt " +
-    //            "join users u on u.id = rt.user_id " +
-    //            "where rt.token = ?1 " +
-    //            "and u.email = ?2 " +
-    //            "and rt.device_name = ?3", nativeQuery = true)
-    //    boolean existsByTokenAndUserEmailAndDeviceName(String token,
-    //                                                   String email,
-    //                                                   String deviceName);
 }

@@ -1,7 +1,6 @@
 package com.myproject.elearning.repository;
 
 import com.myproject.elearning.domain.Post;
-import com.myproject.elearning.repository.custom.PostRepositoryCustom;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -22,9 +22,9 @@ public class RedisCourseService {
     ValueOperations<String, Object> valueOps;
     Random random;
 
-    public RedisCourseService(RedisTemplate<String, Object> redisTemplate) {
+    public RedisCourseService(RedisTemplate<String, Object> redisTemplate, ValueOperations<String, Object> valueOps) {
         this.redisTemplate = redisTemplate;
-        this.valueOps = redisTemplate.opsForValue();
+        this.valueOps = valueOps;
         this.random = new Random();
     }
 

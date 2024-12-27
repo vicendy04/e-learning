@@ -58,13 +58,12 @@ public class User {
             allowSetters = true)
     Set<Role> roles = new HashSet<>();
 
-    @JsonIgnoreProperties("user") // dùng dto
+    @JsonIgnoreProperties("user")
     @OneToMany(
             mappedBy = "user",
             cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     List<Enrollment> enrollments = new ArrayList<>();
 
-    // giúp gọi từ chiều này, không thêm thông tin trong db, và sẽ tối ưu hơn là set 1 chiều.
     @JsonIgnoreProperties("instructor")
     @OneToMany(
             mappedBy = "instructor",

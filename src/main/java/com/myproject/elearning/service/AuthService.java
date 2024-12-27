@@ -13,7 +13,6 @@ import com.myproject.elearning.exception.problemdetails.InvalidCredentialsExcept
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.repository.RefreshTokenRepository;
 import com.myproject.elearning.repository.UserRepository;
-import com.myproject.elearning.security.CustomUserDetailsService;
 import com.myproject.elearning.security.JwtTokenUtils;
 import com.myproject.elearning.security.SecurityUtils;
 import com.myproject.elearning.service.redis.RedisAuthService;
@@ -32,7 +31,6 @@ import lombok.experimental.NonFinal;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -54,10 +52,8 @@ public class AuthService {
     @Value("${jwt.refresh-token-expiration}")
     long refreshTokenValidityInSeconds;
 
-    AuthenticationManagerBuilder authenticationManagerBuilder;
     BlackListService blackListService;
     RedisBlackListService redisBlackListService;
-    CustomUserDetailsService userDetailsService;
     JwtTokenUtils jwtTokenUtils;
     UserRepository userRepository;
     RefreshTokenRepository refreshTokenRepository;

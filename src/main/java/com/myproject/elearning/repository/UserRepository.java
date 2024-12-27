@@ -2,7 +2,6 @@ package com.myproject.elearning.repository;
 
 import com.myproject.elearning.domain.User;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
-import com.myproject.elearning.repository.custom.UserRepositoryCustom;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

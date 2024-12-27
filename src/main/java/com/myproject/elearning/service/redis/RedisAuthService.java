@@ -20,9 +20,9 @@ public class RedisAuthService {
     ValueOperations<String, Object> valueOps;
     Random random;
 
-    public RedisAuthService(RedisTemplate<String, Object> redisTemplate) {
+    public RedisAuthService(RedisTemplate<String, Object> redisTemplate, ValueOperations<String, Object> valueOps) {
         this.redisTemplate = redisTemplate;
-        this.valueOps = redisTemplate.opsForValue();
+        this.valueOps = valueOps;
         this.random = new Random();
     }
 

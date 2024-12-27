@@ -1,7 +1,9 @@
 package com.myproject.elearning.dto.response.chat;
 
 import java.time.LocalDateTime;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
 @Getter
