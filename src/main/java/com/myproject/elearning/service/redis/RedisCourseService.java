@@ -1,4 +1,4 @@
-package com.myproject.elearning.service.cache;
+package com.myproject.elearning.service.redis;
 
 import com.myproject.elearning.dto.response.course.CourseGetRes;
 import java.util.Random;

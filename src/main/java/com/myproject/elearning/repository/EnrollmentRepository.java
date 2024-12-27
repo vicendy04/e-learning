@@ -1,6 +1,7 @@
 package com.myproject.elearning.repository;
 
 import com.myproject.elearning.domain.Enrollment;
+import com.myproject.elearning.repository.custom.EnrollmentRepositoryCustom;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

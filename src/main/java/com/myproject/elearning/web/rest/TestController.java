@@ -3,7 +3,7 @@ package com.myproject.elearning.web.rest;
 import com.myproject.elearning.dto.projection.UserAuthDTO;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.repository.UserRepository;
-import com.myproject.elearning.service.cache.RedisAuthService;
+import com.myproject.elearning.service.redis.RedisAuthService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

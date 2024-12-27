@@ -1,4 +1,4 @@
-package com.myproject.elearning.service.cache;
+package com.myproject.elearning.service.redis;
 
 import java.util.Random;
 import java.util.concurrent.TimeUnit;

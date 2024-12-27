@@ -8,7 +8,7 @@ spring:
       max-request-size: 50MB
 
   datasource:
-    url: jdbc:mysql://localhost:3306/elearning
+    url: jdbc:mysql://localhost:3306/elearning?rewriteBatchedStatements=true
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: 123456
@@ -24,25 +24,14 @@ spring:
         use_sql_comments: true
         order_inserts: true
         order_updates: true
-
-  #  devtools:
-  #    restart:
-  #      enabled: true
-  #      additional-exclude: static/**
-  #    livereload:
-  #      enabled: false
+        jdbc:
+          batch_size: 100
 
   data:
     redis:
       host: localhost
       port: 6379
       database: 0
-#      lettuce:
-#        pool:
-#          max-active: 8
-#          max-idle: 8
-#          min-idle: 0
-#          max-wait: -1ms
 
 springdoc:
   api-docs:
@@ -58,17 +47,6 @@ jwt:
   refresh-token-expiration: 2592000
   token-refresh-threshold: 300000
 
-#logging:
-#  level:
-#    ROOT: DEBUG
-#    tech.jhipster: DEBUG
-#    org.hibernate.SQL: DEBUG
-#    com.mycompany.myapp: DEBUG
-#    org.springframework.transaction:
-#      interceptor: TRACE
-#      support: DEBUG
-#    org.springframework.orm.jpa.JpaTransactionManager: TRACE
-
 management:
   endpoints:
     web:
@@ -81,3 +59,10 @@ management:
       show-details: always
   security:
     enabled: false
+
+logging:
+  level:
+    org.springframework.jdbc.core: TRACE
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE
+    org.hibernate.engine.jdbc.batch.internal.BatchingBatch: DEBUG

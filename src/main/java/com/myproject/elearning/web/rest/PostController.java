@@ -64,16 +64,8 @@ public class PostController {
     @ResponseStatus(HttpStatus.OK)
     public ApiRes<Void> likePost(@PathVariable Long id) {
         Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
-        postService.likePost(id, curUserId);
+        postService.toggleLike(id, curUserId);
         return successRes("Đã thích bài viết", null);
-    }
-
-    @PostMapping("/{id}/unlike")
-    @ResponseStatus(HttpStatus.OK)
-    public ApiRes<Void> unlikePost(@PathVariable Long id) {
-        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
-        postService.unlikePost(id, curUserId);
-        return successRes("Đã bỏ thích bài viết", null);
     }
 
     @DeleteMapping("/{id}")

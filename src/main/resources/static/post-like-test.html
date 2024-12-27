@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Like Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        .post-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 5px;
+        }
+
+        .liked {
+            background-color: #e6f3ff;
+        }
+
+        .button-group {
+            margin: 10px;
+        }
+
+        .login-form {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 10px;
+            border-radius: 5px;
+            max-width: 300px;
+        }
+
+        .login-form input {
+            margin-bottom: 10px;
+            width: 100%;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+<div id="loginSection" class="login-form">
+    <h3>Đăng nhập</h3>
+    <input type="text" id="usernameOrEmail" placeholder="Email hoặc tên đăng nhập"/>
+    <input type="password" id="password" placeholder="Mật khẩu"/>
+    <button onclick="login()">Đăng nhập</button>
+    <button onclick="logout()">Đăng xuất</button>
+</div>
+
+<div id="mainContent" style="display: none;">
+    <div class="button-group">
+        <input type="text" id="tokenInput" placeholder="Nhập JWT token" style="width: 300px"/>
+    </div>
+
+    <div class="button-group">
+        <input type="text" id="postId" placeholder="Post ID" value="1"/>
+        <button onclick="toggleLike()">Toggle Like</button>
+        <button onclick="checkLikeStatus()">Check Like Status</button>
+        <button onclick="getLikesCount()">Get Likes Count</button>
+    </div>
+
+    <div id="posts"></div>
+</div>
+
+<script>
+    let token = localStorage.getItem('jwtToken') || '';
+
+    window.onload = function () {
+        if (token) {
+            document.getElementById('tokenInput').value = token;
+            document.getElementById('mainContent').style.display = 'block';
+        }
+    }
+
+    async function login() {
+        const usernameOrEmail = document.getElementById('usernameOrEmail').value;
+        const password = document.getElementById('password').value;
+
+        try {
+            const response = await fetch('/api/v1/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({usernameOrEmail, password}),
+                credentials: 'include'
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Đăng nhập thất bại');
+            }
+
+            token = data.data;
+            localStorage.setItem('jwtToken', token);
+            document.getElementById('tokenInput').value = token;
+            document.getElementById('mainContent').style.display = 'block';
+            addMessage('Đăng nhập thành công!');
+        } catch (error) {
+            addMessage(`Lỗi đăng nhập: ${error.message}`, true);
+        }
+    }
+
+    async function logout() {
+        try {
+            const response = await fetch('/api/v1/auth/logout', {
+                method: 'POST',
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                throw new Error('Đăng xuất thất bại');
+            }
+
+            token = '';
+            localStorage.removeItem('jwtToken');
+            document.getElementById('tokenInput').value = '';
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            addMessage('Đã đăng xuất thành công');
+        } catch (error) {
+            addMessage(`Lỗi đăng xuất: ${error.message}`, true);
+        }
+    }
+
+    function getToken() {
+        token = document.getElementById('tokenInput').value || localStorage.getItem('jwtToken');
+        if (!token) {
+            addMessage('Vui lòng đăng nhập!', true);
+            return null;
+        }
+        return token;
+    }
+
+    function addMessage(message, isError = false) {
+        const postsDiv = document.getElementById('posts');
+        const timestamp = new Date().toLocaleTimeString();
+        const color = isError ? 'color: red;' : '';
+        postsDiv.innerHTML = `<div class="post-card" style="${color}">[${timestamp}] ${message}</div>` + postsDiv.innerHTML;
+    }
+
+    async function fetchWithAuth(url, options = {}) {
+        const token = getToken();
+        if (!token) return null;
+
+        const defaultOptions = {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        };
+
+        try {
+            const response = await fetch(url, {...defaultOptions, ...options});
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Có lỗi xảy ra');
+            }
+
+            return data;
+        } catch (error) {
+            addMessage(`Lỗi: ${error.message}`, true);
+            return null;
+        }
+    }
+
+    async function toggleLike() {
+        const postId = document.getElementById('postId').value;
+        if (!postId) {
+            addMessage('Vui lòng nhập Post ID!', true);
+            return;
+        }
+
+        const data = await fetchWithAuth(`/api/v1/posts/${postId}/like`, {
+            method: 'POST'
+        });
+
+        if (data) {
+            addMessage(`Đã toggle like cho post ${postId}`);
+        }
+    }
+
+    async function checkLikeStatus() {
+        const postId = document.getElementById('postId').value;
+        if (!postId) {
+            addMessage('Vui lòng nhập Post ID!', true);
+            return;
+        }
+
+        const data = await fetchWithAuth(`/api/v1/posts/${postId}`);
+        if (data) {
+            const post = data.data;
+            addMessage(`Post ${postId} - Trạng thái like: ${post.liked ? 'Đã like' : 'Chưa like'}`);
+        }
+    }
+
+    async function getLikesCount() {
+        const postId = document.getElementById('postId').value;
+        if (!postId) {
+            addMessage('Vui lòng nhập Post ID!', true);
+            return;
+        }
+
+        const data = await fetchWithAuth(`/api/v1/posts/${postId}`);
+        if (data) {
+            const post = data.data;
+            addMessage(`Post ${postId} - Số lượng like: ${post.likesCount}`);
+        }
+    }
+</script>
+</body>
+</html> 

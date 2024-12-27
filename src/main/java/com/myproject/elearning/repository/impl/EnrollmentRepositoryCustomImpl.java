@@ -1,7 +1,7 @@
 package com.myproject.elearning.repository.impl;
 
 // import com.myproject.elearning.dto.response.enrollment.EnrollmentGetRes;
-// import com.myproject.elearning.repository.EnrollmentRepositoryCustom;
+// import com.myproject.elearning.repository.custom.EnrollmentRepositoryCustom;
 // import jakarta.persistence.EntityManager;
 // import jakarta.persistence.PersistenceContext;
 // import org.springframework.data.domain.Page;

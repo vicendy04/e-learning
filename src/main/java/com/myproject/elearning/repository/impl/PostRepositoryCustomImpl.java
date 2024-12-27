@@ -1,7 +1,7 @@
 package com.myproject.elearning.repository.impl;
 
 import com.myproject.elearning.dto.response.post.PostGetRes;
-import com.myproject.elearning.repository.PostRepositoryCustom;
+import com.myproject.elearning.repository.custom.PostRepositoryCustom;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;

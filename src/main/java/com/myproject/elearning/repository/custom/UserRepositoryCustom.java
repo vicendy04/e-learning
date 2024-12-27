@@ -1,4 +1,4 @@
-package com.myproject.elearning.repository;
+package com.myproject.elearning.repository.custom;
 
 import com.myproject.elearning.dto.projection.UserAuthDTO;
 import java.util.Optional;

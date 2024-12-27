@@ -2,7 +2,7 @@ package com.myproject.elearning.security;
 
 import com.myproject.elearning.dto.projection.UserAuthDTO;
 import com.myproject.elearning.repository.UserRepository;
-import com.myproject.elearning.service.cache.RedisAuthService;
+import com.myproject.elearning.service.redis.RedisAuthService;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.security.core.GrantedAuthority;

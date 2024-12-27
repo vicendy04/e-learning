@@ -13,7 +13,7 @@ import com.myproject.elearning.dto.response.course.CourseUpdateRes;
 import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
 import com.myproject.elearning.security.SecurityUtils;
 import com.myproject.elearning.service.CourseService;
-import com.myproject.elearning.service.cache.RedisCourseService;
+import com.myproject.elearning.service.redis.RedisCourseService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

@@ -12,6 +12,7 @@ import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.mapper.PostMapper;
 import com.myproject.elearning.repository.PostRepository;
 import com.myproject.elearning.repository.UserRepository;
+import com.myproject.elearning.service.redis.RedisPostService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -27,6 +28,7 @@ public class PostService {
     PostRepository postRepository;
     UserRepository userRepository;
     PostMapper postMapper;
+    RedisPostService redisPostService;
 
     // note: bi trigger select user neu PostGetRes can thong tin khac cua user
     @Transactional
@@ -48,27 +50,13 @@ public class PostService {
         return PagedRes.from(posts.map(postMapper::toPostListRes));
     }
 
-    @Transactional
-    public void likePost(Long postId, Long userId) {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new InvalidIdException(postId));
-        User currentUser = userRepository.getReferenceById(userId);
-
-        if (!post.getLikedUsers().contains(currentUser)) {
-            post.getLikedUsers().add(currentUser);
-            postRepository.save(post);
-        }
+    public void toggleLike(Long postId, Long userId) {
+        redisPostService.toggleLike(postId, userId);
     }
 
-    @Transactional
-    public void unlikePost(Long postId, Long userId) {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new InvalidIdException(postId));
-        User currentUser = userRepository.getReferenceById(userId);
-
-        if (post.getLikedUsers().contains(currentUser)) {
-            post.getLikedUsers().remove(currentUser);
-            postRepository.save(post);
-        }
-    }
+    //    public Long getPostLikes(Long postId) {
+    //        return redisPostService.getLikesCount(postId);
+    //    }
 
     @Transactional
     public void delPost(Long id) {

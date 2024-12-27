@@ -1,7 +1,7 @@
 package com.myproject.elearning.repository.impl;
 
 import com.myproject.elearning.dto.projection.UserAuthDTO;
-import com.myproject.elearning.repository.UserRepositoryCustom;
+import com.myproject.elearning.repository.custom.UserRepositoryCustom;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;

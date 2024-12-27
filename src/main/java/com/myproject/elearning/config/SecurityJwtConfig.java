@@ -4,7 +4,7 @@ import static com.myproject.elearning.security.SecurityUtils.JWT_ALGORITHM;
 
 import com.myproject.elearning.exception.problemdetails.TokenException;
 import com.myproject.elearning.service.BlackListService;
-import com.myproject.elearning.service.cache.RedisBlackListService;
+import com.myproject.elearning.service.redis.RedisBlackListService;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.util.Base64;
 import java.time.Instant;

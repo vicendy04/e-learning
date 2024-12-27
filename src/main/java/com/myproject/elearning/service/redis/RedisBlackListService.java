@@ -1,4 +1,4 @@
-package com.myproject.elearning.service.cache;
+package com.myproject.elearning.service.redis;
 
 import java.time.Instant;
 import lombok.AccessLevel;
