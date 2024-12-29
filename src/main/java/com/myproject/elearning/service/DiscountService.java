@@ -11,7 +11,6 @@ import com.myproject.elearning.mapper.DiscountMapper;
 import com.myproject.elearning.repository.CourseRepository;
 import com.myproject.elearning.repository.CourseRepository.CourseForValidDiscount;
 import com.myproject.elearning.repository.DiscountRepository;
-import com.myproject.elearning.security.AuthoritiesConstants;
 import com.myproject.elearning.security.SecurityUtils;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -32,8 +31,7 @@ public class DiscountService {
     DiscountMapper discountMapper;
 
     @Transactional
-    public String addDiscount(DiscountCreateReq request) {
-        Long instructorId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
+    public String addDiscount(DiscountCreateReq request, Long instructorId) {
         if (discountRepository.existsByInstructorIdAndDiscountCode(instructorId, request.getDiscountCode())) {
             throw new InvalidDiscountException("Mã giảm giá đã tồn tại");
         }
@@ -51,12 +49,9 @@ public class DiscountService {
         return request.getDiscountCode();
     }
 
-    public PagedRes<DiscountGetRes> getDiscountsForInstructor(Pageable pageable) {
-        Long id = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
-        Page<DiscountGetRes> discounts = Page.empty();
-        if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.INSTRUCTOR)) {
-            discounts = discountRepository.findAllByInstructorId(pageable, id).map(discountMapper::toGetResponse);
-        }
+    public PagedRes<DiscountGetRes> getDiscountsForInstructor(Pageable pageable, Long instructorId) {
+        Page<DiscountGetRes> discounts =
+                discountRepository.findAllByInstructorId(pageable, instructorId).map(discountMapper::toGetResponse);
         return PagedRes.from(discounts);
     }
 

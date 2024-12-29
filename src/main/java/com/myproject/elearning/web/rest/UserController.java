@@ -37,16 +37,16 @@ public class UserController {
         return successRes("User created successfully", newUser);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN')")
     @ResponseStatus(HttpStatus.OK)
     public ApiRes<UserGetRes> getUser(@PathVariable(name = "id") Long id) {
         UserGetRes user = userService.getUser(id);
         return successRes("User retrieved successfully", user);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("")
-    @PreAuthorize("hasAnyRole('ADMIN')")
     @ResponseStatus(HttpStatus.OK)
     public ApiRes<PagedRes<UserGetRes>> getUsers(
             @ModelAttribute UserSearchDTO searchDTO,
@@ -55,6 +55,7 @@ public class UserController {
         return successRes("Users retrieved successfully", users);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ApiRes<UserGetRes> editUser(@PathVariable(name = "id") Long id, @RequestBody UserUpdateReq userUpdateReq) {
@@ -62,6 +63,7 @@ public class UserController {
         return successRes("User updated successfully", updatedUser);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ApiRes<Void> delUser(@PathVariable(name = "id") Long id) {

@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -35,6 +36,7 @@ public class CourseChatController {
      * Tạo group chat trong database
      * Dang ky Redis listener cho group chat mới
      */
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     @PostMapping("/room")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiRes<GroupChatRes> createChatRoom(@Valid @RequestBody GroupChatCreateReq request) {

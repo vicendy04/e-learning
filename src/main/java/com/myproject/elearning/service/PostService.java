@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,10 +35,8 @@ public class PostService {
     @Transactional
     public PostGetRes addPost(Long userId, PostCreateReq request) {
         User userRef = userRepository.getReferenceIfExists(userId);
-
         Post post = postMapper.toEntity(request);
         post.setUser(userRef);
-
         return postMapper.toGetResponse(postRepository.save(post));
     }
 
@@ -55,16 +54,23 @@ public class PostService {
     }
 
     @Transactional
-    public void delPost(Long id) {
-        if (!postRepository.existsById(id)) {
-            throw new InvalidIdException(id);
+    public void delPost(Long id, Long curUserId) {
+        // Todo: 1 + n problem
+        Post post = postRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
+        if (!curUserId.equals(post.getUser().getId())) {
+            throw new AccessDeniedException("You can only delete your own posts");
         }
+
         postRepository.deleteByPostId(id);
     }
 
     @Transactional
-    public PostUpdateRes editPost(Long id, PostUpdateReq request) {
+    public PostUpdateRes editPost(Long id, PostUpdateReq request, Long curUserId) {
+        // Todo: 1 + n problem
         Post post = postRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
+        if (!curUserId.equals(post.getUser().getId())) {
+            throw new AccessDeniedException("You can only edit your own posts");
+        }
 
         postMapper.partialUpdate(post, request);
         return postMapper.toPostUpdateRes(postRepository.save(post));

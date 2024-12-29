@@ -29,7 +29,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -63,7 +62,6 @@ public class AuthService {
     RedisAuthService redisAuthService;
 
     public TokenPair authenticate(LoginReq loginReq) {
-        // Get user from cache or database
         Object cachedUser = redisAuthService.getCachedUser(loginReq.getUsernameOrEmail());
         UserAuthDTO userAuthDTO;
 
@@ -97,7 +95,6 @@ public class AuthService {
     }
 
     @Transactional
-    @PreAuthorize("isAuthenticated()")
     public void changePassword(ChangePasswordReq request) {
         Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
         User user = userRepository.findById(curUserId).orElseThrow(() -> new InvalidIdException(curUserId));

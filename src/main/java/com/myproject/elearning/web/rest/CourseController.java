@@ -36,7 +36,7 @@ public class CourseController {
     CourseService courseService;
     RedisCourseService redisCourseService;
 
-    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
+    @PreAuthorize("isAuthenticated() and hasAnyRole('INSTRUCTOR', 'ADMIN')")
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiRes<CourseGetRes> addCourse(@Valid @RequestBody CourseCreateReq courseCreateReq) {
@@ -65,7 +65,7 @@ public class CourseController {
         return successRes("Courses retrieved successfully", courses);
     }
 
-    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
+    @PreAuthorize("isAuthenticated() and hasAnyRole('INSTRUCTOR', 'ADMIN')")
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ApiRes<CourseUpdateRes> editCourse(
@@ -76,7 +76,7 @@ public class CourseController {
         return successRes("Course updated successfully", updatedCourse);
     }
 
-    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
+    @PreAuthorize("isAuthenticated() and hasAnyRole('INSTRUCTOR', 'ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ApiRes<Void> delCourse(@PathVariable(name = "id") Long id) {
@@ -86,8 +86,8 @@ public class CourseController {
         return successRes("Course deleted successfully", null);
     }
 
+    @PreAuthorize("isAuthenticated() and hasAnyRole('INSTRUCTOR', 'ADMIN')")
     @GetMapping("/my-courses")
-    @PreAuthorize("hasAnyRole('INSTRUCTOR')")
     @ResponseStatus(HttpStatus.OK)
     public ApiRes<PagedRes<CourseListRes>> getMyCourses(
             @PageableDefault(size = 10, page = 0, sort = "title", direction = Sort.Direction.ASC) Pageable pageable) {

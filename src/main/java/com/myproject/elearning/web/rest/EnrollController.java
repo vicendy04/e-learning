@@ -17,7 +17,6 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -30,40 +29,47 @@ import org.springframework.web.bind.annotation.*;
 public class EnrollController {
     EnrollService enrollService;
 
+    @PreAuthorize("isAuthenticated() and hasAnyRole('USER')")
     @PostMapping("/courses/{courseId}/enroll")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiRes<EnrollmentRes> enrollCourse(@PathVariable Long courseId) {
         Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
-        EnrollmentRes enrollment = enrollService.enrollCourse(curUserId, courseId);
+        EnrollmentRes enrollment = enrollService.enrollCourse(courseId, curUserId);
         return successRes("Enrolled successfully", enrollment);
     }
 
+    @PreAuthorize("isAuthenticated() and hasAnyRole('USER')")
     @DeleteMapping("/courses/{courseId}/enroll")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ApiRes<Void> unrollCourse(@PathVariable Long courseId) {
         Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
-        enrollService.unrollCourse(curUserId, courseId);
+        enrollService.unrollCourse(courseId, curUserId);
         return successRes("Unrolled successfully", null);
     }
 
+    @PreAuthorize("isAuthenticated() and hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/users/enrollments")
     @ResponseStatus(HttpStatus.OK)
     public ApiRes<PagedRes<EnrollmentGetRes>> getUserEnrollments(
             @PageableDefault(size = 5, page = 0) Pageable pageable) {
         Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
-        PagedRes<EnrollmentGetRes> enrollments = enrollService.getUserEnrollments(curUserId, pageable);
+        PagedRes<EnrollmentGetRes> enrollments = enrollService.getUserEnrollments(pageable, curUserId);
         return successRes("User enrollments retrieved successfully", enrollments);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    @PostAuthorize("hasAnyRole('ADMIN') or returnObject.data.user.email == #jwt.subject")
+    @PreAuthorize("isAuthenticated() and hasAnyRole('USER', 'ADMIN')")
+    // Danger: @PostAuthorize should not be used as it only checks after method execution, which could lead to unwanted
+    // data changes
+    // @PostAuthorize("hasAnyRole('ADMIN') or returnObject.data.user.id == #jwt.subject")
     @GetMapping("/enrollments/{enrollmentId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiRes<EnrollmentGetRes> getEnrollment(@PathVariable Long enrollmentId, @AuthenticationPrincipal Jwt jwt) {
-        EnrollmentGetRes enrollment = enrollService.getEnrollment(enrollmentId);
+        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
+        EnrollmentGetRes enrollment = enrollService.getEnrollment(enrollmentId, curUserId);
         return successRes("Enrollment retrieved successfully", enrollment);
     }
 
+    @PreAuthorize("isAuthenticated() and hasAnyRole('INSTRUCTOR', 'ADMIN')")
     @GetMapping("/courses/{courseId}/enrollments")
     @ResponseStatus(HttpStatus.OK)
     public ApiRes<PagedRes<EnrollmentGetRes>> getCourseEnrollments(
@@ -72,12 +78,14 @@ public class EnrollController {
         return successRes("Course enrollments retrieved successfully", enrollments);
     }
 
+    @PreAuthorize("isAuthenticated() and hasAnyRole('INSTRUCTOR', 'ADMIN')")
     @PutMapping("/enrollments/{enrollmentId}/status")
     @ResponseStatus(HttpStatus.OK)
     public ApiRes<EnrollmentGetRes> changeEnrollStatus(
             @PathVariable Long enrollmentId, @Valid @RequestBody EnrollStatusUpdateReq statusUpdateInput) {
+        Long userId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
         EnrollmentGetRes updatedEnrollment =
-                enrollService.changeEnrollStatus(enrollmentId, statusUpdateInput.getStatus());
+                enrollService.changeEnrollStatus(enrollmentId, statusUpdateInput.getStatus(), userId);
         return successRes("Enrollment status changed successfully", updatedEnrollment);
     }
 }

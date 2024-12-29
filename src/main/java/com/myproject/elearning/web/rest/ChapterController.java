@@ -10,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -26,6 +27,7 @@ public class ChapterController {
         return successRes("Chapter retrieved successfully", chapter);
     }
 
+    @PreAuthorize("isAuthenticated() and hasAnyRole('INSTRUCTOR', 'ADMIN')")
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ApiRes<ChapterGetRes> editChapter(@PathVariable Long id, @RequestBody ChapterUpdateReq request) {
@@ -33,6 +35,7 @@ public class ChapterController {
         return successRes("Chapter updated successfully", chapter);
     }
 
+    @PreAuthorize("isAuthenticated() and hasAnyRole('INSTRUCTOR', 'ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ApiRes<Void> deleteChapter(@PathVariable Long id) {

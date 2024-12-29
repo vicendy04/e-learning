@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 public class RoleController {
     RoleService roleService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiRes<RoleDTO> addRole(@Valid @RequestBody CreateRoleReq req) {
@@ -34,6 +36,7 @@ public class RoleController {
         return successRes("Role created successfully", newRole);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ApiRes<RoleDTO> getRole(@PathVariable Long id) {
@@ -41,6 +44,7 @@ public class RoleController {
         return successRes("Role retrieved successfully", role);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
     public ApiRes<PagedRes<RoleDTO>> getRoles(
@@ -49,6 +53,7 @@ public class RoleController {
         return successRes("Roles retrieved successfully", roles);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("")
     @ResponseStatus(HttpStatus.OK)
     public ApiRes<RoleDTO> editRole(@RequestBody RoleDTO role) {
@@ -56,6 +61,7 @@ public class RoleController {
         return successRes("Role updated successfully", updatedRole);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ApiRes<Void> delRole(@PathVariable Long id) {

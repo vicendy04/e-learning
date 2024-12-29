@@ -7,7 +7,9 @@ import com.myproject.elearning.dto.common.PagedRes;
 import com.myproject.elearning.dto.request.discount.ApplyDiscountReq;
 import com.myproject.elearning.dto.request.discount.DiscountCreateReq;
 import com.myproject.elearning.dto.response.discount.DiscountGetRes;
+import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
 import com.myproject.elearning.exception.problemdetails.InvalidDiscountException;
+import com.myproject.elearning.security.SecurityUtils;
 import com.myproject.elearning.service.DiscountService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -30,23 +32,27 @@ import org.springframework.web.bind.annotation.*;
 public class DiscountController {
     DiscountService discountService;
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'INSTRUCTOR')")
+    @PreAuthorize("isAuthenticated() and hasAnyRole('INSTRUCTOR', 'ADMIN')")
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiRes<String> addDiscountVoucher(@Valid @RequestBody DiscountCreateReq discountCreateReq) {
-        String discountCode = discountService.addDiscount(discountCreateReq);
+        Long instructorId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
+        String discountCode = discountService.addDiscount(discountCreateReq, instructorId);
         return successRes("Discount created successfully", discountCode);
     }
 
+    @PreAuthorize("isAuthenticated() and hasAnyRole('INSTRUCTOR', 'ADMIN')")
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
     public ApiRes<PagedRes<DiscountGetRes>> getDiscountsForInstructor(
             @PageableDefault(size = 5, page = 0, sort = "discountName", direction = Sort.Direction.ASC)
                     Pageable pageable) {
-        PagedRes<DiscountGetRes> discounts = discountService.getDiscountsForInstructor(pageable);
+        Long instructorId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
+        PagedRes<DiscountGetRes> discounts = discountService.getDiscountsForInstructor(pageable, instructorId);
         return successRes("Retrieved successfully", discounts);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/valid")
     @ResponseStatus(HttpStatus.OK)
     public ApiRes<Boolean> validateDiscountForCourse(@RequestBody ApplyDiscountReq request) {
@@ -57,7 +63,8 @@ public class DiscountController {
         return successRes("Retrieved successfully", true);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'INSTRUCTOR')")
+    // Chỉ INSTRUCTOR (người tạo mã) và ADMIN mới được xóa
+    @PreAuthorize("isAuthenticated() and hasAnyRole('INSTRUCTOR', 'ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ApiRes<Void> delDiscountVoucher(@PathVariable Long id) {

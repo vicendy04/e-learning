@@ -42,11 +42,11 @@ public class SecurityConfig {
         "/api-docs/**",
         "/chat-test.html",
         "/post-like-test.html",
+        "/api/v1/courses/chat/**",
+        "/ws/**",
         "/api/v1/auth/login",
         "/api/v1/auth/refresh",
         "/api/v1/auth/logout",
-        "api/v1/courses/chat/**",
-        "/ws/**",
         "/actuator/**",
         "/api/v1/test/**",
         "/api/demo/**"

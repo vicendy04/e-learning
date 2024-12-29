@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
     PostService postService;
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiRes<PostGetRes> addPost(@Valid @RequestBody PostCreateReq request) {
@@ -37,10 +39,12 @@ public class PostController {
         return successRes("Tạo bài viết thành công", post);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ApiRes<PostUpdateRes> editPost(@PathVariable Long id, @Valid @RequestBody PostUpdateReq request) {
-        PostUpdateRes post = postService.editPost(id, request);
+        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
+        PostUpdateRes post = postService.editPost(id, request, curUserId);
         return successRes("Cập nhật bài viết thành công", post);
     }
 
@@ -51,6 +55,7 @@ public class PostController {
         return successRes("Lấy bài viết thành công", post);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/user/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiRes<PagedRes<PostListRes>> getPostsByUser(
@@ -60,6 +65,7 @@ public class PostController {
         return successRes("Lấy danh sách bài viết thành công", posts);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/{id}/like")
     @ResponseStatus(HttpStatus.OK)
     public ApiRes<Void> likePost(@PathVariable Long id) {
@@ -68,10 +74,12 @@ public class PostController {
         return successRes("Đã thích bài viết", null);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ApiRes<Void> delPost(@PathVariable Long id) {
-        postService.delPost(id);
+        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
+        postService.delPost(id, curUserId);
         return successRes("Xóa bài viết thành công", null);
     }
 }

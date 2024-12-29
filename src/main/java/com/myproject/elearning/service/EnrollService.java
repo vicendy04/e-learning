@@ -6,7 +6,6 @@ import com.myproject.elearning.domain.User;
 import com.myproject.elearning.dto.common.PagedRes;
 import com.myproject.elearning.dto.response.enrollment.EnrollmentGetRes;
 import com.myproject.elearning.dto.response.enrollment.EnrollmentRes;
-import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
 import com.myproject.elearning.exception.problemdetails.EmailAlreadyUsedException;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.mapper.EnrollmentMapper;
@@ -35,9 +34,9 @@ public class EnrollService {
     EnrollmentMapper enrollmentMapper;
 
     @Transactional
-    public EnrollmentRes enrollCourse(Long userId, Long courseId) {
+    public EnrollmentRes enrollCourse(Long courseId, Long userId) {
         if (enrollmentRepository.existsByUserIdAndCourseId(userId, courseId)) {
-            throw new EmailAlreadyUsedException("User already enrolled in this course");
+            throw new EmailAlreadyUsedException("Bạn đã đăng ký khóa học này rồi");
         }
         User userRef = userRepository.getReferenceIfExists(userId);
         Course courseRef = courseRepository.getReferenceIfExists(courseId);
@@ -50,24 +49,32 @@ public class EnrollService {
     }
 
     @Transactional
-    public void unrollCourse(Long userId, Long courseId) {
+    public void unrollCourse(Long courseId, Long userId) {
         if (!enrollmentRepository.existsByUserIdAndCourseId(userId, courseId)) {
-            throw new InvalidIdException("Enrollment not found");
+            throw new InvalidIdException("Không tìm thấy đăng ký khóa học");
         }
         enrollmentRepository.deleteByUserIdAndCourseId(userId, courseId);
         courseRepository.decrementEnrollmentCount(courseId);
     }
 
-    public PagedRes<EnrollmentGetRes> getUserEnrollments(Long userId, Pageable pageable) {
+    public PagedRes<EnrollmentGetRes> getUserEnrollments(Pageable pageable, Long userId) {
         Page<Enrollment> enrollments = enrollmentRepository.findAllByUserId(userId, pageable);
         return PagedRes.from(enrollments.map(enrollmentMapper::toEnrollmentGetResponse));
     }
 
     @Transactional(readOnly = true)
-    public EnrollmentGetRes getEnrollment(Long enrollmentId) {
-        return enrollmentMapper.toEnrollmentGetResponse(enrollmentRepository
+    public EnrollmentGetRes getEnrollment(Long enrollmentId, Long userId) {
+        Enrollment enrollment = enrollmentRepository
                 .findByIdWithDetails(enrollmentId)
-                .orElseThrow(() -> new InvalidIdException(enrollmentId)));
+                .orElseThrow(() -> new InvalidIdException(enrollmentId));
+
+        // Todo: check sql if it triggers 1 + n problem
+        if (SecurityUtils.hasCurrentUserNoneOfAuthorities(AuthoritiesConstants.ADMIN)
+                && !Objects.equals(userId, enrollment.getUser().getId())) {
+            throw new AccessDeniedException("Bạn không có quyền xem chi tiết đăng ký này");
+        }
+
+        return enrollmentMapper.toEnrollmentGetResponse(enrollment);
     }
 
     public PagedRes<EnrollmentGetRes> getCourseEnrollments(Long courseId, Pageable pageable) {
@@ -76,16 +83,21 @@ public class EnrollService {
     }
 
     @Transactional
-    public EnrollmentGetRes changeEnrollStatus(Long enrollmentId, String newStatus) {
+    public EnrollmentGetRes changeEnrollStatus(Long enrollmentId, String newStatus, Long userId) {
         Enrollment enrollment = enrollmentRepository
                 .findByIdWithDetails(enrollmentId)
                 .orElseThrow(() -> new InvalidIdException(enrollmentId));
-        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
+
+        // Todo: check sql if it triggers 1 + n problem
         if (SecurityUtils.hasCurrentUserNoneOfAuthorities(AuthoritiesConstants.ADMIN)
-                && !Objects.equals(curUserId, enrollment.getUser().getId())) {
-            throw new AccessDeniedException("You don't have permission to change this enrollment status");
+                && !Objects.equals(userId, enrollment.getUser().getId())) {
+            throw new AccessDeniedException("Bạn không có quyền thay đổi trạng thái đăng ký này");
         }
-        enrollment.setStatus(Enrollment.EnrollmentStatus.valueOf(newStatus));
+
+        Enrollment.EnrollmentStatus currentStatus = enrollment.getStatus();
+        Enrollment.EnrollmentStatus targetStatus = Enrollment.EnrollmentStatus.valueOf(newStatus);
+        validateStatusTransition(currentStatus, targetStatus);
+        enrollment.setStatus(targetStatus);
         return enrollmentMapper.toEnrollmentGetResponse(enrollmentRepository.save(enrollment));
     }
 

@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -33,6 +34,7 @@ public class CourseChapterController {
         return successRes("Contents retrieved successfully", chapters);
     }
 
+    @PreAuthorize("isAuthenticated() and hasAnyRole('INSTRUCTOR', 'ADMIN')")
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiRes<ChapterGetRes> addChapterToCourse(
@@ -41,6 +43,7 @@ public class CourseChapterController {
         return successRes("Chapter added successfully", chapter);
     }
 
+    @PreAuthorize("isAuthenticated() and hasAnyRole('INSTRUCTOR', 'ADMIN')")
     @DeleteMapping("")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ApiRes<Void> delChaptersOfCourse(@PathVariable Long courseId) {

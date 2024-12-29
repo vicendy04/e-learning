@@ -8,12 +8,15 @@ import com.myproject.elearning.dto.request.auth.RegisterReq;
 import com.myproject.elearning.dto.request.user.UserSearchDTO;
 import com.myproject.elearning.dto.request.user.UserUpdateReq;
 import com.myproject.elearning.dto.response.user.UserGetRes;
+import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.mapper.UserMapper;
 import com.myproject.elearning.repository.RefreshTokenRepository;
 import com.myproject.elearning.repository.RoleRepository;
 import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.repository.specification.UserSpecification;
+import com.myproject.elearning.security.AuthoritiesConstants;
+import com.myproject.elearning.security.SecurityUtils;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
@@ -23,6 +26,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -83,6 +87,11 @@ public class UserService {
 
     @Transactional
     public UserGetRes editUser(Long id, UserUpdateReq userUpdateReq) {
+        Long currentUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
+        if (!currentUserId.equals(id) && SecurityUtils.hasCurrentUserNoneOfAuthorities(AuthoritiesConstants.ADMIN)) {
+            throw new AccessDeniedException("Bạn không có quyền sửa thông tin người dùng này");
+        }
+
         User user = userRepository.getReferenceIfExists(id);
         userMapper.partialUpdate(user, userUpdateReq);
         User savedUser = userRepository.save(user);
@@ -90,6 +99,10 @@ public class UserService {
     }
 
     public void delUser(Long id) {
+        if (SecurityUtils.hasCurrentUserNoneOfAuthorities(AuthoritiesConstants.ADMIN)) {
+            throw new AccessDeniedException("Chỉ admin mới có quyền xóa người dùng");
+        }
+
         if (!userRepository.existsById(id)) {
             throw new InvalidIdException(id);
         }
@@ -97,6 +110,10 @@ public class UserService {
     }
 
     public PagedRes<UserGetRes> getUsers(UserSearchDTO searchDTO, Pageable pageable) {
+        if (SecurityUtils.hasCurrentUserNoneOfAuthorities(AuthoritiesConstants.ADMIN)) {
+            throw new AccessDeniedException("Chỉ admin mới có quyền xem danh sách người dùng");
+        }
+
         Specification<User> spec = UserSpecification.filterUsers(searchDTO);
         Page<UserGetRes> users = userRepository.findAll(spec, pageable).map(userMapper::toGetResponse);
         return PagedRes.from(users);

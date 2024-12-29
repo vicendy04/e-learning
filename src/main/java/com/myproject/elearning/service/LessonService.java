@@ -27,7 +27,13 @@ public class LessonService {
     LessonMapper lessonMapper;
 
     @Transactional
-    public LessonGetRes addLessonToChapter(Long chapterId, LessonCreateReq request) {
+    public LessonGetRes addLessonToChapter(Long chapterId, LessonCreateReq request, Long instructorId) {
+        // Todo: Check the behavior of Spring Data JPA
+        boolean exists = chapterRepository.existsByIdAndCourseInstructorId(chapterId, instructorId);
+        if (!exists) {
+            throw new InvalidIdException("Chapter không tồn tại hoặc không thuộc về bạn");
+        }
+
         Chapter chapterOnlyId = chapterRepository.getReferenceById(chapterId);
         Lesson lesson = lessonMapper.toEntity(request);
         lesson.setChapter(chapterOnlyId);
@@ -40,16 +46,21 @@ public class LessonService {
     }
 
     @Transactional
-    public LessonGetRes editLesson(Long id, LessonUpdateReq request) {
-        Lesson lesson = lessonRepository.findByIdWithChapter(id).orElseThrow(() -> new InvalidIdException(id));
+    public LessonGetRes editLesson(Long id, LessonUpdateReq request, Long instructorId) {
+        // Todo: Check the behavior of Spring Data JPA
+        // Todo: n + 1 problem
+        Lesson lesson = lessonRepository
+                .findByIdAndChapterCourseInstructorId(id, instructorId)
+                .orElseThrow(() -> new InvalidIdException("Bài học không tồn tại hoặc không thuộc về bạn"));
+
         lessonMapper.partialUpdate(lesson, request);
         return lessonMapper.toGetResponse(lessonRepository.save(lesson));
     }
 
     @Transactional
-    public void delLesson(Long id) {
-        if (!lessonRepository.existsById(id)) {
-            throw new InvalidIdException(id);
+    public void delLesson(Long id, Long instructorId) {
+        if (!lessonRepository.existsByIdAndChapterCourseInstructorId(id, instructorId)) {
+            throw new InvalidIdException("Bài học không tồn tại hoặc không thuộc về bạn");
         }
         lessonRepository.deleteByLessonId(id);
     }

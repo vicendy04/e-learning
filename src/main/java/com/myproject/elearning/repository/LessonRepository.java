@@ -21,4 +21,8 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     void deleteByLessonId(@Param("id") Long id);
 
     List<Lesson> findAllByChapterId(Long chapterId);
+
+    Optional<Lesson> findByIdAndChapterCourseInstructorId(Long id, Long instructorId);
+
+    boolean existsByIdAndChapterCourseInstructorId(Long id, Long instructorId);
 }

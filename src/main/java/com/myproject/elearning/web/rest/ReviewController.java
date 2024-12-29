@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 public class ReviewController {
     ReviewService reviewService;
 
+    @PreAuthorize("isAuthenticated() and hasAnyRole('USER')")
     @PostMapping("/courses/{courseId}/reviews")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiRes<ReviewRes> addReview(@PathVariable Long courseId, @Valid @RequestBody ReviewCreateReq request) {
@@ -38,6 +40,7 @@ public class ReviewController {
         return successRes("Đánh giá đã được tạo thành công", review);
     }
 
+    @PreAuthorize("isAuthenticated() and hasAnyRole('USER', 'ADMIN')")
     @PutMapping("/reviews/{reviewId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiRes<ReviewUpdateRes> editReview(
@@ -46,6 +49,7 @@ public class ReviewController {
         return successRes("Đánh giá đã được cập nhật thành công", review);
     }
 
+    @PreAuthorize("isAuthenticated() and hasAnyRole('USER', 'ADMIN')")
     @DeleteMapping("/reviews/{reviewId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ApiRes<Void> delReview(@PathVariable Long reviewId) {

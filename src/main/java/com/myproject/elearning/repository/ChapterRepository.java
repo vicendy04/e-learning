@@ -16,4 +16,6 @@ public interface ChapterRepository extends JpaRepository<Chapter, Long>, JpaSpec
 
     @Query("SELECT c FROM Chapter c WHERE c.course.id = :courseId")
     Page<Chapter> findByCourseIdWithCourse(@Param("courseId") Long courseId, Pageable pageable);
+
+    boolean existsByIdAndCourseInstructorId(Long chapterId, Long instructorIdkA);
 }
