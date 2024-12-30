@@ -3,7 +3,7 @@ package com.myproject.elearning.config;
 import static com.myproject.elearning.security.SecurityUtils.JWT_ALGORITHM;
 
 import com.myproject.elearning.exception.problemdetails.TokenException;
-import com.myproject.elearning.service.BlackListService;
+import com.myproject.elearning.service.TokenService;
 import com.myproject.elearning.service.redis.RedisBlackListService;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.util.Base64;
@@ -26,7 +26,7 @@ public class SecurityJwtConfig {
     @Value(value = "${jwt.base64-secret}")
     private String jwtKey;
 
-    private final BlackListService blackListService;
+    private final TokenService tokenService;
     private final RedisBlackListService redisBlackListService;
 
     @Bean
@@ -56,7 +56,7 @@ public class SecurityJwtConfig {
                 }
                 if (redisBlackListService.isTokenRevoked(jti)) {
                     throw new JwtException("Token has been revoked");
-                } else if (blackListService.isTokenRevoked(jti)) {
+                } else if (tokenService.isTokenRevoked(jti)) {
                     redisBlackListService.revokeToken(jti, expiresAt);
                     throw new JwtException("Token has been revoked");
                 }

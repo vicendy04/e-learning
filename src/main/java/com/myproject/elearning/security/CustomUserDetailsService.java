@@ -27,6 +27,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         this.redisAuthService = redisAuthService;
     }
 
+    // * No longer in use.
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Object cachedUser = redisAuthService.getCachedUser(username);

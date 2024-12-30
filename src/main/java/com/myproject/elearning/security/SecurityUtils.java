@@ -1,10 +1,15 @@
 package com.myproject.elearning.security;
 
+import com.myproject.elearning.dto.projection.UserAuthDTO;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,6 +37,22 @@ public final class SecurityUtils {
     public static Optional<String> getCurrentUserLogin() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         return Optional.ofNullable(extractPrincipal(securityContext.getAuthentication()));
+    }
+
+    /**
+     * Sets up the security context for the current user.
+     *
+     * @param userAuthDTO Data transfer object containing user authentication information (user ID and role names)
+     * @return the configured Authentication object
+     */
+    public static Authentication setAuthContext(UserAuthDTO userAuthDTO) {
+        List<GrantedAuthority> authorities = userAuthDTO.getRoleNames().stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(userAuthDTO.getId().toString(), null, authorities);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        return authentication;
     }
 
     /**

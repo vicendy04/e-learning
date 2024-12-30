@@ -4,11 +4,13 @@ import com.myproject.elearning.domain.RefreshToken;
 import com.myproject.elearning.domain.Role;
 import com.myproject.elearning.domain.User;
 import com.myproject.elearning.dto.common.PagedRes;
+import com.myproject.elearning.dto.projection.UserAuthDTO;
 import com.myproject.elearning.dto.request.auth.RegisterReq;
 import com.myproject.elearning.dto.request.user.UserSearchDTO;
 import com.myproject.elearning.dto.request.user.UserUpdateReq;
 import com.myproject.elearning.dto.response.user.UserGetRes;
 import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
+import com.myproject.elearning.exception.problemdetails.InvalidCredentialsException;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.mapper.UserMapper;
 import com.myproject.elearning.repository.RefreshTokenRepository;
@@ -71,10 +73,20 @@ public class UserService {
         Long userId = Long.parseLong(id);
         RefreshToken refreshToken = refreshTokenRepository
                 .findByUserIdAndDeviceName(userId, "A")
-                .orElseGet(() -> this.createNewRefreshToken(userId)); // or override
+                .orElseGet(() -> this.createNewRefreshToken(userId));
         refreshToken.setToken(newRefreshToken);
         refreshToken.setExpiryDate(expirationDate);
         refreshTokenRepository.save(refreshToken);
+    }
+
+    public UserAuthDTO findAuthDTOByEmail(String email) {
+        return userRepository
+                .findAuthDTOByEmail(email)
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid username or password"));
+    }
+
+    public String findEmailById(Long id) {
+        return userRepository.findEmailByUserId(id).orElseThrow(() -> new InvalidIdException("Email not found!"));
     }
 
     private RefreshToken createNewRefreshToken(Long userId) {

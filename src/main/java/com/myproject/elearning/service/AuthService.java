@@ -11,16 +11,13 @@ import com.myproject.elearning.exception.constants.ErrorMessageConstants;
 import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
 import com.myproject.elearning.exception.problemdetails.InvalidCredentialsException;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
-import com.myproject.elearning.repository.RefreshTokenRepository;
 import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.security.JwtTokenUtils;
 import com.myproject.elearning.security.SecurityUtils;
-import com.myproject.elearning.service.redis.RedisAuthService;
 import com.myproject.elearning.service.redis.RedisBlackListService;
 import com.nimbusds.jwt.SignedJWT;
 import java.text.ParseException;
 import java.time.Instant;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -29,11 +26,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
@@ -51,44 +45,24 @@ public class AuthService {
     @Value("${jwt.refresh-token-expiration}")
     long refreshTokenValidityInSeconds;
 
-    BlackListService blackListService;
+    TokenService tokenService;
     RedisBlackListService redisBlackListService;
     JwtTokenUtils jwtTokenUtils;
     UserRepository userRepository;
-    RefreshTokenRepository refreshTokenRepository;
     JwtEncoder jwtEncoder;
     UserService userService;
     PasswordEncoder passwordEncoder;
-    RedisAuthService redisAuthService;
 
-    public TokenPair authenticate(LoginReq loginReq) {
-        Object cachedUser = redisAuthService.getCachedUser(loginReq.getUsernameOrEmail());
-        UserAuthDTO userAuthDTO;
-
-        if (cachedUser instanceof UserAuthDTO cached) {
-            userAuthDTO = cached;
-        } else {
-            userAuthDTO = userRepository
-                    .findAuthDTOByEmail(loginReq.getUsernameOrEmail())
-                    .orElseThrow(() -> new InvalidCredentialsException("Invalid username or password"));
-            redisAuthService.setCachedUser(loginReq.getUsernameOrEmail(), userAuthDTO);
-        }
-
+    public Authentication authenticate(LoginReq loginReq, UserAuthDTO authDTO) {
         // Verify password
-        if (!passwordEncoder.matches(loginReq.getPassword(), userAuthDTO.getPassword())) {
+        if (!passwordEncoder.matches(loginReq.getPassword(), authDTO.getPassword())) {
             throw new InvalidCredentialsException("Invalid username or password");
         }
+        return SecurityUtils.setAuthContext(authDTO);
+    }
 
-        List<GrantedAuthority> authorities = userAuthDTO.getRoleNames().stream()
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
-
-        // Create authentication token
-        Authentication authentication =
-                new UsernamePasswordAuthenticationToken(userAuthDTO.getId().toString(), null, authorities);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        // Generate tokens
+    @Transactional
+    public TokenPair generateTokenPair(Authentication authentication) {
         String accessToken = generateAccessToken(authentication);
         String refreshToken = generateAndStoreNewRefreshToken(authentication.getName());
         return new TokenPair(accessToken, refreshToken);
@@ -109,72 +83,32 @@ public class AuthService {
     }
 
     @Transactional
-    public TokenPair refresh(Jwt jwt) throws ParseException {
-        // double - check user is existing!
-        String email = userRepository
-                .findEmailByUserId(Long.valueOf(jwt.getSubject()))
-                .orElseThrow(() -> new InvalidIdException("Email not found!"));
-
-        Object cachedUser = redisAuthService.getCachedUser(email);
-        UserAuthDTO userAuthDTO;
-        if (cachedUser instanceof UserAuthDTO cached) {
-            userAuthDTO = cached;
-        } else {
-            userAuthDTO = userRepository
-                    .findAuthDTOByEmail(email)
-                    .orElseThrow(() -> new InvalidCredentialsException("Invalid username or password"));
-            redisAuthService.setCachedUser(email, userAuthDTO);
-        }
-        List<GrantedAuthority> authorities = userAuthDTO.getRoleNames().stream()
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
-
-        Authentication authentication =
-                new UsernamePasswordAuthenticationToken(userAuthDTO.getId().toString(), null, authorities);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
+    public TokenPair generateTokenPairForRefresh(Jwt jwt, Authentication authentication) throws ParseException {
         String newAccessToken = generateAccessToken(authentication);
         String newRefreshToken;
+        String tokenValue = jwt.getTokenValue();
         // Checks if the given token is near its refresh threshold.
-        if (jwtTokenUtils.isTokenReadyForRefresh(jwt.getTokenValue())) {
-            revoke(jwt.getTokenValue());
+        if (jwtTokenUtils.isTokenReadyForRefresh(tokenValue)) {
+            revoke(tokenValue);
             newRefreshToken = generateAndStoreNewRefreshToken(authentication.getName());
         } else {
-            newRefreshToken = jwt.getTokenValue(); // Keep existing refresh token
+            newRefreshToken = tokenValue; // Keep existing refresh token
         }
         return new TokenPair(newAccessToken, newRefreshToken);
     }
 
+    @Transactional
     public void logout(Jwt jwt) throws ParseException {
         revoke(jwt.getTokenValue());
     }
 
+    @Transactional
     public void revoke(String token) throws ParseException {
         SignedJWT signedJWT = jwtTokenUtils.getClaims(token);
         String jti = signedJWT.getJWTClaimsSet().getJWTID();
         Instant expireTime = signedJWT.getJWTClaimsSet().getExpirationTime().toInstant();
-        blackListService.revokeToken(jti, expireTime);
+        tokenService.revokeToken(jti, expireTime);
         redisBlackListService.revokeToken(jti, expireTime);
-    }
-
-    /**
-     * Checks if the refresh token in the Jwt matches the one stored for the user.
-     * check if valid for device name and user matching
-     *
-     * @param jwt the Jwt to validate
-     * @return true if the Jwt is valid, false otherwise
-     */
-    public boolean isRefreshTokenValidForUser(Jwt jwt) {
-        if (jwt == null) {
-            return false;
-        }
-        String userId = jwt.getSubject();
-        String refreshToken = jwt.getTokenValue();
-        if (userId == null || refreshToken == null) {
-            return false;
-        }
-        return refreshTokenRepository.existsByTokenAndUserIdAndDeviceName(
-                refreshToken, Long.parseLong(userId), "A"); //        hardcode
     }
 
     private String generateAccessToken(Authentication authentication) {
