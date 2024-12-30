@@ -8,6 +8,7 @@ import com.myproject.elearning.security.JwtAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -68,6 +69,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz ->
                         // prettier-ignore
                         authz.requestMatchers(PUBLIC_URLS)
+                                .permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/v1/posts/{id}")
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated())

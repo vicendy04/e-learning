@@ -6,5 +6,7 @@ import java.util.Set;
 public interface PostLikeRepositoryCustom {
     int[][] bulkInsertLikes(Set<PostLikeData> likes);
 
-    int[][] bulkDeleteLikes(Set<PostLikeData> unlikes);
+    int bulkDeleteLikes(Set<PostLikeData> unlikes);
+
+    boolean isPostLikedByUser(Long postId, Long userId);
 }

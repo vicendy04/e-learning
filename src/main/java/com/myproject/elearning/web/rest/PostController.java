@@ -6,6 +6,7 @@ import com.myproject.elearning.dto.common.ApiRes;
 import com.myproject.elearning.dto.common.PagedRes;
 import com.myproject.elearning.dto.request.post.PostCreateReq;
 import com.myproject.elearning.dto.request.post.PostUpdateReq;
+import com.myproject.elearning.dto.response.post.PostAddRes;
 import com.myproject.elearning.dto.response.post.PostGetRes;
 import com.myproject.elearning.dto.response.post.PostListRes;
 import com.myproject.elearning.dto.response.post.PostUpdateRes;
@@ -33,9 +34,9 @@ public class PostController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiRes<PostGetRes> addPost(@Valid @RequestBody PostCreateReq request) {
+    public ApiRes<PostAddRes> addPost(@Valid @RequestBody PostCreateReq request) {
         Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
-        PostGetRes post = postService.addPost(curUserId, request);
+        PostAddRes post = postService.addPost(curUserId, request);
         return successRes("Tạo bài viết thành công", post);
     }
 
@@ -48,6 +49,11 @@ public class PostController {
         return successRes("Cập nhật bài viết thành công", post);
     }
 
+    /**
+     * anonymous users, the likedByCurrentUser field will be false in default
+     * authenticated users, response will include whether they have liked the post
+     */
+    @PreAuthorize("isAnonymous() or isAuthenticated()")
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ApiRes<PostGetRes> getPost(@PathVariable Long id) {
@@ -70,8 +76,17 @@ public class PostController {
     @ResponseStatus(HttpStatus.OK)
     public ApiRes<Void> likePost(@PathVariable Long id) {
         Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
-        postService.toggleLike(id, curUserId);
+        postService.like(id, curUserId);
         return successRes("Đã thích bài viết", null);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/{id}/unlike")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiRes<Void> unlikePost(@PathVariable Long id) {
+        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
+        postService.unlike(id, curUserId);
+        return successRes("Đã bỏ thích bài viết", null);
     }
 
     @PreAuthorize("isAuthenticated()")

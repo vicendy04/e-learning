@@ -21,7 +21,8 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 				SELECT
 					p.id as id,
 					p.content as content,
-					u.id as userId
+					u.id as userId,
+					u.username as username
 				FROM posts p
 				JOIN users u ON p.user_id = u.id
 				WHERE p.id = ?
