@@ -1,7 +1,10 @@
 package com.myproject.elearning.web.websocket;
 
 import com.myproject.elearning.dto.request.chat.MessagePayload;
+import com.myproject.elearning.service.ChatService;
 import com.myproject.elearning.service.RedisPublisher;
+import jakarta.validation.Valid;
+import java.security.Principal;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -15,20 +18,28 @@ import org.springframework.stereotype.Controller;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Controller
 public class ChatController {
-    RedisPublisher redisPublisher;
+    private final RedisPublisher redisPublisher;
+    private final ChatService chatService;
     private final Logger logger = LoggerFactory.getLogger(ChatController.class);
 
     /**
      * Client gui tin nhan toi /pub/chat voi payload ChatMessage
      */
     @MessageMapping("/chat")
-    public void sendMessage(MessagePayload message) {
+    public void sendMessage(@Valid MessagePayload message, Principal principal) {
         if (message.getRoomId() == null || message.getRoomId().isEmpty()) {
             logger.error("Room ID is null or empty");
             return;
         }
+
+        if (!chatService.hasAccessToRoom(principal, message.getRoomId())) {
+            logger.error("User {} does not have access to room {}", principal.getName(), message.getRoomId());
+            return;
+        }
+
+        message.setSenderId(principal.getName());
         String topic = message.getRoomId();
-        logger.info("Publishing message to topic {}: {}", topic, message);
+        logger.info("Publishing message from {} to room {}", message.getSenderId(), topic);
         redisPublisher.publish(ChannelTopic.of(topic), message);
     }
 }

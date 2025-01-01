@@ -18,5 +18,5 @@ public class MessagePayload implements Serializable {
     @NotNull(message = "ID nhóm chat không được để trống")
     String roomId;
 
-    String sender;
+    String senderId;
 }
