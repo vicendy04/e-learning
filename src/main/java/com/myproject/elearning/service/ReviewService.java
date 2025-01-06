@@ -37,14 +37,11 @@ public class ReviewService {
         if (reviewRepository.existsByUserIdAndCourseId(userId, courseId)) {
             throw new IllegalStateException("Người dùng đã đánh giá khóa học này");
         }
-
+        Review review = reviewMapper.toEntity(request);
         User userRef = userRepository.getReferenceIfExists(userId);
         Course courseRef = courseRepository.getReferenceIfExists(courseId);
-
-        Review review = reviewMapper.toEntity(request);
         review.setUser(userRef);
         review.setCourse(courseRef);
-
         return reviewMapper.toResponse(reviewRepository.save(review));
     }
 
@@ -55,11 +52,9 @@ public class ReviewService {
         return reviewMapper.toUpdateResponse(reviewRepository.save(review));
     }
 
+    @Transactional
     public void delReview(Long reviewId) {
-        if (!reviewRepository.existsById(reviewId)) {
-            throw new InvalidIdException(reviewId);
-        }
-        reviewRepository.deleteByReviewId(reviewId);
+        reviewRepository.deleteById(reviewId);
     }
 
     public PagedRes<ReviewCourseRes> getReviewsByCourse(Long courseId, Pageable pageable) {

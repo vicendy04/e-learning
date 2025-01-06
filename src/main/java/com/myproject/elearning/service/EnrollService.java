@@ -1,6 +1,5 @@
 package com.myproject.elearning.service;
 
-import com.myproject.elearning.constant.AuthoritiesConstants;
 import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.domain.Enrollment;
 import com.myproject.elearning.domain.User;
@@ -13,14 +12,11 @@ import com.myproject.elearning.mapper.EnrollmentMapper;
 import com.myproject.elearning.repository.CourseRepository;
 import com.myproject.elearning.repository.EnrollmentRepository;
 import com.myproject.elearning.repository.UserRepository;
-import com.myproject.elearning.security.SecurityUtils;
-import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,23 +54,16 @@ public class EnrollService {
         courseRepository.decrementEnrollmentCount(courseId);
     }
 
-    public PagedRes<EnrollmentGetRes> getUserEnrollments(Pageable pageable, Long userId) {
+    public PagedRes<EnrollmentGetRes> getMyEnrollments(Pageable pageable, Long userId) {
         Page<Enrollment> enrollments = enrollmentRepository.findAllByUserId(userId, pageable);
         return PagedRes.from(enrollments.map(enrollmentMapper::toEnrollmentGetResponse));
     }
 
     @Transactional(readOnly = true)
-    public EnrollmentGetRes getEnrollment(Long enrollmentId, Long userId) {
+    public EnrollmentGetRes getEnrollment(Long enrollmentId) {
         Enrollment enrollment = enrollmentRepository
                 .findByIdWithDetails(enrollmentId)
                 .orElseThrow(() -> new InvalidIdException(enrollmentId));
-
-        // Todo: check sql if it triggers 1 + n problem
-        if (SecurityUtils.hasCurrentUserNoneOfAuthorities(AuthoritiesConstants.ADMIN)
-                && !Objects.equals(userId, enrollment.getUser().getId())) {
-            throw new AccessDeniedException("Bạn không có quyền xem chi tiết đăng ký này");
-        }
-
         return enrollmentMapper.toEnrollmentGetResponse(enrollment);
     }
 
@@ -84,17 +73,10 @@ public class EnrollService {
     }
 
     @Transactional
-    public EnrollmentGetRes changeEnrollStatus(Long enrollmentId, String newStatus, Long userId) {
+    public EnrollmentGetRes changeEnrollStatus(Long enrollmentId, String newStatus) {
         Enrollment enrollment = enrollmentRepository
                 .findByIdWithDetails(enrollmentId)
                 .orElseThrow(() -> new InvalidIdException(enrollmentId));
-
-        // Todo: check sql if it triggers 1 + n problem
-        if (SecurityUtils.hasCurrentUserNoneOfAuthorities(AuthoritiesConstants.ADMIN)
-                && !Objects.equals(userId, enrollment.getUser().getId())) {
-            throw new AccessDeniedException("Bạn không có quyền thay đổi trạng thái đăng ký này");
-        }
-
         Enrollment.EnrollmentStatus currentStatus = enrollment.getStatus();
         Enrollment.EnrollmentStatus targetStatus = Enrollment.EnrollmentStatus.valueOf(newStatus);
         validateStatusTransition(currentStatus, targetStatus);

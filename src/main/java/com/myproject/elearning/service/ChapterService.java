@@ -10,7 +10,6 @@ import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.mapper.ChapterMapper;
 import com.myproject.elearning.repository.ChapterRepository;
 import com.myproject.elearning.repository.CourseRepository;
-import com.myproject.elearning.security.SecurityUtils;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.AccessLevel;
@@ -18,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -31,23 +29,13 @@ public class ChapterService {
 
     @Transactional
     public ChapterGetRes addChapter(Long courseId, ChapterCreateReq request) {
-        // Todo: refactor duplicate logic (courseId:userId)
-        Course course = courseRepository
-                .findWithInstructorById(courseId)
-                .orElseThrow(() -> new InvalidIdException("Course not found"));
-        Long currentUserId =
-                SecurityUtils.getLoginId().orElseThrow(() -> new AccessDeniedException("User not authenticated"));
-        if (!currentUserId.equals(course.getInstructor().getId())) {
-            throw new AccessDeniedException("Only course instructor can add chapters");
-        }
-
         Chapter chapter = chapterMapper.toEntity(request);
-        chapter.setCourse(course);
+        Course courseRef = courseRepository.getReferenceById(courseId);
+        chapter.setCourse(courseRef);
         if (chapter.getOrderIndex() == null) {
-            List<Chapter> existingChapters = chapterRepository.findByCourseIdOrderByOrderIndexAsc(course.getId());
+            List<Chapter> existingChapters = chapterRepository.findByCourseIdOrderByOrderIndexAsc(courseId);
             chapter.setOrderIndex(existingChapters.size() + 1);
         }
-
         Chapter savedChapter = chapterRepository.save(chapter);
         return chapterMapper.toGetResponse(savedChapter);
     }
@@ -64,14 +52,7 @@ public class ChapterService {
 
     @Transactional
     public ChapterGetRes editChapter(Long id, ChapterUpdateReq request) {
-        // Todo: 1 + n problem
         Chapter chapter = chapterRepository.findById(id).orElseThrow(() -> new InvalidIdException("Chapter not found"));
-        Long currentUserId =
-                SecurityUtils.getLoginId().orElseThrow(() -> new AccessDeniedException("User not authenticated"));
-        if (!currentUserId.equals(chapter.getCourse().getInstructor().getId())) {
-            throw new AccessDeniedException("Only course instructor can edit chapters");
-        }
-
         chapterMapper.partialUpdate(chapter, request);
         Chapter updatedChapter = chapterRepository.save(chapter);
         return chapterMapper.toGetResponse(updatedChapter);
@@ -79,14 +60,6 @@ public class ChapterService {
 
     @Transactional
     public void deleteChapter(Long id) {
-        // Todo: 1 + n problem
-        Chapter chapter = chapterRepository.findById(id).orElseThrow(() -> new InvalidIdException("Chapter not found"));
-        Long currentUserId =
-                SecurityUtils.getLoginId().orElseThrow(() -> new AccessDeniedException("User not authenticated"));
-        if (!currentUserId.equals(chapter.getCourse().getInstructor().getId())) {
-            throw new AccessDeniedException("Only course instructor can delete chapters");
-        }
-
         chapterRepository.deleteById(id);
     }
 

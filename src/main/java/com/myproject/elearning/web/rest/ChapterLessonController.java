@@ -6,8 +6,7 @@ import com.myproject.elearning.dto.common.ApiRes;
 import com.myproject.elearning.dto.request.lesson.LessonCreateReq;
 import com.myproject.elearning.dto.response.lesson.LessonGetRes;
 import com.myproject.elearning.dto.response.lesson.LessonListRes;
-import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
-import com.myproject.elearning.security.SecurityUtils;
+import com.myproject.elearning.service.AuthzService;
 import com.myproject.elearning.service.LessonService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -24,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class ChapterLessonController {
     LessonService lessonService;
+    AuthzService authzService;
 
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
@@ -37,8 +37,8 @@ public class ChapterLessonController {
     @ResponseStatus(HttpStatus.CREATED)
     public ApiRes<LessonGetRes> addLessonToChapter(
             @PathVariable Long chapterId, @Valid @RequestBody LessonCreateReq request) {
-        Long instructorId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
-        LessonGetRes createdLesson = lessonService.addLessonToChapter(chapterId, request, instructorId);
+        authzService.checkCourseAccess(request.getCourseId());
+        LessonGetRes createdLesson = lessonService.addLessonToChapter(chapterId, request);
         return successRes("Thêm bài học thành công", createdLesson);
     }
 }

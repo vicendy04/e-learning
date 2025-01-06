@@ -12,6 +12,7 @@ import com.myproject.elearning.dto.response.review.ReviewUpdateRes;
 import com.myproject.elearning.dto.response.review.ReviewUserRes;
 import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
 import com.myproject.elearning.security.SecurityUtils;
+import com.myproject.elearning.service.AuthzService;
 import com.myproject.elearning.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ReviewController {
     ReviewService reviewService;
+    AuthzService authzService;
 
     @PreAuthorize("isAuthenticated() and hasAnyRole('USER')")
     @PostMapping("/courses/{courseId}/reviews")
@@ -45,6 +47,7 @@ public class ReviewController {
     @ResponseStatus(HttpStatus.OK)
     public ApiRes<ReviewUpdateRes> editReview(
             @PathVariable Long reviewId, @Valid @RequestBody ReviewUpdateReq request) {
+        authzService.checkReviewAccess(reviewId);
         ReviewUpdateRes review = reviewService.editReview(reviewId, request);
         return successRes("Đánh giá đã được cập nhật thành công", review);
     }
@@ -53,6 +56,7 @@ public class ReviewController {
     @DeleteMapping("/reviews/{reviewId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ApiRes<Void> delReview(@PathVariable Long reviewId) {
+        authzService.checkReviewAccess(reviewId);
         reviewService.delReview(reviewId);
         return successRes("Đánh giá đã được xóa thành công", null);
     }

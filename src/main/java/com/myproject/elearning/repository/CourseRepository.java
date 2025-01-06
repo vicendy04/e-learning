@@ -11,7 +11,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Spring Data JPA repository for the {@link Course} entity.
@@ -56,7 +55,6 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
 					""")
     Optional<CourseForValidDiscount> findCourseWithInstructor(@Param("courseId") Long courseId);
 
-    @Transactional
     @Modifying
     @Query("DELETE FROM Course c WHERE c.id = :id")
     void deleteByCourseId(Long id);
@@ -73,6 +71,9 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
 
     @Query(value = "SELECT c FROM Course c JOIN c.enrollments e WHERE e.user.id = :userId")
     Page<Course> findByEnrollmentsUserId(@Param("userId") Long userId, Pageable pageable);
+
+    @Query("SELECT c.instructor.id FROM Course c WHERE c.id = :courseId")
+    Optional<Long> findInstructorIdByCourseId(@Param("courseId") Long courseId);
 
     interface CourseForValidDiscount {
         Long getId();

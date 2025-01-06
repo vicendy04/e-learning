@@ -9,6 +9,7 @@ import com.myproject.elearning.dto.response.enrollment.EnrollmentGetRes;
 import com.myproject.elearning.dto.response.enrollment.EnrollmentRes;
 import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
 import com.myproject.elearning.security.SecurityUtils;
+import com.myproject.elearning.service.AuthzService;
 import com.myproject.elearning.service.EnrollService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -18,8 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -27,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1")
 @RestController
 public class EnrollController {
+    AuthzService authzService;
     EnrollService enrollService;
 
     @PreAuthorize("isAuthenticated() and hasAnyRole('USER')")
@@ -50,10 +50,9 @@ public class EnrollController {
     @PreAuthorize("isAuthenticated() and hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/users/enrollments")
     @ResponseStatus(HttpStatus.OK)
-    public ApiRes<PagedRes<EnrollmentGetRes>> getUserEnrollments(
-            @PageableDefault(size = 5, page = 0) Pageable pageable) {
+    public ApiRes<PagedRes<EnrollmentGetRes>> getMyEnrollments(@PageableDefault(size = 5, page = 0) Pageable pageable) {
         Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
-        PagedRes<EnrollmentGetRes> enrollments = enrollService.getUserEnrollments(pageable, curUserId);
+        PagedRes<EnrollmentGetRes> enrollments = enrollService.getMyEnrollments(pageable, curUserId);
         return successRes("User enrollments retrieved successfully", enrollments);
     }
 
@@ -63,9 +62,9 @@ public class EnrollController {
     // @PostAuthorize("hasAnyRole('ADMIN') or returnObject.data.user.id == #jwt.subject")
     @GetMapping("/enrollments/{enrollmentId}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiRes<EnrollmentGetRes> getEnrollment(@PathVariable Long enrollmentId, @AuthenticationPrincipal Jwt jwt) {
-        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
-        EnrollmentGetRes enrollment = enrollService.getEnrollment(enrollmentId, curUserId);
+    public ApiRes<EnrollmentGetRes> getEnrollment(@PathVariable Long enrollmentId) {
+        authzService.checkEnrollmentAccess(enrollmentId);
+        EnrollmentGetRes enrollment = enrollService.getEnrollment(enrollmentId);
         return successRes("Enrollment retrieved successfully", enrollment);
     }
 
@@ -83,9 +82,9 @@ public class EnrollController {
     @ResponseStatus(HttpStatus.OK)
     public ApiRes<EnrollmentGetRes> changeEnrollStatus(
             @PathVariable Long enrollmentId, @Valid @RequestBody EnrollStatusUpdateReq statusUpdateInput) {
-        Long userId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
-        EnrollmentGetRes updatedEnrollment =
-                enrollService.changeEnrollStatus(enrollmentId, statusUpdateInput.getStatus(), userId);
-        return successRes("Enrollment status changed successfully", updatedEnrollment);
+        authzService.checkEnrollmentAccess(enrollmentId);
+        EnrollmentGetRes editedEnrollment =
+                enrollService.changeEnrollStatus(enrollmentId, statusUpdateInput.getStatus());
+        return successRes("Enrollment status changed successfully", editedEnrollment);
     }
 }

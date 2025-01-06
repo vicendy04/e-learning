@@ -10,7 +10,6 @@ import com.myproject.elearning.dto.request.auth.RegisterReq;
 import com.myproject.elearning.dto.request.user.UserSearchDTO;
 import com.myproject.elearning.dto.request.user.UserUpdateReq;
 import com.myproject.elearning.dto.response.user.UserGetRes;
-import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
 import com.myproject.elearning.exception.problemdetails.InvalidCredentialsException;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.mapper.UserMapper;
@@ -99,26 +98,15 @@ public class UserService {
 
     @Transactional
     public UserGetRes editUser(Long id, UserUpdateReq userUpdateReq) {
-        Long currentUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
-        if (!currentUserId.equals(id) && SecurityUtils.hasCurrentUserNoneOfAuthorities(AuthoritiesConstants.ADMIN)) {
-            throw new AccessDeniedException("Bạn không có quyền sửa thông tin người dùng này");
-        }
-
-        User user = userRepository.getReferenceIfExists(id);
+        User user = userRepository
+                .findById(id)
+                .orElseThrow(() -> new InvalidIdException("Entity with ID \" + id + \" not found"));
         userMapper.partialUpdate(user, userUpdateReq);
-        User savedUser = userRepository.save(user);
-        return userMapper.toGetResponse(savedUser);
+        return userMapper.toGetResponse(user);
     }
 
     public void delUser(Long id) {
-        if (SecurityUtils.hasCurrentUserNoneOfAuthorities(AuthoritiesConstants.ADMIN)) {
-            throw new AccessDeniedException("Chỉ admin mới có quyền xóa người dùng");
-        }
-
-        if (!userRepository.existsById(id)) {
-            throw new InvalidIdException(id);
-        }
-        userRepository.deleteByUserId(id);
+        userRepository.deleteById(id);
     }
 
     public PagedRes<UserGetRes> getUsers(UserSearchDTO searchDTO, Pageable pageable) {

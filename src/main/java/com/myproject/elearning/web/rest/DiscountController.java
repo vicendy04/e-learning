@@ -10,6 +10,7 @@ import com.myproject.elearning.dto.response.discount.DiscountGetRes;
 import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
 import com.myproject.elearning.exception.problemdetails.InvalidDiscountException;
 import com.myproject.elearning.security.SecurityUtils;
+import com.myproject.elearning.service.AuthzService;
 import com.myproject.elearning.service.DiscountService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class DiscountController {
+    AuthzService authzService;
     DiscountService discountService;
 
     @PreAuthorize("isAuthenticated() and hasAnyRole('INSTRUCTOR', 'ADMIN')")
@@ -68,6 +70,7 @@ public class DiscountController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ApiRes<Void> delDiscountVoucher(@PathVariable Long id) {
+        authzService.checkDiscountAccess(id);
         discountService.delDiscountVoucher(id);
         return successRes("Deleted successfully", null);
     }

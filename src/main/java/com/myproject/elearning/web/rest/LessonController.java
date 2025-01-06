@@ -3,10 +3,10 @@ package com.myproject.elearning.web.rest;
 import static com.myproject.elearning.web.rest.utils.ResponseUtils.successRes;
 
 import com.myproject.elearning.dto.common.ApiRes;
+import com.myproject.elearning.dto.request.lesson.LessonDelReq;
 import com.myproject.elearning.dto.request.lesson.LessonUpdateReq;
 import com.myproject.elearning.dto.response.lesson.LessonGetRes;
-import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
-import com.myproject.elearning.security.SecurityUtils;
+import com.myproject.elearning.service.AuthzService;
 import com.myproject.elearning.service.LessonService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class LessonController {
     LessonService lessonService;
+    AuthzService authzService;
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
@@ -34,17 +35,17 @@ public class LessonController {
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ApiRes<LessonGetRes> editLesson(@PathVariable Long id, @Valid @RequestBody LessonUpdateReq request) {
-        Long instructorId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
-        LessonGetRes updatedLesson = lessonService.editLesson(id, request, instructorId);
+        authzService.checkCourseAccess(request.getCourseId());
+        LessonGetRes updatedLesson = lessonService.editLesson(id, request);
         return successRes("Cập nhật bài học thành công", updatedLesson);
     }
 
     @PreAuthorize("isAuthenticated() and hasAnyRole('INSTRUCTOR', 'ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ApiRes<Void> delLesson(@PathVariable Long id) {
-        Long instructorId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
-        lessonService.delLesson(id, instructorId);
+    public ApiRes<Void> delLesson(@PathVariable Long id, @Valid @RequestBody LessonDelReq request) {
+        authzService.checkCourseAccess(request.getCourseId());
+        lessonService.delLesson(id);
         return successRes("Xóa bài học thành công", null);
     }
 }

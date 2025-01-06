@@ -3,6 +3,7 @@ package com.myproject.elearning.repository;
 import com.myproject.elearning.domain.Review;
 import com.myproject.elearning.dto.response.review.ReviewCourseRes;
 import com.myproject.elearning.dto.response.review.ReviewUserRes;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,30 +18,30 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     @Query(
             """
-			SELECT new com.myproject.elearning.dto.response.review.ReviewCourseRes(
-				r.id, r.rating, r.comment,
-				r.createdAt, r.updatedAt,
-				u.id, u.username
-			)
-			FROM Review r
-			LEFT JOIN r.user u
-			LEFT JOIN r.course c
-			WHERE c.id = :courseId
-			""")
+					SELECT new com.myproject.elearning.dto.response.review.ReviewCourseRes(
+						r.id, r.rating, r.comment,
+						r.createdAt, r.updatedAt,
+						u.id, u.username
+					)
+					FROM Review r
+					LEFT JOIN r.user u
+					LEFT JOIN r.course c
+					WHERE c.id = :courseId
+					""")
     Page<ReviewCourseRes> findAllByCourseId(@Param("courseId") Long courseId, Pageable pageable);
 
     @Query(
             """
-			SELECT new com.myproject.elearning.dto.response.review.ReviewUserRes(
-				r.id, r.rating, r.comment,
-				r.createdAt, r.updatedAt,
-				c.id, c.title
-			)
-			FROM Review r
-			LEFT JOIN r.course c
-			LEFT JOIN r.user u
-			WHERE u.id = :userId
-			""")
+					SELECT new com.myproject.elearning.dto.response.review.ReviewUserRes(
+						r.id, r.rating, r.comment,
+						r.createdAt, r.updatedAt,
+						c.id, c.title
+					)
+					FROM Review r
+					LEFT JOIN r.course c
+					LEFT JOIN r.user u
+					WHERE u.id = :userId
+					""")
     Page<ReviewUserRes> findAllByUserId(@Param("userId") Long userId, Pageable pageable);
 
     boolean existsByUserIdAndCourseId(Long userId, Long courseId);
@@ -52,4 +53,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Modifying
     @Query("DELETE FROM Review r WHERE r.id = :id")
     void deleteByReviewId(@Param("id") Long id);
+
+    @Query("SELECT r.user.id FROM Review r WHERE r.id = :reviewId")
+    Optional<Long> findUserIdByReviewId(@Param("reviewId") Long reviewId);
 }

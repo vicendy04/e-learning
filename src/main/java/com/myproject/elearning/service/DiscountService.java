@@ -4,14 +4,12 @@ import com.myproject.elearning.domain.Discount;
 import com.myproject.elearning.dto.common.PagedRes;
 import com.myproject.elearning.dto.request.discount.DiscountCreateReq;
 import com.myproject.elearning.dto.response.discount.DiscountGetRes;
-import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
 import com.myproject.elearning.exception.problemdetails.InvalidDiscountException;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.mapper.DiscountMapper;
 import com.myproject.elearning.repository.CourseRepository;
 import com.myproject.elearning.repository.CourseRepository.CourseForValidDiscount;
 import com.myproject.elearning.repository.DiscountRepository;
-import com.myproject.elearning.security.SecurityUtils;
 import java.time.LocalDateTime;
 import java.util.Set;
 import lombok.AccessLevel;
@@ -106,11 +104,7 @@ public class DiscountService {
 
     @Transactional
     public void delDiscountVoucher(Long discountId) {
-        Long id = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
-        int rowsDeleted = discountRepository.deleteByIdAndInstructorId(discountId, id);
-        if (rowsDeleted == 0) {
-            throw new InvalidDiscountException("Mã giảm giá không tồn tại hoặc không thuộc về bạn");
-        }
+        discountRepository.deleteById(discountId);
     }
 
     // 6. Cancel discount Code [User/Student]

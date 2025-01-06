@@ -8,6 +8,7 @@ import com.myproject.elearning.dto.request.auth.RegisterReq;
 import com.myproject.elearning.dto.request.user.UserSearchDTO;
 import com.myproject.elearning.dto.request.user.UserUpdateReq;
 import com.myproject.elearning.dto.response.user.UserGetRes;
+import com.myproject.elearning.service.AuthzService;
 import com.myproject.elearning.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/users")
 @RestController
 public class UserController {
+    AuthzService authzService;
     UserService userService;
 
     @PostMapping("")
@@ -59,6 +61,7 @@ public class UserController {
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ApiRes<UserGetRes> editUser(@PathVariable(name = "id") Long id, @RequestBody UserUpdateReq userUpdateReq) {
+        authzService.checkUserAccess(id);
         UserGetRes updatedUser = userService.editUser(id, userUpdateReq);
         return successRes("User updated successfully", updatedUser);
     }

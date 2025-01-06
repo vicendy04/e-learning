@@ -12,6 +12,7 @@ import com.myproject.elearning.dto.response.course.CourseListRes;
 import com.myproject.elearning.dto.response.course.CourseUpdateRes;
 import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
 import com.myproject.elearning.security.SecurityUtils;
+import com.myproject.elearning.service.AuthzService;
 import com.myproject.elearning.service.CourseService;
 import com.myproject.elearning.service.redis.RedisCourseService;
 import jakarta.validation.Valid;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/courses")
 @RestController
 public class CourseController {
+    AuthzService authzService;
     CourseService courseService;
     RedisCourseService redisCourseService;
 
@@ -70,9 +72,9 @@ public class CourseController {
     @ResponseStatus(HttpStatus.OK)
     public ApiRes<CourseUpdateRes> editCourse(
             @PathVariable(name = "id") Long id, @RequestBody CourseUpdateReq courseUpdateReq) {
-        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
+        authzService.checkCourseAccess(id);
         //        courseCacheService.invalidateCache(id); // note
-        CourseUpdateRes updatedCourse = courseService.editCourse(id, curUserId, courseUpdateReq);
+        CourseUpdateRes updatedCourse = courseService.editCourse(id, courseUpdateReq);
         return successRes("Course updated successfully", updatedCourse);
     }
 
@@ -80,8 +82,8 @@ public class CourseController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ApiRes<Void> delCourse(@PathVariable(name = "id") Long id) {
-        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
-        courseService.delCourse(id, curUserId);
+        authzService.checkCourseAccess(id);
+        courseService.delCourse(id);
         //        courseCacheService.invalidateCache(id); // note
         return successRes("Course deleted successfully", null);
     }

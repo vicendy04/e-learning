@@ -14,14 +14,12 @@ import com.myproject.elearning.mapper.CourseMapper;
 import com.myproject.elearning.repository.CourseRepository;
 import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.repository.specification.CourseSpecification;
-import com.myproject.elearning.security.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,13 +36,6 @@ public class CourseService {
 
     @Transactional
     public CourseGetRes addCourse(Long instructorId, CourseCreateReq courseCreateReq) {
-        // Todo: refactor duplicate logic (courseId:userId)
-        Long currentUserId =
-                SecurityUtils.getLoginId().orElseThrow(() -> new AccessDeniedException("User not authenticated"));
-        if (!currentUserId.equals(instructorId)) {
-            throw new AccessDeniedException("You can only create courses for yourself");
-        }
-
         Course course = courseMapper.toEntity(courseCreateReq);
         User instructor = userRepository.getReferenceById(instructorId);
         course.setInstructor(instructor);
@@ -63,25 +54,16 @@ public class CourseService {
 
     // note
     @Transactional
-    public CourseUpdateRes editCourse(Long id, Long userId, CourseUpdateReq request) {
-        // Todo: refactor duplicate logic (courseId:userId)
-        Course course = courseRepository.findWithInstructorById(id).orElseThrow(() -> new InvalidIdException(id));
-        if (!userId.equals(course.getInstructor().getId())) {
-            throw new AccessDeniedException("You don't have permission to edit this course");
-        }
+    public CourseUpdateRes editCourse(Long id, CourseUpdateReq request) {
+        Course course = courseRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
         courseMapper.partialUpdate(course, request);
         Course savedCourse = courseRepository.save(course);
         return courseMapper.toUpdateResponse(savedCourse);
     }
 
     @Transactional
-    public void delCourse(Long id, Long userId) {
-        // Todo: refactor duplicate logic (courseId:userId)
-        Course course = courseRepository.findWithInstructorById(id).orElseThrow(() -> new InvalidIdException(id));
-        if (!userId.equals(course.getInstructor().getId())) {
-            throw new AccessDeniedException("You don't have permission to delete this course");
-        }
-        courseRepository.deleteByCourseId(id);
+    public void delCourse(Long id) {
+        courseRepository.deleteById(id);
     }
 
     public PagedRes<CourseListRes> getCourses(CourseSearchDTO searchDTO, Pageable pageable) {

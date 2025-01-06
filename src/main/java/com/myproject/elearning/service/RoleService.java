@@ -49,9 +49,6 @@ public class RoleService {
     }
 
     public void delRole(Long id) {
-        if (!roleRepository.existsById(id)) {
-            throw new InvalidIdException(ErrorMessageConstants.ROLE_NOT_FOUND + id);
-        }
         roleRepository.deleteById(id);
     }
 

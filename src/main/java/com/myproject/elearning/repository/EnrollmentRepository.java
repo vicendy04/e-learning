@@ -13,6 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface EnrollmentRepository extends JpaRepository<Enrollment, Long>, EnrollmentRepositoryCustom {
+    @Query("SELECT e.user.id FROM Enrollment e WHERE e.id = :enrollmentId")
+    Optional<Long> findUserIdByEnrollmentId(@Param("enrollmentId") Long enrollmentId);
+
     boolean existsByUserIdAndCourseId(Long id, Long courseId);
 
     @Transactional

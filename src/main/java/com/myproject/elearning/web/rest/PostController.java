@@ -12,6 +12,7 @@ import com.myproject.elearning.dto.response.post.PostListRes;
 import com.myproject.elearning.dto.response.post.PostUpdateRes;
 import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
 import com.myproject.elearning.security.SecurityUtils;
+import com.myproject.elearning.service.AuthzService;
 import com.myproject.elearning.service.PostService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class PostController {
     PostService postService;
+    AuthzService authzService;
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("")
@@ -44,8 +46,8 @@ public class PostController {
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ApiRes<PostUpdateRes> editPost(@PathVariable Long id, @Valid @RequestBody PostUpdateReq request) {
-        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
-        PostUpdateRes post = postService.editPost(id, request, curUserId);
+        authzService.checkPostAccess(id);
+        PostUpdateRes post = postService.editPost(id, request);
         return successRes("Cập nhật bài viết thành công", post);
     }
 
@@ -93,8 +95,8 @@ public class PostController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ApiRes<Void> delPost(@PathVariable Long id) {
-        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
-        postService.delPost(id, curUserId);
+        authzService.checkPostAccess(id);
+        postService.delPost(id);
         return successRes("Xóa bài viết thành công", null);
     }
 }
