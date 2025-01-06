@@ -1,4 +1,4 @@
-package com.myproject.elearning.exception.constants;
+package com.myproject.elearning.constant;
 
 import java.net.URI;
 

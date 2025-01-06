@@ -1,4 +1,4 @@
-package com.myproject.elearning.security;
+package com.myproject.elearning.constant;
 
 /**
  * Constants for Spring Security authorities.

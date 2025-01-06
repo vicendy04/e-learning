@@ -1,5 +1,7 @@
 package com.myproject.elearning.service.redis;
 
+import static com.myproject.elearning.constant.RedisKeyConstants.getUserAuthKey;
+
 import com.myproject.elearning.dto.projection.UserAuthDTO;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -12,7 +14,6 @@ import org.springframework.stereotype.Service;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
 public class RedisAuthService {
-    static final String USER_AUTH_CACHE_KEY = "auth:user:";
     static final long DEFAULT_CACHE_DURATION = 3600;
     static final long DEFAULT_CACHE_MISS_DURATION = 30;
     static final long MAX_RANDOM_EXPIRY = 600;
@@ -27,24 +28,20 @@ public class RedisAuthService {
         this.random = new Random();
     }
 
-    private String getUserKey(String username) {
-        return USER_AUTH_CACHE_KEY + username;
-    }
-
     public UserAuthDTO getCachedUser(String username) {
-        return (UserAuthDTO) valueOps.get(getUserKey(username));
+        return (UserAuthDTO) valueOps.get(getUserAuthKey(username));
     }
 
     public void setCachedUser(String username, Object userAuthDTO) {
         long randomExpiry = DEFAULT_CACHE_DURATION + random.nextInt((int) MAX_RANDOM_EXPIRY);
-        valueOps.set(getUserKey(username), userAuthDTO, randomExpiry, TimeUnit.SECONDS);
+        valueOps.set(getUserAuthKey(username), userAuthDTO, randomExpiry, TimeUnit.SECONDS);
     }
 
     public void setEmptyCache(String username) {
-        valueOps.set(getUserKey(username), "empty", DEFAULT_CACHE_MISS_DURATION, TimeUnit.SECONDS);
+        valueOps.set(getUserAuthKey(username), "empty", DEFAULT_CACHE_MISS_DURATION, TimeUnit.SECONDS);
     }
 
     public void invalidateUserCache(String username) {
-        redisTemplate.delete(getUserKey(username));
+        redisTemplate.delete(getUserAuthKey(username));
     }
 }

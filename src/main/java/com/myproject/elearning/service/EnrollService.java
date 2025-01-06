@@ -1,5 +1,6 @@
 package com.myproject.elearning.service;
 
+import com.myproject.elearning.constant.AuthoritiesConstants;
 import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.domain.Enrollment;
 import com.myproject.elearning.domain.User;
@@ -12,7 +13,6 @@ import com.myproject.elearning.mapper.EnrollmentMapper;
 import com.myproject.elearning.repository.CourseRepository;
 import com.myproject.elearning.repository.EnrollmentRepository;
 import com.myproject.elearning.repository.UserRepository;
-import com.myproject.elearning.security.AuthoritiesConstants;
 import com.myproject.elearning.security.SecurityUtils;
 import java.util.Objects;
 import lombok.AccessLevel;
@@ -44,6 +44,7 @@ public class EnrollService {
         enrollment.setUser(userRef);
         enrollment.setCourse(courseRef);
         Enrollment save = enrollmentRepository.save(enrollment);
+        // đảm bảo tính atomic nhưng có thể gây ra bottleneck khi có nhiều concurrent requests
         courseRepository.incrementEnrollmentCount(courseId);
         return enrollmentMapper.toEnrollmentResponse(save);
     }

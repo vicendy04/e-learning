@@ -1,5 +1,6 @@
 package com.myproject.elearning.service;
 
+import com.myproject.elearning.constant.AuthoritiesConstants;
 import com.myproject.elearning.domain.RefreshToken;
 import com.myproject.elearning.domain.Role;
 import com.myproject.elearning.domain.User;
@@ -17,7 +18,6 @@ import com.myproject.elearning.repository.RefreshTokenRepository;
 import com.myproject.elearning.repository.RoleRepository;
 import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.repository.specification.UserSpecification;
-import com.myproject.elearning.security.AuthoritiesConstants;
 import com.myproject.elearning.security.SecurityUtils;
 import java.time.Instant;
 import java.util.HashSet;

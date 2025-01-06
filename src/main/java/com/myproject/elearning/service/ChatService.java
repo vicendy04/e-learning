@@ -1,6 +1,6 @@
 package com.myproject.elearning.service;
 
-import com.myproject.elearning.security.AuthoritiesConstants;
+import com.myproject.elearning.constant.AuthoritiesConstants;
 import java.security.Principal;
 import java.util.Collection;
 import lombok.RequiredArgsConstructor;

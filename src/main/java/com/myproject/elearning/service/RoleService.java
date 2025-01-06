@@ -1,10 +1,10 @@
 package com.myproject.elearning.service;
 
+import com.myproject.elearning.constant.ErrorMessageConstants;
 import com.myproject.elearning.domain.Role;
 import com.myproject.elearning.dto.common.PagedRes;
 import com.myproject.elearning.dto.request.role.CreateRoleReq;
 import com.myproject.elearning.dto.response.role.RoleDTO;
-import com.myproject.elearning.exception.constants.ErrorMessageConstants;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.mapper.RoleMapper;
 import com.myproject.elearning.repository.RoleRepository;

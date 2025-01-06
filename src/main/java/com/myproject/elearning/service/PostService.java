@@ -11,7 +11,6 @@ import com.myproject.elearning.dto.response.post.PostListRes;
 import com.myproject.elearning.dto.response.post.PostUpdateRes;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.mapper.PostMapper;
-import com.myproject.elearning.repository.PostLikeRepositoryCustom;
 import com.myproject.elearning.repository.PostRepository;
 import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.security.SecurityUtils;
@@ -31,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class PostService {
     PostRepository postRepository;
-    PostLikeRepositoryCustom postLikeRepository;
     UserRepository userRepository;
     PostMapper postMapper;
     RedisPostService redisPostService;
@@ -44,26 +42,18 @@ public class PostService {
         return postMapper.toPostAddRes(postRepository.save(post));
     }
 
-    public PostGetRes getPost(Long id) {
-        PostGetRes postGetRes = postRepository.findPostGetResById(id).orElseThrow(() -> new InvalidIdException(id));
+    // Todo: có thể optimize bằng cách cho isLiked vào entity PostLike
+    public PostGetRes getPost(Long postId) {
+        PostGetRes postGetRes =
+                postRepository.findPostGetResById(postId).orElseThrow(() -> new InvalidIdException(postId));
         Optional<Long> optional = SecurityUtils.getLoginId();
         optional.ifPresent(userId -> {
-            boolean liked = fetchLikeStatus(id, userId);
+            boolean liked = redisPostService.hasLiked(postId, userId);
             postGetRes.setLikedByCurrentUser(liked);
         });
+        Long likesCount = redisPostService.getLikesCount(postId);
+        postGetRes.setLikesCount(likesCount);
         return postGetRes;
-    }
-
-    /**
-     * Checks Redis first, queries the database if not found, and caches the result
-     */
-    private boolean fetchLikeStatus(Long postId, Long userId) {
-        Boolean b = redisPostService.hasLiked(postId, userId);
-        if (b == null) {
-            b = postLikeRepository.isPostLikedByUser(postId, userId);
-            redisPostService.setLikeStatus(postId, userId, b);
-        }
-        return b;
     }
 
     public PagedRes<PostListRes> getPostsByUser(Long userId, Pageable pageable) {

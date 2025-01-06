@@ -14,6 +14,7 @@ public class PostGetRes {
     Long userId;
     String username;
     Boolean likedByCurrentUser;
+    Long likesCount;
 
     public PostGetRes(Long id, String content, Long userId, String username) {
         this.id = id;
@@ -21,5 +22,6 @@ public class PostGetRes {
         this.userId = userId;
         this.username = username;
         this.likedByCurrentUser = false;
+        this.likesCount = 0L;
     }
 }

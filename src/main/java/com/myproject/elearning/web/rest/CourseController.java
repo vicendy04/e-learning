@@ -95,4 +95,14 @@ public class CourseController {
         PagedRes<CourseListRes> courses = courseService.getCoursesByInstructorId(curUserId, pageable);
         return successRes("Lấy danh sách khóa học thành công", courses);
     }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/enrolled")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiRes<PagedRes<CourseListRes>> getEnrolledCourses(
+            @PageableDefault(size = 10, page = 0, sort = "title", direction = Sort.Direction.ASC) Pageable pageable) {
+        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
+        PagedRes<CourseListRes> enrolledCourses = courseService.getEnrolledCourses(curUserId, pageable);
+        return successRes("Lấy danh sách khóa học đã đăng ký thành công", enrolledCourses);
+    }
 }

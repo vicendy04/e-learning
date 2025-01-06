@@ -1,5 +1,6 @@
 package com.myproject.elearning.security;
 
+import com.myproject.elearning.constant.AuthoritiesConstants;
 import com.myproject.elearning.dto.projection.UserAuthDTO;
 import java.util.Arrays;
 import java.util.List;

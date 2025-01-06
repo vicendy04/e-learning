@@ -2,19 +2,19 @@ package com.myproject.elearning.service;
 
 import static com.myproject.elearning.security.SecurityUtils.CLAIM_KEY_AUTHORITIES;
 
+import com.myproject.elearning.constant.ErrorMessageConstants;
 import com.myproject.elearning.domain.User;
 import com.myproject.elearning.dto.common.TokenPair;
 import com.myproject.elearning.dto.projection.UserAuthDTO;
 import com.myproject.elearning.dto.request.auth.ChangePasswordReq;
 import com.myproject.elearning.dto.request.auth.LoginReq;
-import com.myproject.elearning.exception.constants.ErrorMessageConstants;
 import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
 import com.myproject.elearning.exception.problemdetails.InvalidCredentialsException;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.security.JwtTokenUtils;
 import com.myproject.elearning.security.SecurityUtils;
-import com.myproject.elearning.service.redis.RedisBlackListService;
+import com.myproject.elearning.service.redis.RedisTokenService;
 import com.nimbusds.jwt.SignedJWT;
 import java.text.ParseException;
 import java.time.Instant;
@@ -46,7 +46,7 @@ public class AuthService {
     long refreshTokenValidityInSeconds;
 
     TokenService tokenService;
-    RedisBlackListService redisBlackListService;
+    RedisTokenService redisTokenService;
     JwtTokenUtils jwtTokenUtils;
     UserRepository userRepository;
     JwtEncoder jwtEncoder;
@@ -108,7 +108,7 @@ public class AuthService {
         String jti = signedJWT.getJWTClaimsSet().getJWTID();
         Instant expireTime = signedJWT.getJWTClaimsSet().getExpirationTime().toInstant();
         tokenService.revokeToken(jti, expireTime);
-        redisBlackListService.revokeToken(jti, expireTime);
+        redisTokenService.revokeToken(jti, expireTime);
     }
 
     private String generateAccessToken(Authentication authentication) {

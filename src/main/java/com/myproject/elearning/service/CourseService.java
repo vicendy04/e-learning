@@ -93,4 +93,9 @@ public class CourseService {
         Page<Course> coursePage = courseRepository.findByInstructorId(instructorId, pageable);
         return PagedRes.from(coursePage.map(courseMapper::toCourseListResponse));
     }
+
+    public PagedRes<CourseListRes> getEnrolledCourses(Long userId, Pageable pageable) {
+        Page<Course> enrolledCourses = courseRepository.findByEnrollmentsUserId(userId, pageable);
+        return PagedRes.from(enrolledCourses.map(courseMapper::toCourseListResponse));
+    }
 }

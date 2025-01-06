@@ -55,16 +55,30 @@ public class PostLikeRepositoryCustomImpl implements PostLikeRepositoryCustom {
     public boolean isPostLikedByUser(Long postId, Long userId) {
         Query query = entityManager.createNativeQuery(
                 """
-				SELECT COUNT(*)
-				FROM post_likes pl
-				WHERE pl.post_id = ?
-				AND pl.user_id = ?
-				""");
+						SELECT COUNT(*)
+						FROM post_likes pl
+						WHERE pl.post_id = ?
+						AND pl.user_id = ?
+						""");
 
         query.setParameter(1, postId);
         query.setParameter(2, userId);
 
         Long count = (Long) query.getSingleResult();
         return count > 0;
+    }
+
+    @Override
+    public Long countByPostId(Long postId) {
+        Query query = entityManager.createNativeQuery(
+                """
+						SELECT COUNT(*)
+						FROM post_likes pl
+						WHERE pl.post_id = ?
+						""");
+
+        query.setParameter(1, postId);
+
+        return (Long) query.getSingleResult();
     }
 }

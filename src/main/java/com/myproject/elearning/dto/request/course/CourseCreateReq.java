@@ -27,4 +27,7 @@ public class CourseCreateReq {
 
     @NotNull
     Course.CourseCategory category;
+
+    @NotNull
+    Course.Level level;
 }

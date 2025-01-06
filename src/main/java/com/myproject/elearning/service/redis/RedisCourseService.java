@@ -1,5 +1,7 @@
 package com.myproject.elearning.service.redis;
 
+import static com.myproject.elearning.constant.RedisKeyConstants.*;
+
 import com.myproject.elearning.dto.response.course.CourseGetRes;
 import java.util.Random;
 import java.util.Set;
@@ -13,8 +15,6 @@ import org.springframework.stereotype.Service;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
 public class RedisCourseService {
-    static final String COURSE_CACHE_KEY = "course:";
-    static final String ENROLLMENT_COUNT_CACHE_KEY = "course:%d:enrollment_count";
     static final long DEFAULT_CACHE_DURATION = 3600;
     static final long MAX_RANDOM_EXPIRY = 600;
 
@@ -26,14 +26,6 @@ public class RedisCourseService {
         this.redisTemplate = redisTemplate;
         this.valueOps = valueOps;
         this.random = new Random();
-    }
-
-    private String getCourseKey(Long id) {
-        return COURSE_CACHE_KEY + id;
-    }
-
-    private String getEnrollmentCountKey(Long id) {
-        return String.format(ENROLLMENT_COUNT_CACHE_KEY, id);
     }
 
     public CourseGetRes getCachedCourse(Long id) {

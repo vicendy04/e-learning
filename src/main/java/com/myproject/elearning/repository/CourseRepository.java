@@ -71,6 +71,9 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
     @Query("UPDATE Course c SET c.enrolledCount = c.enrolledCount - 1 WHERE c.id = :courseId")
     void decrementEnrollmentCount(@Param("courseId") Long courseId);
 
+    @Query(value = "SELECT c FROM Course c JOIN c.enrollments e WHERE e.user.id = :userId")
+    Page<Course> findByEnrollmentsUserId(@Param("userId") Long userId, Pageable pageable);
+
     interface CourseForValidDiscount {
         Long getId();
 

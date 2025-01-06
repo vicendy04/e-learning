@@ -9,4 +9,6 @@ public interface PostLikeRepositoryCustom {
     int bulkDeleteLikes(Set<PostLikeData> unlikes);
 
     boolean isPostLikedByUser(Long postId, Long userId);
+
+    Long countByPostId(Long postId);
 }

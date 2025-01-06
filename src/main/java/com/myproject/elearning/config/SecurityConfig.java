@@ -49,6 +49,7 @@ public class SecurityConfig {
         "/api/v1/auth/refresh",
         "/api/v1/auth/logout",
         "/actuator/**",
+        "/api/v1/test-performance/**",
         "/api/v1/test/**",
         "/api/demo/**"
     };

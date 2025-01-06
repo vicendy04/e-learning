@@ -1,4 +1,4 @@
-package com.myproject.elearning.exception.constants;
+package com.myproject.elearning.constant;
 
 public final class ErrorMessageConstants {
     public static final String ROLE_NOT_FOUND = "Role not found with name: ";
