@@ -66,3 +66,7 @@ management:
 #    org.hibernate.SQL: DEBUG
 #    org.hibernate.type.descriptor.sql: TRACE
 #    org.hibernate.engine.jdbc.batch.internal.BatchingBatch: DEBUG
+
+meilisearch:
+  host: http://localhost:7700
+  master-key: MASTER_KEY_123

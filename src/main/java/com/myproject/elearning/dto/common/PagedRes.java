@@ -1,5 +1,6 @@
 package com.myproject.elearning.dto.common;
 
+import com.meilisearch.sdk.model.SearchResultPaginated;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -20,6 +21,7 @@ public class PagedRes<T> {
     int size;
     long totalElements;
     int totalPages;
+    int processingTimeMs;
     List<T> content;
 
     public static <T> PagedRes<T> from(Page<T> page) {
@@ -28,7 +30,19 @@ public class PagedRes<T> {
                 .size(page.getSize())
                 .totalElements(page.getTotalElements())
                 .totalPages(page.getTotalPages())
+                .processingTimeMs(0)
                 .content(page.getContent())
+                .build();
+    }
+
+    public static <T> PagedRes<T> from(SearchResultPaginated response, List<T> data) {
+        return PagedRes.<T>builder()
+                .page(response.getPage())
+                .size(response.getHitsPerPage())
+                .totalElements(response.getTotalHits())
+                .totalPages(response.getTotalPages())
+                .processingTimeMs(response.getProcessingTimeMs())
+                .content(data)
                 .build();
     }
 }

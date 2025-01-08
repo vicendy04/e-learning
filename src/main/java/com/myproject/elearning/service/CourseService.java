@@ -12,6 +12,7 @@ import com.myproject.elearning.dto.response.course.CourseUpdateRes;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.mapper.CourseMapper;
 import com.myproject.elearning.repository.CourseRepository;
+import com.myproject.elearning.repository.CourseSearchRepository;
 import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.repository.specification.CourseSpecification;
 import lombok.AccessLevel;
@@ -30,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
 public class CourseService {
+    CourseSearchRepository courseSearchRepository;
     CourseRepository courseRepository;
     UserRepository userRepository;
     CourseMapper courseMapper;
@@ -40,6 +42,7 @@ public class CourseService {
         User instructor = userRepository.getReferenceById(instructorId);
         course.setInstructor(instructor);
         Course savedCourse = courseRepository.save(course);
+        courseSearchRepository.indexCourse(savedCourse);
         return courseMapper.toGetResponse(savedCourse);
     }
 
@@ -58,6 +61,7 @@ public class CourseService {
         Course course = courseRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
         courseMapper.partialUpdate(course, request);
         Course savedCourse = courseRepository.save(course);
+        courseSearchRepository.indexCourse(savedCourse);
         return courseMapper.toUpdateResponse(savedCourse);
     }
 

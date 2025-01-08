@@ -9,8 +9,25 @@ services:
     networks:
       - app_network
 
+  meilisearch:
+    image: getmeili/meilisearch:latest
+    container_name: meilisearch
+    ports:
+      - "7700:7700"
+    environment:
+      - MEILI_MASTER_KEY=MASTER_KEY_123
+      - MEILI_NO_ANALYTICS=true
+      - MEILI_ENV=development
+    volumes:
+      - meilisearch_data:/meili_data
+    networks:
+      - app_network
+    restart: unless-stopped
+
 volumes:
   redis_data:
+    driver: local
+  meilisearch_data:
     driver: local
 
 networks:
