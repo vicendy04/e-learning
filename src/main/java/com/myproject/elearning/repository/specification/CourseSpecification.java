@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import org.springframework.data.jpa.domain.Specification;
 
 public class CourseSpecification {
-
     public static Specification<Course> hasTitle(String title) {
         return (root, query, criteriaBuilder) -> {
             if (title == null || title.isEmpty()) {

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Unused.
+ *
  * @see org.springframework.security.authorization.method.MethodAuthorizationDeniedHandler
  * @see <a href="https://docs.spring.io/spring-security/reference/servlet/authorization/method-security.html#fallback-values-authorization-denied">Spring Security Documentation</a>
  */

@@ -65,7 +65,10 @@ public class AuthService {
     public TokenPair generateTokenPair(Authentication authentication) {
         String accessToken = generateAccessToken(authentication);
         String refreshToken = generateAndStoreNewRefreshToken(authentication.getName());
-        return new TokenPair(accessToken, refreshToken);
+        return TokenPair.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 
     @Transactional
@@ -94,7 +97,10 @@ public class AuthService {
         } else {
             newRefreshToken = tokenValue; // Keep existing refresh token
         }
-        return new TokenPair(newAccessToken, newRefreshToken);
+        return TokenPair.builder()
+                .accessToken(newAccessToken)
+                .refreshToken(newRefreshToken)
+                .build();
     }
 
     @Transactional

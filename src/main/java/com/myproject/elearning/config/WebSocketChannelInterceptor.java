@@ -14,8 +14,8 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.stereotype.Component;
 
-@Component
 @RequiredArgsConstructor
+@Component
 public class WebSocketChannelInterceptor implements ChannelInterceptor {
 
     private final JwtDecoder jwtDecoder;

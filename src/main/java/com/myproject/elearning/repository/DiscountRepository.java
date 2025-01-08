@@ -4,10 +4,12 @@ import com.myproject.elearning.domain.Discount;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.*;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -17,22 +19,11 @@ public interface DiscountRepository extends JpaRepository<Discount, Long>, JpaSp
 
     Page<Discount> findAllByInstructorId(Pageable pageable, Long instructorId);
 
-    @Modifying
-    @Query("DELETE FROM Discount d WHERE d.id = :id")
-    void deleteByDiscountId(@Param("id") Long id);
-
-    @Modifying
-    @Query("DELETE FROM Discount d WHERE d.instructorId = :instructorId AND d.id= :discountId")
-    int deleteByIdAndInstructorId(@Param("discountId") Long discountId, @Param("instructorId") Long instructorId);
-
-    // specification
-    Page<Discount> findAllByIsActiveTrue(Pageable pageable);
-
-    @Query("SELECT d.specificCourseIds FROM Discount d WHERE d.id = :discountId")
-    Set<Long> findSpecificCourseIdsByDiscountId(@Param("discountId") Long discountId);
-
     @EntityGraph(attributePaths = {"specificCourseIds", "instructorId"})
     Optional<Discount> findByDiscountCode(@Param("discountCode") String discountCode);
+
+    @Query("SELECT d.instructorId FROM Discount d WHERE d.id = :disCountId")
+    Optional<Long> findInstructorIdByCourseId(@Param("disCountId") Long disCountId);
 
     @Query(
             value =
@@ -54,9 +45,6 @@ public interface DiscountRepository extends JpaRepository<Discount, Long>, JpaSp
 							""",
             nativeQuery = true)
     Optional<DiscountValidation> findActiveDiscountByCode(@Param("discountCode") String discountCode);
-
-    @Query("SELECT d.instructorId FROM Discount d WHERE d.id = :disCountId")
-    Optional<Long> findInstructorIdByCourseId(@Param("disCountId") Long disCountId);
 
     interface DiscountValidation {
         Long getId();

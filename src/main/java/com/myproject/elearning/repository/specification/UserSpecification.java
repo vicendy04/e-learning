@@ -5,7 +5,6 @@ import com.myproject.elearning.dto.request.user.UserSearchDTO;
 import org.springframework.data.jpa.domain.Specification;
 
 public class UserSpecification {
-
     public static Specification<User> hasRoles(String roles) {
         return (root, query, criteriaBuilder) -> {
             if (roles == null || roles.isEmpty()) {

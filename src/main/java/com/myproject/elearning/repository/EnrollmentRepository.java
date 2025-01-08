@@ -12,11 +12,11 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public interface EnrollmentRepository extends JpaRepository<Enrollment, Long>, EnrollmentRepositoryCustom {
+public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
+    boolean existsByUserIdAndCourseId(Long id, Long courseId);
+
     @Query("SELECT e.user.id FROM Enrollment e WHERE e.id = :enrollmentId")
     Optional<Long> findUserIdByEnrollmentId(@Param("enrollmentId") Long enrollmentId);
-
-    boolean existsByUserIdAndCourseId(Long id, Long courseId);
 
     @Transactional
     @Modifying
@@ -37,13 +37,4 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long>, E
             + "LEFT JOIN FETCH e.course c "
             + "WHERE e.id = :enrollmentId")
     Optional<Enrollment> findByIdWithDetails(@Param("enrollmentId") Long enrollmentId);
-
-    // specification
-    @Query("SELECT e FROM Enrollment e WHERE e.user.id = :userId AND e.status = :status")
-    Page<Enrollment> findByUserIdAndStatus(
-            @Param("userId") Long userId, @Param("status") Enrollment.EnrollmentStatus status, Pageable pageable);
-
-    @Query("SELECT e FROM Enrollment e WHERE e.course.id = :courseId AND e.status = :status")
-    Page<Enrollment> findByCourseIdAndStatus(
-            @Param("courseId") Long courseId, @Param("status") Enrollment.EnrollmentStatus status, Pageable pageable);
 }

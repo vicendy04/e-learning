@@ -15,6 +15,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
+    boolean existsByUserIdAndCourseId(Long userId, Long courseId);
+
+    @Query("SELECT AVG(r.rating) FROM Review r WHERE r.course.id = :courseId")
+    Double getAverageRatingByCourseId(@Param("courseId") Long courseId);
+
+    @Query("SELECT r.user.id FROM Review r WHERE r.id = :reviewId")
+    Optional<Long> findUserIdByReviewId(@Param("reviewId") Long reviewId);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM Review r WHERE r.id = :id")
+    void deleteByReviewId(@Param("id") Long id);
 
     @Query(
             """
@@ -43,17 +55,4 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 					WHERE u.id = :userId
 					""")
     Page<ReviewUserRes> findAllByUserId(@Param("userId") Long userId, Pageable pageable);
-
-    boolean existsByUserIdAndCourseId(Long userId, Long courseId);
-
-    @Query("SELECT AVG(r.rating) FROM Review r WHERE r.course.id = :courseId")
-    Double getAverageRatingByCourseId(@Param("courseId") Long courseId);
-
-    @Transactional
-    @Modifying
-    @Query("DELETE FROM Review r WHERE r.id = :id")
-    void deleteByReviewId(@Param("id") Long id);
-
-    @Query("SELECT r.user.id FROM Review r WHERE r.id = :reviewId")
-    Optional<Long> findUserIdByReviewId(@Param("reviewId") Long reviewId);
 }

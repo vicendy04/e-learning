@@ -14,8 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class PostLikeRepositoryCustomImpl implements PostLikeRepositoryCustom {
-    private final JdbcTemplate jdbcTemplate;
     private static final int BATCH_SIZE = 100;
+
+    private final JdbcTemplate jdbcTemplate;
 
     @PersistenceContext
     private EntityManager entityManager;

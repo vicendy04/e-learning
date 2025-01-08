@@ -1,6 +1,7 @@
 package com.myproject.elearning.service.redis;
 
-import static com.myproject.elearning.constant.RedisKeyConstants.*;
+import static com.myproject.elearning.constant.RedisKeyConstants.getPostLikesCountKey;
+import static com.myproject.elearning.constant.RedisKeyConstants.getPostLikesKey;
 
 import com.myproject.elearning.dto.request.post.PostLikeData;
 import com.myproject.elearning.repository.PostLikeRepositoryCustom;
@@ -10,7 +11,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -18,7 +18,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
 public class RedisPostService {
@@ -26,6 +25,7 @@ public class RedisPostService {
     static final String UNLIKE_STATUS = "0";
     static final long CACHE_TTL = 24 * 60 * 60; // 1 day
     static final long COUNT_CACHE_TTL = 5 * 60; // 5 minutes
+
     RedisTemplate<String, Object> redisTemplate;
     HashOperations<String, String, Object> hashOps;
     ValueOperations<String, Object> valueOps;

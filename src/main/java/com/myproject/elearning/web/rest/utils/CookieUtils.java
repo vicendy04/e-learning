@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public final class CookieUtils {
-
     @Value("${jwt.refresh-token-expiration}")
     private long refreshTokenValidityInSeconds;
 

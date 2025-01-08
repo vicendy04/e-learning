@@ -18,15 +18,15 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
     public Optional<PostGetRes> findPostGetResById(Long id) {
         Query query = entityManager.createNativeQuery(
                 """
-				SELECT
-					p.id as id,
-					p.content as content,
-					u.id as userId,
-					u.username as username
-				FROM posts p
-				JOIN users u ON p.user_id = u.id
-				WHERE p.id = ?
-				""",
+						SELECT
+							p.id as id,
+							p.content as content,
+							u.id as userId,
+							u.username as username
+						FROM posts p
+						JOIN users u ON p.user_id = u.id
+						WHERE p.id = ?
+						""",
                 PostGetRes.class);
 
         query.setParameter(1, id);

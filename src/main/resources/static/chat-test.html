@@ -27,7 +27,7 @@
         .card {
             background: white;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             padding: 20px;
             margin-bottom: 20px;
         }
@@ -113,244 +113,244 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Phần đăng nhập -->
-        <div id="loginSection" class="card login-section">
-            <h2>Đăng nhập</h2>
-            <div class="form-group">
-                <input type="text" id="usernameOrEmail" placeholder="Email hoặc tên đăng nhập"/>
-            </div>
-            <div class="form-group">
-                <input type="password" id="password" placeholder="Mật khẩu"/>
-            </div>
-            <div class="form-group">
-                <button onclick="login()">Đăng nhập</button>
-                <button onclick="logout()" class="delete">Đăng xuất</button>
-            </div>
+<div class="container">
+    <!-- Phần đăng nhập -->
+    <div id="loginSection" class="card login-section">
+        <h2>Đăng nhập</h2>
+        <div class="form-group">
+            <input type="text" id="usernameOrEmail" placeholder="Email hoặc tên đăng nhập"/>
         </div>
-
-        <!-- Phần chat chính -->
-        <div id="chatSection" class="card" style="display: none;">
-            <div id="connectionStatus" class="status disconnected">Chưa kết nối</div>
-            
-            <div class="form-group">
-                <button onclick="connect()">Kết nối</button>
-                <button onclick="disconnect()" class="delete">Ngắt kết nối</button>
-            </div>
-
-            <div class="form-group">
-                <input type="text" id="roomId" placeholder="Nhập Room ID"/>
-                <button onclick="subscribe()">Tham gia phòng</button>
-            </div>
-
-            <div class="form-group">
-                <input type="text" id="messageInput" placeholder="Nhập tin nhắn"/>
-                <button onclick="sendMessage()">Gửi</button>
-            </div>
-
-            <div id="messages"></div>
+        <div class="form-group">
+            <input type="password" id="password" placeholder="Mật khẩu"/>
+        </div>
+        <div class="form-group">
+            <button onclick="login()">Đăng nhập</button>
+            <button onclick="logout()" class="delete">Đăng xuất</button>
         </div>
     </div>
 
+    <!-- Phần chat chính -->
+    <div id="chatSection" class="card" style="display: none;">
+        <div id="connectionStatus" class="status disconnected">Chưa kết nối</div>
+
+        <div class="form-group">
+            <button onclick="connect()">Kết nối</button>
+            <button onclick="disconnect()" class="delete">Ngắt kết nối</button>
+        </div>
+
+        <div class="form-group">
+            <input type="text" id="roomId" placeholder="Nhập Room ID"/>
+            <button onclick="subscribe()">Tham gia phòng</button>
+        </div>
+
+        <div class="form-group">
+            <input type="text" id="messageInput" placeholder="Nhập tin nhắn"/>
+            <button onclick="sendMessage()">Gửi</button>
+        </div>
+
+        <div id="messages"></div>
+    </div>
+</div>
+
 <script>
-let stompClient = null;
-let currentRoomId = null;
-let token = localStorage.getItem('jwtToken') || '';
+    let stompClient = null;
+    let currentRoomId = null;
+    let token = localStorage.getItem('jwtToken') || '';
 
-// Khởi tạo
-window.onload = function() {
-    if (token) {
-        document.getElementById('chatSection').style.display = 'block';
-        validateToken();
-    }
-}
-
-// Xử lý đăng nhập
-async function login() {
-    const usernameOrEmail = document.getElementById('usernameOrEmail').value;
-    const password = document.getElementById('password').value;
-
-    try {
-        const response = await fetch('/api/v1/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ usernameOrEmail, password }),
-            credentials: 'include'
-        });
-
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message);
-
-        token = data.data;
-        localStorage.setItem('jwtToken', token);
-        document.getElementById('chatSection').style.display = 'block';
-        showMessage('Đăng nhập thành công!', 'success');
-    } catch (error) {
-        showMessage(error.message, 'error');
-    }
-}
-
-// Xử lý đăng xuất
-async function logout() {
-    try {
-        await fetch('/api/v1/auth/logout', {
-            method: 'POST',
-            credentials: 'include'
-        });
-        
-        disconnect();
-        token = '';
-        localStorage.removeItem('jwtToken');
-        document.getElementById('chatSection').style.display = 'none';
-        document.getElementById('usernameOrEmail').value = '';
-        document.getElementById('password').value = '';
-        showMessage('Đăng xuất thành công', 'success');
-    } catch (error) {
-        showMessage(error.message, 'error');
-    }
-}
-
-// Kết nối WebSocket
-function connect() {
-    if (!token) {
-        showMessage('Vui lòng đăng nhập trước!', 'error');
-        return;
-    }
-
-    const socket = new SockJS('/ws/chat');
-    stompClient = Stomp.over(socket);
-    
-    // Bật debug để xem chi tiết lỗi
-    stompClient.debug = function(str) {
-        console.log(str);
-    };
-
-    // Đơn giản hóa headers, chỉ gửi một Authorization header
-    const headers = {
-        'Authorization': `Bearer ${token}`
-    };
-
-    stompClient.connect(
-        headers,
-        function(frame) {
-            console.log('Connected:', frame);
-            updateConnectionStatus(true);
-            showMessage('Đã kết nối WebSocket', 'success');
-        },
-        function(error) {
-            console.error('Connection error:', error);
-            updateConnectionStatus(false);
-            showMessage('Lỗi kết nối: ' + error, 'error');
+    // Khởi tạo
+    window.onload = function () {
+        if (token) {
+            document.getElementById('chatSection').style.display = 'block';
+            validateToken();
         }
-    );
-}
-
-// Ngắt kết nối WebSocket
-function disconnect() {
-    if (stompClient !== null) {
-        stompClient.disconnect();
-        updateConnectionStatus(false);
-        showMessage('Đã ngắt kết nối', 'success');
-    }
-}
-
-// Đăng ký nhận tin nhắn từ room
-function subscribe() {
-    if (!stompClient || !stompClient.connected) {
-        showMessage('Chưa kết nối. Vui lòng kết nối trước!', 'error');
-        return;
     }
 
-    const roomId = document.getElementById('roomId').value;
-    if (!roomId) {
-        showMessage('Vui lòng nhập Room ID', 'error');
-        return;
+    // Xử lý đăng nhập
+    async function login() {
+        const usernameOrEmail = document.getElementById('usernameOrEmail').value;
+        const password = document.getElementById('password').value;
+
+        try {
+            const response = await fetch('/api/v1/auth/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({usernameOrEmail, password}),
+                credentials: 'include'
+            });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message);
+
+            token = data.data;
+            localStorage.setItem('jwtToken', token);
+            document.getElementById('chatSection').style.display = 'block';
+            showMessage('Đăng nhập thành công!', 'success');
+        } catch (error) {
+            showMessage(error.message, 'error');
+        }
     }
 
-    currentRoomId = roomId;
-    const topic = `/sub/chat/rooms/chat:${roomId}`;
+    // Xử lý đăng xuất
+    async function logout() {
+        try {
+            await fetch('/api/v1/auth/logout', {
+                method: 'POST',
+                credentials: 'include'
+            });
 
-    // Sử dụng cùng format header như khi kết nối
-    const headers = {
-        'Authorization': `Bearer ${token}`
-    };
-
-    stompClient.subscribe(topic, function(message) {
-        const messageData = JSON.parse(message.body);
-        showMessage(`${messageData.sender}: ${messageData.content}`);
-    }, headers);
-
-    showMessage(`Đã tham gia phòng ${roomId}`, 'success');
-}
-
-// Gửi tin nhắn
-function sendMessage() {
-    if (!stompClient || !stompClient.connected) {
-        showMessage('Chưa kết nối', 'error');
-        return;
+            disconnect();
+            token = '';
+            localStorage.removeItem('jwtToken');
+            document.getElementById('chatSection').style.display = 'none';
+            document.getElementById('usernameOrEmail').value = '';
+            document.getElementById('password').value = '';
+            showMessage('Đăng xuất thành công', 'success');
+        } catch (error) {
+            showMessage(error.message, 'error');
+        }
     }
 
-    if (!currentRoomId) {
-        showMessage('Vui lòng tham gia phòng trước', 'error');
-        return;
-    }
+    // Kết nối WebSocket
+    function connect() {
+        if (!token) {
+            showMessage('Vui lòng đăng nhập trước!', 'error');
+            return;
+        }
 
-    const messageContent = document.getElementById('messageInput').value;
-    if (!messageContent) {
-        showMessage('Vui lòng nhập tin nhắn', 'error');
-        return;
-    }
+        const socket = new SockJS('/ws/chat');
+        stompClient = Stomp.over(socket);
 
-    const chatMessage = {
-        roomId: `chat:${currentRoomId}`,
-        content: messageContent,
-        sender: null  // Server sẽ set giá trị này
-    };
+        // Bật debug để xem chi tiết lỗi
+        stompClient.debug = function (str) {
+            console.log(str);
+        };
 
-    // Thêm headers khi gửi message
-    const headers = {
-        'Authorization': `Bearer ${token}`
-    };
+        // Đơn giản hóa headers, chỉ gửi một Authorization header
+        const headers = {
+            'Authorization': `Bearer ${token}`
+        };
 
-    stompClient.send("/pub/chat", headers, JSON.stringify(chatMessage));
-    document.getElementById('messageInput').value = '';
-}
-
-// Hiển thị tin nhắn
-function showMessage(message, type = '') {
-    const messagesDiv = document.getElementById('messages');
-    const messageElement = document.createElement('div');
-    messageElement.className = `message ${type}`;
-    messageElement.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-    messagesDiv.insertBefore(messageElement, messagesDiv.firstChild);
-}
-
-// Cập nhật trạng thái kết nối
-function updateConnectionStatus(connected) {
-    const statusDiv = document.getElementById('connectionStatus');
-    if (connected) {
-        statusDiv.className = 'status connected';
-        statusDiv.textContent = 'Đã kết nối';
-    } else {
-        statusDiv.className = 'status disconnected';
-        statusDiv.textContent = 'Chưa kết nối';
-    }
-}
-
-// Xác thực token
-async function validateToken() {
-    try {
-        const response = await fetch('/api/v1/auth/validate-token', {
-            headers: {
-                'Authorization': `Bearer ${token}`
+        stompClient.connect(
+            headers,
+            function (frame) {
+                console.log('Connected:', frame);
+                updateConnectionStatus(true);
+                showMessage('Đã kết nối WebSocket', 'success');
+            },
+            function (error) {
+                console.error('Connection error:', error);
+                updateConnectionStatus(false);
+                showMessage('Lỗi kết nối: ' + error, 'error');
             }
-        });
-        return response.ok;
-    } catch (error) {
-        console.error('Token validation error:', error);
-        return false;
+        );
     }
-}
+
+    // Ngắt kết nối WebSocket
+    function disconnect() {
+        if (stompClient !== null) {
+            stompClient.disconnect();
+            updateConnectionStatus(false);
+            showMessage('Đã ngắt kết nối', 'success');
+        }
+    }
+
+    // Đăng ký nhận tin nhắn từ room
+    function subscribe() {
+        if (!stompClient || !stompClient.connected) {
+            showMessage('Chưa kết nối. Vui lòng kết nối trước!', 'error');
+            return;
+        }
+
+        const roomId = document.getElementById('roomId').value;
+        if (!roomId) {
+            showMessage('Vui lòng nhập Room ID', 'error');
+            return;
+        }
+
+        currentRoomId = roomId;
+        const topic = `/sub/chat/rooms/chat:${roomId}`;
+
+        // Sử dụng cùng format header như khi kết nối
+        const headers = {
+            'Authorization': `Bearer ${token}`
+        };
+
+        stompClient.subscribe(topic, function (message) {
+            const messageData = JSON.parse(message.body);
+            showMessage(`${messageData.sender}: ${messageData.content}`);
+        }, headers);
+
+        showMessage(`Đã tham gia phòng ${roomId}`, 'success');
+    }
+
+    // Gửi tin nhắn
+    function sendMessage() {
+        if (!stompClient || !stompClient.connected) {
+            showMessage('Chưa kết nối', 'error');
+            return;
+        }
+
+        if (!currentRoomId) {
+            showMessage('Vui lòng tham gia phòng trước', 'error');
+            return;
+        }
+
+        const messageContent = document.getElementById('messageInput').value;
+        if (!messageContent) {
+            showMessage('Vui lòng nhập tin nhắn', 'error');
+            return;
+        }
+
+        const chatMessage = {
+            roomId: `chat:${currentRoomId}`,
+            content: messageContent,
+            sender: null  // Server sẽ set giá trị này
+        };
+
+        // Thêm headers khi gửi message
+        const headers = {
+            'Authorization': `Bearer ${token}`
+        };
+
+        stompClient.send("/pub/chat", headers, JSON.stringify(chatMessage));
+        document.getElementById('messageInput').value = '';
+    }
+
+    // Hiển thị tin nhắn
+    function showMessage(message, type = '') {
+        const messagesDiv = document.getElementById('messages');
+        const messageElement = document.createElement('div');
+        messageElement.className = `message ${type}`;
+        messageElement.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+        messagesDiv.insertBefore(messageElement, messagesDiv.firstChild);
+    }
+
+    // Cập nhật trạng thái kết nối
+    function updateConnectionStatus(connected) {
+        const statusDiv = document.getElementById('connectionStatus');
+        if (connected) {
+            statusDiv.className = 'status connected';
+            statusDiv.textContent = 'Đã kết nối';
+        } else {
+            statusDiv.className = 'status disconnected';
+            statusDiv.textContent = 'Chưa kết nối';
+        }
+    }
+
+    // Xác thực token
+    async function validateToken() {
+        try {
+            const response = await fetch('/api/v1/auth/validate-token', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            return response.ok;
+        } catch (error) {
+            console.error('Token validation error:', error);
+            return false;
+        }
+    }
 </script>
 </body>
 </html>

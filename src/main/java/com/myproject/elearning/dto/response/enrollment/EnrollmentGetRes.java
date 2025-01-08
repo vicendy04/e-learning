@@ -3,13 +3,13 @@ package com.myproject.elearning.dto.response.enrollment;
 import com.myproject.elearning.domain.Course;
 import java.math.BigDecimal;
 import java.time.Instant;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class EnrollmentGetRes {
     Long id;
@@ -20,8 +20,6 @@ public class EnrollmentGetRes {
 
     @Getter
     @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
     @FieldDefaults(level = AccessLevel.PRIVATE)
     public static class UserInfo {
         Long id;
@@ -31,8 +29,6 @@ public class EnrollmentGetRes {
 
     @Getter
     @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
     @FieldDefaults(level = AccessLevel.PRIVATE)
     public static class CourseInfo {
         Long id;

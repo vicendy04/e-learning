@@ -26,7 +26,7 @@
         .card {
             background: white;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             padding: 20px;
             margin-bottom: 20px;
         }
@@ -124,158 +124,158 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Phần đăng nhập -->
-        <div id="loginSection" class="card login-section">
-            <h2>Đăng nhập</h2>
-            <div class="form-group">
-                <input type="text" id="usernameOrEmail" placeholder="Email hoặc tên đăng nhập"/>
-            </div>
-            <div class="form-group">
-                <input type="password" id="password" placeholder="Mật khẩu"/>
-            </div>
-            <div class="form-group">
-                <button onclick="login()">Đăng nhập</button>
-                <button onclick="logout()" class="delete">Đăng xuất</button>
-            </div>
+<div class="container">
+    <!-- Phần đăng nhập -->
+    <div id="loginSection" class="card login-section">
+        <h2>Đăng nhập</h2>
+        <div class="form-group">
+            <input type="text" id="usernameOrEmail" placeholder="Email hoặc tên đăng nhập"/>
         </div>
-
-        <!-- Phần chính -->
-        <div id="mainContent" style="display: none;">
-            <div class="tabs">
-                <div class="tab active" onclick="switchTab('create')">Tạo bài viết</div>
-                <div class="tab" onclick="switchTab('view')">Xem bài viết</div>
-            </div>
-
-            <!-- Form tạo bài viết mới -->
-            <div id="createPostSection" class="card">
-                <h3>Tạo bài viết mới</h3>
-                <div class="form-group">
-                    <input type="text" id="postTitle" placeholder="Tiêu đề bài viết"/>
-                </div>
-                <div class="form-group">
-                    <textarea id="postContent" rows="4" placeholder="Nội dung bài viết"></textarea>
-                </div>
-                <button onclick="createPost()">Đăng bài</button>
-            </div>
-
-            <!-- Phần xem bài viết -->
-            <div id="viewPostSection" class="card" style="display: none;">
-                <h3>Xem bài viết</h3>
-                <div class="form-group">
-                    <input type="number" id="postId" placeholder="Nhập ID bài viết" />
-                    <button onclick="getPost()">Xem bài viết</button>
-                </div>
-                <div id="postDetail"></div>
-            </div>
-
-            <!-- Khu vực hiển thị thông báo -->
-            <div id="messages"></div>
+        <div class="form-group">
+            <input type="password" id="password" placeholder="Mật khẩu"/>
+        </div>
+        <div class="form-group">
+            <button onclick="login()">Đăng nhập</button>
+            <button onclick="logout()" class="delete">Đăng xuất</button>
         </div>
     </div>
 
+    <!-- Phần chính -->
+    <div id="mainContent" style="display: none;">
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('create')">Tạo bài viết</div>
+            <div class="tab" onclick="switchTab('view')">Xem bài viết</div>
+        </div>
+
+        <!-- Form tạo bài viết mới -->
+        <div id="createPostSection" class="card">
+            <h3>Tạo bài viết mới</h3>
+            <div class="form-group">
+                <input type="text" id="postTitle" placeholder="Tiêu đề bài viết"/>
+            </div>
+            <div class="form-group">
+                <textarea id="postContent" rows="4" placeholder="Nội dung bài viết"></textarea>
+            </div>
+            <button onclick="createPost()">Đăng bài</button>
+        </div>
+
+        <!-- Phần xem bài viết -->
+        <div id="viewPostSection" class="card" style="display: none;">
+            <h3>Xem bài viết</h3>
+            <div class="form-group">
+                <input type="number" id="postId" placeholder="Nhập ID bài viết"/>
+                <button onclick="getPost()">Xem bài viết</button>
+            </div>
+            <div id="postDetail"></div>
+        </div>
+
+        <!-- Khu vực hiển thị thông báo -->
+        <div id="messages"></div>
+    </div>
+</div>
+
 <script>
-let token = localStorage.getItem('jwtToken') || '';
-let currentUserId = null;
+    let token = localStorage.getItem('jwtToken') || '';
+    let currentUserId = null;
 
-// Khởi tạo
-window.onload = function() {
-    if (token) {
-        document.getElementById('mainContent').style.display = 'block';
-        validateToken();
-    }
-}
-
-// Xử lý đăng nhập
-async function login() {
-    const usernameOrEmail = document.getElementById('usernameOrEmail').value;
-    const password = document.getElementById('password').value;
-
-    try {
-        const response = await fetch('/api/v1/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ usernameOrEmail, password }),
-            credentials: 'include'
-        });
-
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message);
-
-        token = data.data;
-        localStorage.setItem('jwtToken', token);
-        document.getElementById('mainContent').style.display = 'block';
-        showMessage('Đăng nhập thành công!', false);
-    } catch (error) {
-        showMessage(error.message, true);
-    }
-}
-
-// Xử lý đăng xuất
-async function logout() {
-    try {
-        await fetch('/api/v1/auth/logout', {
-            method: 'POST',
-            credentials: 'include'
-        });
-        
-        token = '';
-        localStorage.removeItem('jwtToken');
-        document.getElementById('mainContent').style.display = 'none';
-        document.getElementById('usernameOrEmail').value = '';
-        document.getElementById('password').value = '';
-        showMessage('Đăng xuất thành công', false);
-    } catch (error) {
-        showMessage(error.message, true);
-    }
-}
-
-// Tạo bài viết mới
-async function createPost() {
-    const content = document.getElementById('postContent').value;
-
-    if (!content) {
-        showMessage('Vui lòng nhập nội dung bài viết', true);
-        return;
-    }
-
-    try {
-        const response = await fetchWithAuth('/api/v1/posts', {
-            method: 'POST',
-            body: JSON.stringify({ content })
-        });
-
-        if (response) {
-            showMessage('Tạo bài viết thành công!', false);
-            document.getElementById('postContent').value = '';
+    // Khởi tạo
+    window.onload = function () {
+        if (token) {
+            document.getElementById('mainContent').style.display = 'block';
+            validateToken();
         }
-    } catch (error) {
-        showMessage(error.message, true);
-    }
-}
-
-// Xem chi tiết bài viết
-async function getPost() {
-    const postId = document.getElementById('postId').value;
-    if (!postId) {
-        showMessage('Vui lòng nhập ID bài viết', true);
-        return;
     }
 
-    try {
-        const response = await fetchWithAuth(`/api/v1/posts/${postId}`);
-        if (response && response.data) {
-            displayPost(response.data);
+    // Xử lý đăng nhập
+    async function login() {
+        const usernameOrEmail = document.getElementById('usernameOrEmail').value;
+        const password = document.getElementById('password').value;
+
+        try {
+            const response = await fetch('/api/v1/auth/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({usernameOrEmail, password}),
+                credentials: 'include'
+            });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message);
+
+            token = data.data;
+            localStorage.setItem('jwtToken', token);
+            document.getElementById('mainContent').style.display = 'block';
+            showMessage('Đăng nhập thành công!', false);
+        } catch (error) {
+            showMessage(error.message, true);
         }
-    } catch (error) {
-        showMessage(error.message, true);
     }
-}
 
-// Hiển thị bài viết
-function displayPost(post) {
-    const postDetail = document.getElementById('postDetail');
-    postDetail.innerHTML = `
+    // Xử lý đăng xuất
+    async function logout() {
+        try {
+            await fetch('/api/v1/auth/logout', {
+                method: 'POST',
+                credentials: 'include'
+            });
+
+            token = '';
+            localStorage.removeItem('jwtToken');
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('usernameOrEmail').value = '';
+            document.getElementById('password').value = '';
+            showMessage('Đăng xuất thành công', false);
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    // Tạo bài viết mới
+    async function createPost() {
+        const content = document.getElementById('postContent').value;
+
+        if (!content) {
+            showMessage('Vui lòng nhập nội dung bài viết', true);
+            return;
+        }
+
+        try {
+            const response = await fetchWithAuth('/api/v1/posts', {
+                method: 'POST',
+                body: JSON.stringify({content})
+            });
+
+            if (response) {
+                showMessage('Tạo bài viết thành công!', false);
+                document.getElementById('postContent').value = '';
+            }
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    // Xem chi tiết bài viết
+    async function getPost() {
+        const postId = document.getElementById('postId').value;
+        if (!postId) {
+            showMessage('Vui lòng nhập ID bài viết', true);
+            return;
+        }
+
+        try {
+            const response = await fetchWithAuth(`/api/v1/posts/${postId}`);
+            if (response && response.data) {
+                displayPost(response.data);
+            }
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    // Hiển thị bài viết
+    function displayPost(post) {
+        const postDetail = document.getElementById('postDetail');
+        postDetail.innerHTML = `
         <div class="post-card ${post.likedByCurrentUser ? 'liked' : ''}" id="post-${post.id}">
             <p><strong>${post.username}</strong></p>
             <p>${post.content}</p>
@@ -290,161 +290,161 @@ function displayPost(post) {
             </div>
         </div>
     `;
-}
-
-// Chuyển đổi tab
-function switchTab(tab) {
-    const createSection = document.getElementById('createPostSection');
-    const viewSection = document.getElementById('viewPostSection');
-    const tabs = document.querySelectorAll('.tab');
-
-    tabs.forEach(t => t.classList.remove('active'));
-    if (tab === 'create') {
-        createSection.style.display = 'block';
-        viewSection.style.display = 'none';
-        tabs[0].classList.add('active');
-    } else {
-        createSection.style.display = 'none';
-        viewSection.style.display = 'block';
-        tabs[1].classList.add('active');
-    }
-}
-
-// Hiển thị thông báo
-function showMessage(message, isError = false) {
-    const messagesDiv = document.getElementById('messages');
-    const messageElement = document.createElement('div');
-    messageElement.className = `message ${isError ? 'error' : 'success'}`;
-    messageElement.textContent = message;
-    messagesDiv.insertBefore(messageElement, messagesDiv.firstChild);
-    
-    setTimeout(() => messageElement.remove(), 5000);
-}
-
-// Xử lý yêu cầu API với token
-async function fetchWithAuth(url, options = {}) {
-    if (!token) {
-        showMessage('Vui lòng đăng nhập!', true);
-        return null;
     }
 
-    const defaultOptions = {
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        }
-    };
+    // Chuyển đổi tab
+    function switchTab(tab) {
+        const createSection = document.getElementById('createPostSection');
+        const viewSection = document.getElementById('viewPostSection');
+        const tabs = document.querySelectorAll('.tab');
 
-    try {
-        const response = await fetch(url, { ...defaultOptions, ...options });
-        const data = await response.json();
-
-        if (!response.ok) throw new Error(data.message);
-        return data;
-    } catch (error) {
-        showMessage(error.message, true);
-        return null;
-    }
-}
-
-// Xác thực token
-async function validateToken() {
-    try {
-        const response = await fetchWithAuth('/api/v1/auth/validate-token');
-        if (response && response.data) {
-            currentUserId = response.data.id;
-        }
-    } catch (error) {
-        logout();
-    }
-}
-
-// Xử lý like post
-async function likePost(postId) {
-    try {
-        const response = await fetchWithAuth(`/api/v1/posts/${postId}/like`, {
-            method: 'POST'
-        });
-        
-        if (response) {
-            // Cập nhật UI ngay lập tức
-            updateLikeUI(postId, true);
-            showMessage('Đã thích bài viết', false);
-        }
-    } catch (error) {
-        showMessage(error.message, true);
-    }
-}
-
-// Xử lý unlike post
-async function unlikePost(postId) {
-    try {
-        const response = await fetchWithAuth(`/api/v1/posts/${postId}/unlike`, {
-            method: 'POST'
-        });
-        
-        if (response) {
-            // Cập nhật UI ngay lập tức
-            updateLikeUI(postId, false);
-            showMessage('Đã bỏ thích bài viết', false);
-        }
-    } catch (error) {
-        showMessage(error.message, true);
-    }
-}
-
-// Cập nhật UI cho nút like
-function updateLikeUI(postId, isLiked) {
-    const postCard = document.getElementById(`post-${postId}`);
-    const likeButton = document.getElementById(`like-btn-${postId}`);
-    
-    if (postCard && likeButton) {
-        // Cập nhật class cho post card
-        if (isLiked) {
-            postCard.classList.add('liked');
+        tabs.forEach(t => t.classList.remove('active'));
+        if (tab === 'create') {
+            createSection.style.display = 'block';
+            viewSection.style.display = 'none';
+            tabs[0].classList.add('active');
         } else {
-            postCard.classList.remove('liked');
+            createSection.style.display = 'none';
+            viewSection.style.display = 'block';
+            tabs[1].classList.add('active');
         }
-        
-        // Cập nhật nút like
-        likeButton.textContent = isLiked ? 'Bỏ thích' : 'Thích';
-        likeButton.onclick = isLiked ? 
-            () => unlikePost(postId) : 
-            () => likePost(postId);
     }
-}
 
-// Thêm hàm xóa bài viết
-async function deletePost(postId) {
-    if (!confirm('Bạn có chắc chắn muốn xóa bài viết này?')) return;
+    // Hiển thị thông báo
+    function showMessage(message, isError = false) {
+        const messagesDiv = document.getElementById('messages');
+        const messageElement = document.createElement('div');
+        messageElement.className = `message ${isError ? 'error' : 'success'}`;
+        messageElement.textContent = message;
+        messagesDiv.insertBefore(messageElement, messagesDiv.firstChild);
 
-    try {
-        await fetchWithAuth(`/api/v1/posts/${postId}`, {
-            method: 'DELETE'
-        });
-        showMessage('Xóa bài viết thành công', false);
-        document.getElementById('postDetail').innerHTML = '';
-    } catch (error) {
-        showMessage(error.message, true);
+        setTimeout(() => messageElement.remove(), 5000);
     }
-}
 
-// Thêm hàm sửa bài viết
-async function editPost(postId) {
-    const newContent = prompt('Nhập nội dung mới:');
-    if (!newContent) return;
+    // Xử lý yêu cầu API với token
+    async function fetchWithAuth(url, options = {}) {
+        if (!token) {
+            showMessage('Vui lòng đăng nhập!', true);
+            return null;
+        }
 
-    try {
-        await fetchWithAuth(`/api/v1/posts/${postId}`, {
-            method: 'PUT',
-            body: JSON.stringify({ content: newContent })
-        });
-        showMessage('Cập nhật bài viết thành công', false);
-        await getPost();
-    } catch (error) {
-        showMessage(error.message, true);
+        const defaultOptions = {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        };
+
+        try {
+            const response = await fetch(url, {...defaultOptions, ...options});
+            const data = await response.json();
+
+            if (!response.ok) throw new Error(data.message);
+            return data;
+        } catch (error) {
+            showMessage(error.message, true);
+            return null;
+        }
     }
-}
+
+    // Xác thực token
+    async function validateToken() {
+        try {
+            const response = await fetchWithAuth('/api/v1/auth/validate-token');
+            if (response && response.data) {
+                currentUserId = response.data.id;
+            }
+        } catch (error) {
+            logout();
+        }
+    }
+
+    // Xử lý like post
+    async function likePost(postId) {
+        try {
+            const response = await fetchWithAuth(`/api/v1/posts/${postId}/like`, {
+                method: 'POST'
+            });
+
+            if (response) {
+                // Cập nhật UI ngay lập tức
+                updateLikeUI(postId, true);
+                showMessage('Đã thích bài viết', false);
+            }
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    // Xử lý unlike post
+    async function unlikePost(postId) {
+        try {
+            const response = await fetchWithAuth(`/api/v1/posts/${postId}/unlike`, {
+                method: 'POST'
+            });
+
+            if (response) {
+                // Cập nhật UI ngay lập tức
+                updateLikeUI(postId, false);
+                showMessage('Đã bỏ thích bài viết', false);
+            }
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    // Cập nhật UI cho nút like
+    function updateLikeUI(postId, isLiked) {
+        const postCard = document.getElementById(`post-${postId}`);
+        const likeButton = document.getElementById(`like-btn-${postId}`);
+
+        if (postCard && likeButton) {
+            // Cập nhật class cho post card
+            if (isLiked) {
+                postCard.classList.add('liked');
+            } else {
+                postCard.classList.remove('liked');
+            }
+
+            // Cập nhật nút like
+            likeButton.textContent = isLiked ? 'Bỏ thích' : 'Thích';
+            likeButton.onclick = isLiked ?
+                () => unlikePost(postId) :
+                () => likePost(postId);
+        }
+    }
+
+    // Thêm hàm xóa bài viết
+    async function deletePost(postId) {
+        if (!confirm('Bạn có chắc chắn muốn xóa bài viết này?')) return;
+
+        try {
+            await fetchWithAuth(`/api/v1/posts/${postId}`, {
+                method: 'DELETE'
+            });
+            showMessage('Xóa bài viết thành công', false);
+            document.getElementById('postDetail').innerHTML = '';
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    // Thêm hàm sửa bài viết
+    async function editPost(postId) {
+        const newContent = prompt('Nhập nội dung mới:');
+        if (!newContent) return;
+
+        try {
+            await fetchWithAuth(`/api/v1/posts/${postId}`, {
+                method: 'PUT',
+                body: JSON.stringify({content: newContent})
+            });
+            showMessage('Cập nhật bài viết thành công', false);
+            await getPost();
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
 </script>
 </body>
 </html> 
