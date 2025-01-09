@@ -14,20 +14,23 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CourseCreateReq {
-    @NotBlank
+    @NotBlank(message = "Tiêu đề khóa học không được để trống")
     String title;
 
+    @NotBlank(message = "Mô tả khóa học không được để trống")
     String description;
 
-    @PositiveOrZero
-    int duration;
+    @PositiveOrZero(message = "Thời lượng không hợp lệ")
+    Integer duration;
 
-    @PositiveOrZero
+    @PositiveOrZero(message = "Giá không hợp lệ")
     BigDecimal price;
 
-    @NotNull
+    @NotNull(message = "Danh mục không được để trống")
     Course.CourseCategory category;
 
-    @NotNull
+    @NotNull(message = "Cấp độ không được để trống")
     Course.Level level;
+
+    String thumbnailUrl;
 }

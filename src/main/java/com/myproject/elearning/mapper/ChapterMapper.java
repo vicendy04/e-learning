@@ -13,6 +13,7 @@ public interface ChapterMapper {
 
     Chapter toEntity(ChapterUpdateReq request);
 
+    @Mapping(target = "courseId", source = "course.id")
     ChapterGetRes toGetResponse(Chapter entity);
 
     @Named("partialUpdate")

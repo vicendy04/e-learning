@@ -13,6 +13,7 @@ import com.myproject.elearning.dto.response.course.CourseUpdateRes;
 import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
 import com.myproject.elearning.security.SecurityUtils;
 import com.myproject.elearning.service.AuthzService;
+import com.myproject.elearning.service.CourseSearchService;
 import com.myproject.elearning.service.CourseService;
 import com.myproject.elearning.service.redis.RedisCourseService;
 import jakarta.validation.Valid;
@@ -37,6 +38,7 @@ public class CourseController {
     AuthzService authzService;
     CourseService courseService;
     RedisCourseService redisCourseService;
+    CourseSearchService courseSearchService;
 
     @PreAuthorize("isAuthenticated() and hasAnyRole('INSTRUCTOR', 'ADMIN')")
     @PostMapping("")
@@ -44,6 +46,7 @@ public class CourseController {
     public ApiRes<CourseGetRes> addCourse(@Valid @RequestBody CourseCreateReq courseCreateReq) {
         Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
         CourseGetRes courseResponse = courseService.addCourse(curUserId, courseCreateReq);
+        courseSearchService.indexCourse(courseResponse);
         return successRes("Course created successfully", courseResponse);
     }
 

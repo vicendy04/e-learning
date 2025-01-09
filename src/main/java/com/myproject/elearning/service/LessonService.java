@@ -29,6 +29,8 @@ public class LessonService {
     @Transactional
     public LessonGetRes addLessonToChapter(Long chapterId, LessonCreateReq request) {
         Lesson lesson = lessonMapper.toEntity(request);
+        List<Lesson> existingLessons = lessonRepository.findByChapterIdOrderByOrderIndexAsc(chapterId);
+        lesson.setOrderIndex(existingLessons.size() + 1);
         Chapter chapterRef = chapterRepository.getReferenceById(chapterId);
         lesson.setChapter(chapterRef);
         return lessonMapper.toGetResponse(lessonRepository.save(lesson));

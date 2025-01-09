@@ -2,13 +2,15 @@ package com.myproject.elearning.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A course.
@@ -30,12 +32,12 @@ public class Course {
     String description;
 
     @Column(name = "duration")
-    int duration;
+    Integer duration;
 
     @Column(name = "price", precision = 10, scale = 2)
     BigDecimal price;
 
-    @Column(name = "category")
+    @Column(name = "category", length = 50)
     @Enumerated(EnumType.STRING)
     CourseCategory category;
 
@@ -64,20 +66,23 @@ public class Course {
     List<Review> reviews = new ArrayList<>();
 
     @JsonIgnoreProperties("course")
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(
+            mappedBy = "course",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            orphanRemoval = true)
     List<Chapter> chapters = new ArrayList<>();
 
+    @Column(name = "thumbnail_url")
+    String thumbnailUrl;
+
     public enum CourseCategory {
-        FITNESS,
+        DEVELOPMENT,
         DESIGN,
-        PHOTOGRAPHY,
+        BUSINESS,
         MARKETING,
-        PROGRAMMING,
-        MUSIC,
-        LANGUAGE_LEARNING,
-        PERSONAL_DEVELOPMENT,
+        SECURITY,
         FINANCE,
-        COOKING
+        COOKING,
     }
 
     public enum Level {

@@ -33,7 +33,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 					SELECT new com.myproject.elearning.dto.response.review.ReviewCourseRes(
 						r.id, r.rating, r.comment,
 						r.createdAt, r.updatedAt,
-						u.id, u.username
+						u.id, u.username, u.imageUrl
 					)
 					FROM Review r
 					LEFT JOIN r.user u

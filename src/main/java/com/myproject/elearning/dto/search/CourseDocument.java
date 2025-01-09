@@ -16,5 +16,13 @@ public class CourseDocument {
     String level;
     Integer duration;
     Double price;
+    String thumbnailUrl;
+
+    //    Integer enrolledCount;
+    //    Integer totalReviews;
+    //    Integer totalLessons;
+
+    String instructorId;
     String instructorName;
+    String imageUrl;
 }

@@ -35,10 +35,15 @@ public class Enrollment {
     @Enumerated(EnumType.STRING)
     EnrollmentStatus status = EnrollmentStatus.ACTIVE;
 
+    @Column(name = "reason_for_dropping")
+    String reasonForDropping;
+
     public enum EnrollmentStatus {
         ACTIVE,
         COMPLETED,
-        DROPPED
+        DROPPED,
+        REFUNDED,
+        EXPIRED
     }
 
     @PrePersist

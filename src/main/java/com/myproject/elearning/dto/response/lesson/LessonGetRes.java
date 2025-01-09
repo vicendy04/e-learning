@@ -15,5 +15,6 @@ public class LessonGetRes {
     String contentUrl;
     Integer orderIndex;
     LessonType contentType;
+    Boolean isFreePreview;
     Long chapterId;
 }

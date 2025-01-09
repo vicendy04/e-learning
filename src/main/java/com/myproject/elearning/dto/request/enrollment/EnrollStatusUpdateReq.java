@@ -1,5 +1,7 @@
 package com.myproject.elearning.dto.request.enrollment;
 
+import com.myproject.elearning.domain.Enrollment;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,5 +11,8 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class EnrollStatusUpdateReq {
-    String status;
+    @NotNull(message = "Trạng thái không được để trống")
+    Enrollment.EnrollmentStatus status;
+
+    String reasonForDropping;
 }

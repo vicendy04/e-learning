@@ -61,7 +61,7 @@ public class CourseSpecification {
 
     public static Specification<Course> filterCourses(CourseSearchDTO searchDTO) {
         return Specification.where(hasTitle(searchDTO.getTitle()))
-                .and(hasCategory(searchDTO.getCategory()))
+                .and(hasCategory(String.valueOf(searchDTO.getCategory())))
                 .and(hasPriceRange(searchDTO.getMinPrice(), searchDTO.getMaxPrice()))
                 .and(searchByKeyword(searchDTO.getKeyword()));
     }

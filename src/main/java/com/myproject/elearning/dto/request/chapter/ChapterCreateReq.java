@@ -14,6 +14,4 @@ public class ChapterCreateReq {
     String title;
 
     String description;
-
-    Integer orderIndex;
 }

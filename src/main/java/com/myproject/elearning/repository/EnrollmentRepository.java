@@ -25,16 +25,9 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
 
     @Query("SELECT e FROM Enrollment e " + "LEFT JOIN FETCH e.user u "
             + "LEFT JOIN FETCH e.course c "
-            + "WHERE u.id= :id")
-    Page<Enrollment> findAllByUserId(Long id, Pageable pageable);
+            + "WHERE e.user.id = :id")
+    Page<Enrollment> getPagedEnrollmentsByUserId(Long id, Pageable pageable);
 
-    @Query("SELECT e FROM Enrollment e " + "LEFT JOIN FETCH e.user u "
-            + "LEFT JOIN FETCH e.course c "
-            + "WHERE c.id= :courseId")
-    Page<Enrollment> findAllByCourseId(Long courseId, Pageable pageable);
-
-    @Query("SELECT e FROM Enrollment e " + "LEFT JOIN FETCH e.user u "
-            + "LEFT JOIN FETCH e.course c "
-            + "WHERE e.id = :enrollmentId")
+    @Query("SELECT e FROM Enrollment e " + "LEFT JOIN FETCH e.course c " + "WHERE e.id = :enrollmentId")
     Optional<Enrollment> findByIdWithDetails(@Param("enrollmentId") Long enrollmentId);
 }

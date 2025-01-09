@@ -17,4 +17,5 @@ public class ReviewCourseRes {
     LocalDateTime updatedAt;
     Long userId;
     String username;
+    String imageUrl;
 }

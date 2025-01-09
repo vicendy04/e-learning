@@ -17,4 +17,6 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     Optional<Lesson> findByIdAndChapterCourseInstructorId(Long id, Long instructorId);
 
     boolean existsByIdAndChapterCourseInstructorId(Long id, Long instructorId);
+
+    List<Lesson> findByChapterIdOrderByOrderIndexAsc(Long chapterId);
 }

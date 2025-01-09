@@ -33,6 +33,9 @@ public class Lesson {
     @JoinColumn(name = "chapter_id")
     Chapter chapter;
 
+    @Column(name = "is_free_preview")
+    Boolean isFreePreview = false;
+
     public enum LessonType {
         VIDEO,
         DOCUMENT,

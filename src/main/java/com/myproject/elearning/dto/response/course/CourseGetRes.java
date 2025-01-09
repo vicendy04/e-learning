@@ -14,9 +14,17 @@ public class CourseGetRes {
     Long id;
     String title;
     String description;
-    int duration;
+    Integer duration;
     BigDecimal price;
     Course.CourseCategory category;
-    int enrolledCount;
     Course.Level level;
+    String thumbnailUrl;
+
+    Integer enrolledCount;
+    Integer totalReviews;
+    Integer totalLessons; // Todo: tạo course, chapter luôn 1 lần
+
+    Long instructorId;
+    String instructorName;
+    String imageUrl;
 }

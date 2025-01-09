@@ -5,6 +5,7 @@ import static com.myproject.elearning.web.rest.utils.ResponseUtils.successRes;
 import com.myproject.elearning.dto.common.ApiRes;
 import com.myproject.elearning.dto.common.PagedRes;
 import com.myproject.elearning.dto.request.enrollment.EnrollStatusUpdateReq;
+import com.myproject.elearning.dto.response.enrollment.EnrollmentEditRes;
 import com.myproject.elearning.dto.response.enrollment.EnrollmentGetRes;
 import com.myproject.elearning.dto.response.enrollment.EnrollmentRes;
 import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
@@ -69,22 +70,12 @@ public class EnrollController {
     }
 
     @PreAuthorize("isAuthenticated() and hasAnyRole('INSTRUCTOR', 'ADMIN')")
-    @GetMapping("/courses/{courseId}/enrollments")
-    @ResponseStatus(HttpStatus.OK)
-    public ApiRes<PagedRes<EnrollmentGetRes>> getCourseEnrollments(
-            @PathVariable Long courseId, @PageableDefault(size = 5, page = 0) Pageable pageable) {
-        PagedRes<EnrollmentGetRes> enrollments = enrollService.getCourseEnrollments(courseId, pageable);
-        return successRes("Course enrollments retrieved successfully", enrollments);
-    }
-
-    @PreAuthorize("isAuthenticated() and hasAnyRole('INSTRUCTOR', 'ADMIN')")
     @PutMapping("/enrollments/{enrollmentId}/status")
     @ResponseStatus(HttpStatus.OK)
-    public ApiRes<EnrollmentGetRes> changeEnrollStatus(
+    public ApiRes<EnrollmentEditRes> changeEnrollStatus(
             @PathVariable Long enrollmentId, @Valid @RequestBody EnrollStatusUpdateReq statusUpdateInput) {
         authzService.checkEnrollmentAccess(enrollmentId);
-        EnrollmentGetRes editedEnrollment =
-                enrollService.changeEnrollStatus(enrollmentId, statusUpdateInput.getStatus());
+        EnrollmentEditRes editedEnrollment = enrollService.changeEnrollStatus(enrollmentId, statusUpdateInput);
         return successRes("Enrollment status changed successfully", editedEnrollment);
     }
 }

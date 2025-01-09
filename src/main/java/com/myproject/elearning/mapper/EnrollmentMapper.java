@@ -1,10 +1,8 @@
 package com.myproject.elearning.mapper;
 
-import static com.myproject.elearning.dto.response.enrollment.EnrollmentGetRes.UserInfo;
-
 import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.domain.Enrollment;
-import com.myproject.elearning.domain.User;
+import com.myproject.elearning.dto.response.enrollment.EnrollmentEditRes;
 import com.myproject.elearning.dto.response.enrollment.EnrollmentGetRes;
 import com.myproject.elearning.dto.response.enrollment.EnrollmentGetRes.CourseInfo;
 import com.myproject.elearning.dto.response.enrollment.EnrollmentRes;
@@ -16,13 +14,11 @@ public interface EnrollmentMapper {
 
     Course toEntity(CourseInfo request);
 
-    CourseInfo toCourseInfo(Course request);
-
-    User toEntity(UserInfo request);
-
-    UserInfo toUserInfo(User request);
+    CourseInfo toCourseInfo(Course entity);
 
     EnrollmentRes toEnrollmentResponse(Enrollment entity);
 
     EnrollmentGetRes toEnrollmentGetResponse(Enrollment entity);
+
+    EnrollmentEditRes toEnrollmentEditRes(Enrollment entity);
 }

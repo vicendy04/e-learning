@@ -13,4 +13,5 @@ public class ChapterGetRes {
     String title;
     String description;
     Integer orderIndex;
+    Long courseId;
 }

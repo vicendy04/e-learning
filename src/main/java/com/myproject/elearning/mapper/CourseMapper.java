@@ -21,6 +21,11 @@ public interface CourseMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void partialUpdate(@MappingTarget Course entity, CourseUpdateReq request);
 
+    @Mapping(target = "instructorId", source = "instructor.id")
+    @Mapping(target = "imageUrl", source = "instructor.imageUrl")
+    @Mapping(
+            target = "instructorName",
+            expression = "java(entity.getInstructor().getFirstName() + \" \" + entity.getInstructor().getLastName())")
     CourseGetRes toGetResponse(Course entity);
 
     CourseListRes toCourseListResponse(Course entity);

@@ -11,11 +11,14 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserUpdateReq {
-    @Email
-    String email;
+    @Email(message = "Email không hợp lệ")
+    String email; // Todo: làm otp
 
     @Size(max = 50)
-    String username;
+    String firstName;
+
+    @Size(max = 50)
+    String lastName;
 
     String imageUrl;
 }

@@ -12,6 +12,7 @@ public class UserGetRes {
     Long id;
     String email;
     String username;
+    String firstName;
+    String lastName;
     String imageUrl;
-    //    Set<Role> roles;
 }

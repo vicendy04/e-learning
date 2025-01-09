@@ -1,6 +1,7 @@
 package com.myproject.elearning.dto.response.enrollment;
 
 import com.myproject.elearning.domain.Course;
+import com.myproject.elearning.domain.Enrollment;
 import java.math.BigDecimal;
 import java.time.Instant;
 import lombok.AccessLevel;
@@ -13,19 +14,9 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class EnrollmentGetRes {
     Long id;
-    UserInfo user;
-    CourseInfo course;
     Instant enrolledAt;
-    String status;
-
-    @Getter
-    @Setter
-    @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class UserInfo {
-        Long id;
-        String email;
-        String username;
-    }
+    Enrollment.EnrollmentStatus status;
+    CourseInfo course;
 
     @Getter
     @Setter
@@ -36,5 +27,7 @@ public class EnrollmentGetRes {
         String description;
         BigDecimal price;
         Course.CourseCategory category;
+        Course.Level level;
+        String thumbnailUrl;
     }
 }

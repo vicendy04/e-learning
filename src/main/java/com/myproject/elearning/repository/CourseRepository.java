@@ -21,6 +21,9 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
     @EntityGraph(attributePaths = "chapters")
     Optional<Course> findWithChaptersById(Long id);
 
+    @EntityGraph(attributePaths = "instructor")
+    Optional<Course> findWithInstructorById(Long id);
+
     @Query("SELECT COUNT(e) FROM Enrollment e WHERE e.course.id =:courseId")
     int countEnrollmentsByCourseId(@Param("courseId") Long courseId);
 

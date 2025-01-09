@@ -36,6 +36,12 @@ public class User {
     @Column(name = "username", length = 50)
     String username;
 
+    @Column(name = "first_name")
+    String firstName;
+
+    @Column(name = "last_name")
+    String lastName;
+
     @NotNull
     @Size(min = 4, message = "Password must be at least 4 characters long.")
     @Column(name = "password", nullable = false)

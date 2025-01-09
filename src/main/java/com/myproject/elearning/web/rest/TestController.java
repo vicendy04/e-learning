@@ -3,11 +3,13 @@ package com.myproject.elearning.web.rest;
 import com.myproject.elearning.dto.projection.UserAuthDTO;
 import com.myproject.elearning.exception.problemdetails.InvalidIdException;
 import com.myproject.elearning.repository.UserRepository;
+import com.myproject.elearning.service.CourseSearchService;
 import com.myproject.elearning.service.redis.RedisAuthService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
     UserRepository userRepository;
     RedisAuthService redisAuthService;
+    CourseSearchService courseSearchService;
 
     @GetMapping("")
     public Object getUser() {
@@ -42,5 +45,10 @@ public class TestController {
 
         redisAuthService.setCachedUser(username, userAuthDTO);
         return userAuthDTO;
+    }
+
+    @PostMapping("")
+    public void setupMeilisearch() {
+        courseSearchService.setupMeilisearch();
     }
 }

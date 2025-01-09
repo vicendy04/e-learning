@@ -30,12 +30,9 @@ public class ChapterService {
     @Transactional
     public ChapterGetRes addChapter(Long courseId, ChapterCreateReq request) {
         Chapter chapter = chapterMapper.toEntity(request);
-        Course courseRef = courseRepository.getReferenceById(courseId);
-        chapter.setCourse(courseRef);
-        if (chapter.getOrderIndex() == null) {
-            List<Chapter> existingChapters = chapterRepository.findByCourseIdOrderByOrderIndexAsc(courseId);
-            chapter.setOrderIndex(existingChapters.size() + 1);
-        }
+        List<Chapter> existingChapters = chapterRepository.findByCourseIdOrderByOrderIndexAsc(courseId);
+        chapter.setOrderIndex(existingChapters.size() + 1);
+        chapter.setCourse(courseRepository.getReferenceById(courseId));
         Chapter savedChapter = chapterRepository.save(chapter);
         return chapterMapper.toGetResponse(savedChapter);
     }

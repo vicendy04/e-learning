@@ -1,9 +1,13 @@
 package com.myproject.elearning.service;
 
+import static com.myproject.elearning.domain.Enrollment.EnrollmentStatus;
+
 import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.domain.Enrollment;
 import com.myproject.elearning.domain.User;
 import com.myproject.elearning.dto.common.PagedRes;
+import com.myproject.elearning.dto.request.enrollment.EnrollStatusUpdateReq;
+import com.myproject.elearning.dto.response.enrollment.EnrollmentEditRes;
 import com.myproject.elearning.dto.response.enrollment.EnrollmentGetRes;
 import com.myproject.elearning.dto.response.enrollment.EnrollmentRes;
 import com.myproject.elearning.exception.problemdetails.EmailAlreadyUsedException;
@@ -54,8 +58,9 @@ public class EnrollService {
         courseRepository.decrementEnrollmentCount(courseId);
     }
 
+    @Transactional(readOnly = true)
     public PagedRes<EnrollmentGetRes> getMyEnrollments(Pageable pageable, Long userId) {
-        Page<Enrollment> enrollments = enrollmentRepository.findAllByUserId(userId, pageable);
+        Page<Enrollment> enrollments = enrollmentRepository.getPagedEnrollmentsByUserId(userId, pageable);
         return PagedRes.from(enrollments.map(enrollmentMapper::toEnrollmentGetResponse));
     }
 
@@ -67,32 +72,25 @@ public class EnrollService {
         return enrollmentMapper.toEnrollmentGetResponse(enrollment);
     }
 
-    public PagedRes<EnrollmentGetRes> getCourseEnrollments(Long courseId, Pageable pageable) {
-        Page<Enrollment> enrollments = enrollmentRepository.findAllByCourseId(courseId, pageable);
-        return PagedRes.from(enrollments.map(enrollmentMapper::toEnrollmentGetResponse));
-    }
-
     @Transactional
-    public EnrollmentGetRes changeEnrollStatus(Long enrollmentId, String newStatus) {
-        Enrollment enrollment = enrollmentRepository
-                .findByIdWithDetails(enrollmentId)
-                .orElseThrow(() -> new InvalidIdException(enrollmentId));
-        Enrollment.EnrollmentStatus currentStatus = enrollment.getStatus();
-        Enrollment.EnrollmentStatus targetStatus = Enrollment.EnrollmentStatus.valueOf(newStatus);
-        validateStatusTransition(currentStatus, targetStatus);
-        enrollment.setStatus(targetStatus);
-        return enrollmentMapper.toEnrollmentGetResponse(enrollmentRepository.save(enrollment));
+    public EnrollmentEditRes changeEnrollStatus(Long enrollmentId, EnrollStatusUpdateReq input) {
+        Enrollment enrollment =
+                enrollmentRepository.findById(enrollmentId).orElseThrow(() -> new InvalidIdException(enrollmentId));
+        validateStatusTransition(enrollment, input);
+        enrollment.setStatus(input.getStatus());
+        enrollment.setReasonForDropping(input.getReasonForDropping());
+        return enrollmentMapper.toEnrollmentEditRes(enrollmentRepository.save(enrollment));
     }
 
-    private void validateStatusTransition(
-            Enrollment.EnrollmentStatus currentStatus, Enrollment.EnrollmentStatus newStatus) {
-        if (currentStatus == Enrollment.EnrollmentStatus.COMPLETED && newStatus == Enrollment.EnrollmentStatus.ACTIVE) {
+    private void validateStatusTransition(Enrollment enrollment, EnrollStatusUpdateReq input) {
+        EnrollmentStatus currentStatus = enrollment.getStatus();
+        EnrollmentStatus newStatus = input.getStatus();
+        if (currentStatus == EnrollmentStatus.COMPLETED && newStatus == EnrollmentStatus.ACTIVE) {
             throw new IllegalStateException("Cannot change status from COMPLETED to ACTIVE");
         }
 
-        if ((currentStatus == Enrollment.EnrollmentStatus.DROPPED)
-                && ((newStatus == Enrollment.EnrollmentStatus.ACTIVE)
-                        || (newStatus == Enrollment.EnrollmentStatus.COMPLETED))) {
+        if ((currentStatus == EnrollmentStatus.DROPPED)
+                && ((newStatus == EnrollmentStatus.ACTIVE) || (newStatus == EnrollmentStatus.COMPLETED))) {
             throw new IllegalStateException("Cannot change status from DROPPED to " + newStatus);
         }
     }
