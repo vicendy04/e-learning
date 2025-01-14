@@ -51,12 +51,7 @@ public class UserService {
         registerReq.setPassword(encryptedPassword);
         User user = userMapper.toEntity(registerReq);
         Set<Role> roles = new HashSet<>();
-        if (userRepository.count() == 0) {
-            roles.add(roleRepository.getReferenceById(1L));
-            roles.add(roleRepository.getReferenceById(3L));
-        } else {
-            roles.add(roleRepository.getReferenceById(2L));
-        }
+        roles.add(roleRepository.getReferenceById(2L));
         user.setRoles(roles);
         userRepository.save(user);
         return userMapper.toGetResponse(user);
@@ -81,7 +76,7 @@ public class UserService {
     public UserAuthDTO findAuthDTOByEmail(String email) {
         return userRepository
                 .findAuthDTOByEmail(email)
-                .orElseThrow(() -> new InvalidCredentialsException("Invalid username or password"));
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid email or user does not exist"));
     }
 
     public String findEmailById(Long id) {

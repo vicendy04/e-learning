@@ -10,7 +10,7 @@ public class InvalidCredentialsException extends ErrorResponseException {
     private static final HttpStatus HTTP_STATUS = HttpStatus.UNAUTHORIZED;
 
     public InvalidCredentialsException() {
-        super(HTTP_STATUS, problemDetailFrom("Invalid username or password"), null);
+        super(HTTP_STATUS, problemDetailFrom("Invalid email or user does not exist"), null);
     }
 
     public InvalidCredentialsException(String message) {

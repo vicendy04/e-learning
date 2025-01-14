@@ -58,4 +58,12 @@ public class LessonService {
         List<Lesson> lessons = lessonRepository.findAllByChapterId(chapterId);
         return lessons.stream().map(lessonMapper::toLessonListRes).collect(Collectors.toList());
     }
+
+    @Transactional
+    public void delLessonsByChapterId(Long chapterId) {
+        Chapter chapter =
+                chapterRepository.findWithLessonsById(chapterId).orElseThrow(() -> new InvalidIdException(chapterId));
+        chapter.getLessons().clear();
+        chapterRepository.save(chapter);
+    }
 }

@@ -12,7 +12,6 @@ import com.myproject.elearning.dto.response.review.ReviewUpdateRes;
 import com.myproject.elearning.dto.response.review.ReviewUserRes;
 import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
 import com.myproject.elearning.security.SecurityUtils;
-import com.myproject.elearning.service.AuthzService;
 import com.myproject.elearning.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -31,38 +30,35 @@ import org.springframework.web.bind.annotation.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ReviewController {
     ReviewService reviewService;
-    AuthzService authzService;
 
-    @PreAuthorize("isAuthenticated() and hasAnyRole('USER')")
-    @PostMapping("/courses/{courseId}/reviews")
     @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/courses/{courseId}/reviews")
+    @PreAuthorize("isAuthenticated() and hasAnyRole('USER')")
     public ApiRes<ReviewRes> addReview(@PathVariable Long courseId, @Valid @RequestBody ReviewCreateReq request) {
         Long userId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
         ReviewRes review = reviewService.addReview(userId, courseId, request);
         return successRes("Đánh giá đã được tạo thành công", review);
     }
 
-    @PreAuthorize("isAuthenticated() and hasAnyRole('USER', 'ADMIN')")
-    @PutMapping("/reviews/{reviewId}")
     @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/reviews/{reviewId}")
+    @PreAuthorize("isAuthenticated() and (hasRole('ADMIN') or @resourceAccessService.isReviewOwner(#reviewId))")
     public ApiRes<ReviewUpdateRes> editReview(
             @PathVariable Long reviewId, @Valid @RequestBody ReviewUpdateReq request) {
-        authzService.checkReviewAccess(reviewId);
         ReviewUpdateRes review = reviewService.editReview(reviewId, request);
         return successRes("Đánh giá đã được cập nhật thành công", review);
     }
 
-    @PreAuthorize("isAuthenticated() and hasAnyRole('USER', 'ADMIN')")
-    @DeleteMapping("/reviews/{reviewId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/reviews/{reviewId}")
+    @PreAuthorize("isAuthenticated() and (hasRole('ADMIN') or @resourceAccessService.isReviewOwner(#reviewId))")
     public ApiRes<Void> delReview(@PathVariable Long reviewId) {
-        authzService.checkReviewAccess(reviewId);
         reviewService.delReview(reviewId);
         return successRes("Đánh giá đã được xóa thành công", null);
     }
 
-    @GetMapping("/courses/{courseId}/reviews")
     @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/courses/{courseId}/reviews")
     public ApiRes<PagedRes<ReviewCourseRes>> getReviewsByCourse(
             @PathVariable Long courseId,
             @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
@@ -71,8 +67,8 @@ public class ReviewController {
     }
 
     //    should not be in use
-    @GetMapping("/users/{userId}/reviews")
     @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/users/{userId}/reviews")
     public ApiRes<PagedRes<ReviewUserRes>> getReviewsByUser(
             @PathVariable Long userId,
             @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
@@ -80,8 +76,8 @@ public class ReviewController {
         return successRes("Lấy danh sách đánh giá thành công", reviews);
     }
 
-    @GetMapping("/courses/{courseId}/rating")
     @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/courses/{courseId}/rating")
     public ApiRes<Double> getAverageRating(@PathVariable Long courseId) {
         Double avgRating = reviewService.getAverageRating(courseId);
         return successRes("Lấy điểm đánh giá trung bình thành công", avgRating);

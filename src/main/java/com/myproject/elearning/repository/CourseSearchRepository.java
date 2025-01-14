@@ -12,13 +12,12 @@ import com.myproject.elearning.dto.search.SearchCriteria;
 import com.myproject.elearning.mapper.CourseMapper;
 import com.myproject.elearning.mapper.CourseSearchMapper;
 import com.myproject.elearning.repository.specification.CourseQueryBuilder;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -53,9 +52,8 @@ public class CourseSearchRepository {
                 .map(courseMapper::toGetResponse)
                 .toList();
 
-        List<CourseDocument> documents = courses.stream()
-                .map(courseSearchMapper::toCourseDocument)
-                .toList();
+        List<CourseDocument> documents =
+                courses.stream().map(courseSearchMapper::toCourseDocument).toList();
 
         var task = courseIndex.addDocuments(objectMapper.writeValueAsString(documents), "id");
         System.out.println("TaskUID: " + task.getTaskUid());

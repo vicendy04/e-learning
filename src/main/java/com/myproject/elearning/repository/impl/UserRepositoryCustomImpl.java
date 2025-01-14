@@ -16,6 +16,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 
     @Override
     public Optional<UserAuthDTO> findAuthDTOByEmail(String email) {
+        // left join
         Query query = entityManager.createNativeQuery(
                 """
 				SELECT u.id as id,
@@ -23,8 +24,8 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 					u.password as password,
 					GROUP_CONCAT(r.name) as roles
 				FROM users u
-				JOIN users_roles ur ON u.id = ur.user_id
-				JOIN roles r ON r.id = ur.role_id
+				LEFT JOIN users_roles ur ON u.id = ur.user_id
+				LEFT JOIN roles r ON r.id = ur.role_id
 				WHERE u.email = ?
 				GROUP BY u.id, u.email, u.password
 				""",

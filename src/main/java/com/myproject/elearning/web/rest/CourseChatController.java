@@ -33,9 +33,9 @@ public class CourseChatController {
      * Tạo group chat trong database
      * Dang ky Redis listener cho group chat mới
      */
-    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
-    @PostMapping("/room")
     @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/room")
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ApiRes<GroupChatRes> createChatRoom(@Valid @RequestBody GroupChatCreateReq request) {
         GroupChatRes groupChat = groupChatService.createGroupChat(request);
         String channelName = "chat:" + groupChat.getId();

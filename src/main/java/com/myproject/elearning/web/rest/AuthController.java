@@ -47,10 +47,10 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiRes<String>> authorize(@Valid @RequestBody LoginReq loginReq) {
-        UserAuthDTO userAuthDTO = redisAuthService.getCachedUser(loginReq.getUsernameOrEmail());
+        UserAuthDTO userAuthDTO = redisAuthService.getCachedUser(loginReq.getEmail());
         if (userAuthDTO == null) {
-            userAuthDTO = userService.findAuthDTOByEmail(loginReq.getUsernameOrEmail());
-            redisAuthService.setCachedUser(loginReq.getUsernameOrEmail(), userAuthDTO);
+            userAuthDTO = userService.findAuthDTOByEmail(loginReq.getEmail());
+            redisAuthService.setCachedUser(loginReq.getEmail(), userAuthDTO);
         }
         Authentication authentication = authService.authenticate(loginReq, userAuthDTO);
         TokenPair authenticationResponse = authService.generateTokenPair(authentication);
@@ -61,8 +61,8 @@ public class AuthController {
                 .body(response);
     }
 
-    @PreAuthorize("isAuthenticated()")
     @PostMapping("/change-password")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiRes<Void>> changePassword(@RequestBody @Valid ChangePasswordReq request) {
         authService.changePassword(request);
         ApiRes<Void> response = successRes("Change password successfully", null);

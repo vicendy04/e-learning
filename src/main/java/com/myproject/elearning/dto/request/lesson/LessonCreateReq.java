@@ -20,8 +20,5 @@ public class LessonCreateReq {
     @NotNull(message = "Loại bài học không được để trống")
     LessonType contentType;
 
-    @NotNull(message = "Nhập id course vào")
-    Long courseId;
-
     Boolean isFreePreview = false;
 }

@@ -56,9 +56,7 @@ public class GlobalExceptionHandler {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
         problemDetail.setTitle("Access Denied");
         problemDetail.setDetail(ex.getMessage());
-
         ApiRes<ProblemDetail> response = errorRes("Access denied to this resource", problemDetail);
-
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 

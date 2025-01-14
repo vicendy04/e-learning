@@ -5,9 +5,7 @@ import static com.myproject.elearning.web.rest.utils.ResponseUtils.successRes;
 import com.myproject.elearning.dto.common.ApiRes;
 import com.myproject.elearning.dto.common.PagedRes;
 import com.myproject.elearning.dto.request.chapter.ChapterCreateReq;
-import com.myproject.elearning.dto.request.chapter.ChapterUpdateReq;
 import com.myproject.elearning.dto.response.chapter.ChapterGetRes;
-import com.myproject.elearning.service.AuthzService;
 import com.myproject.elearning.service.ChapterService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -26,10 +24,9 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class CourseChapterController {
     ChapterService chapterService;
-    AuthzService authzService;
 
-    @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
+    @GetMapping("")
     public ApiRes<PagedRes<ChapterGetRes>> getChaptersByCourseId(
             @PathVariable Long courseId,
             @PageableDefault(size = 5, page = 0, sort = "title", direction = Sort.Direction.ASC) Pageable pageable) {
@@ -37,40 +34,19 @@ public class CourseChapterController {
         return successRes("Contents retrieved successfully", chapters);
     }
 
-    @PreAuthorize("isAuthenticated() and hasAnyRole('INSTRUCTOR', 'ADMIN')")
-    @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("")
+    @PreAuthorize("isAuthenticated() and (hasRole('ADMIN') or @resourceAccessService.isCourseOwner(#courseId))")
     public ApiRes<ChapterGetRes> addChapterToCourse(
             @PathVariable Long courseId, @Valid @RequestBody ChapterCreateReq request) {
-        authzService.checkCourseAccess(courseId);
         ChapterGetRes chapter = chapterService.addChapter(courseId, request);
         return successRes("Chapter added successfully", chapter);
     }
 
-    @PreAuthorize("isAuthenticated() and hasAnyRole('INSTRUCTOR', 'ADMIN')")
-    @PutMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public ApiRes<ChapterGetRes> editChapter(
-            @PathVariable Long courseId, @PathVariable Long id, @Valid @RequestBody ChapterUpdateReq request) {
-        authzService.checkCourseAccess(courseId);
-        ChapterGetRes chapter = chapterService.editChapter(id, request);
-        return successRes("Chapter updated successfully", chapter);
-    }
-
-    @PreAuthorize("isAuthenticated() and hasAnyRole('INSTRUCTOR', 'ADMIN')")
-    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ApiRes<Void> deleteChapter(@PathVariable Long courseId, @PathVariable Long id) {
-        authzService.checkCourseAccess(courseId);
-        chapterService.deleteChapter(id);
-        return successRes("Chapter deleted successfully", null);
-    }
-
-    @PreAuthorize("isAuthenticated() and hasAnyRole('INSTRUCTOR', 'ADMIN')")
     @DeleteMapping("")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("isAuthenticated() and (hasRole('ADMIN') or @resourceAccessService.isCourseOwner(#courseId))")
     public ApiRes<Void> delChaptersOfCourse(@PathVariable Long courseId) {
-        authzService.checkCourseAccess(courseId);
         chapterService.delChaptersByCourseId(courseId);
         return successRes("Chapters deleted successfully", null);
     }
