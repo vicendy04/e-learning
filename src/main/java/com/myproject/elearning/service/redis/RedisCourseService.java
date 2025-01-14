@@ -1,45 +1,34 @@
 package com.myproject.elearning.service.redis;
 
-import static com.myproject.elearning.constant.RedisKeyConstants.*;
+import static com.myproject.elearning.constant.RedisKeyConstants.COURSE_PREFIX;
+import static com.myproject.elearning.constant.RedisKeyConstants.getCourseKey;
 
 import com.myproject.elearning.dto.response.course.CourseGetRes;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
+@RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
 public class RedisCourseService {
-    static final long DEFAULT_CACHE_DURATION = 3600;
-    static final long MAX_RANDOM_EXPIRY = 600;
+    static final long DEFAULT_CACHE_DURATION = 3600; // 60 min
+    static final long MAX_RANDOM_EXPIRY = 300; // 5 min
 
     RedisTemplate<String, Object> redisTemplate;
     ValueOperations<String, Object> valueOps;
     Random random;
 
-    public RedisCourseService(RedisTemplate<String, Object> redisTemplate, ValueOperations<String, Object> valueOps) {
-        this.redisTemplate = redisTemplate;
-        this.valueOps = valueOps;
-        this.random = new Random();
-    }
-
     public CourseGetRes getCachedCourse(Long id) {
         Object obj = valueOps.get(getCourseKey(id));
         if (obj != null) {
             return (CourseGetRes) obj;
-        }
-        return null;
-    }
-
-    public Integer getCachedEnrollmentCount(Long id) {
-        Object obj = valueOps.get(getEnrollmentCountKey(id));
-        if (obj != null) {
-            return (Integer) obj;
         }
         return null;
     }
@@ -53,17 +42,8 @@ public class RedisCourseService {
         valueOps.set(getCourseKey(id), course, randomExpiry, TimeUnit.SECONDS);
     }
 
-    public void setCachedEnrollmentCount(Long id, Integer count) {
-        long randomExpiry = DEFAULT_CACHE_DURATION + random.nextInt((int) MAX_RANDOM_EXPIRY);
-        valueOps.set(getEnrollmentCountKey(id), count, randomExpiry, TimeUnit.SECONDS);
-    }
-
-    public void invalidateCache(Long id) {
-        redisTemplate.delete(getCourseKey(id));
-    }
-
     public void invalidateAllCourseCache() {
-        Set<String> keys = redisTemplate.keys(COURSE_CACHE_KEY + "*");
+        Set<String> keys = redisTemplate.keys(COURSE_PREFIX + "*");
         if (keys != null && !keys.isEmpty()) {
             redisTemplate.delete(keys);
         }
@@ -84,13 +64,7 @@ public class RedisCourseService {
         return redisTemplate.hasKey(getCourseKey(id));
     }
 
-    public void incrementEnrollmentCount(Long courseId) {
-        String key = getEnrollmentCountKey(courseId);
-        valueOps.increment(key);
-    }
-
-    public void decrementEnrollmentCount(Long courseId) {
-        String key = getEnrollmentCountKey(courseId);
-        valueOps.decrement(key);
+    public void invalidateCourseCache(Long id) {
+        redisTemplate.delete(getCourseKey(id));
     }
 }

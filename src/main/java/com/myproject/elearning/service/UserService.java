@@ -51,7 +51,11 @@ public class UserService {
         registerReq.setPassword(encryptedPassword);
         User user = userMapper.toEntity(registerReq);
         Set<Role> roles = new HashSet<>();
-        roles.add(roleRepository.getReferenceById(2L));
+        if (registerReq.isInstructor()) {
+            roles.add(roleRepository.getReferenceById(3L));
+        } else {
+            roles.add(roleRepository.getReferenceById(2L));
+        }
         user.setRoles(roles);
         userRepository.save(user);
         return userMapper.toGetResponse(user);

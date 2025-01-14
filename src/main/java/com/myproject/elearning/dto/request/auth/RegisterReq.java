@@ -23,4 +23,7 @@ public class RegisterReq {
     @NotBlank
     @Size(min = 4)
     String password;
+
+    @NotBlank
+    boolean isInstructor;
 }

@@ -44,6 +44,7 @@ public class CourseController {
     public ApiRes<CourseGetRes> addCourse(@Valid @RequestBody CourseCreateReq courseCreateReq) {
         Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
         CourseGetRes courseResponse = courseService.addCourse(curUserId, courseCreateReq);
+        redisCourseService.setCachedCourse(courseResponse.getId(), courseResponse);
         courseSearchService.indexCourse(courseResponse);
         return successRes("Course created successfully", courseResponse);
     }
@@ -59,6 +60,7 @@ public class CourseController {
         return successRes("Course retrieved successfully", courseGetRes);
     }
 
+    // note
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("")
     public ApiRes<PagedRes<CourseListRes>> getCourses(
@@ -74,6 +76,7 @@ public class CourseController {
     public ApiRes<CourseUpdateRes> editCourse(
             @PathVariable(name = "id") Long id, @RequestBody CourseUpdateReq courseUpdateReq) {
         CourseUpdateRes updatedCourse = courseService.editCourse(id, courseUpdateReq);
+        redisCourseService.invalidateCourseCache(id);
         return successRes("Course updated successfully", updatedCourse);
     }
 
@@ -82,10 +85,11 @@ public class CourseController {
     @PreAuthorize("isAuthenticated() and (hasRole('ADMIN') or @resourceAccessService.isCourseOwner(#id))")
     public ApiRes<Void> delCourse(@PathVariable(name = "id") Long id) {
         courseService.delCourse(id);
-        //        courseCacheService.invalidateCache(id); // note
+        redisCourseService.invalidateCourseCache(id);
         return successRes("Course deleted successfully", null);
     }
 
+    // note
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/my-courses")
     @PreAuthorize("isAuthenticated() and hasAnyRole('INSTRUCTOR', 'ADMIN')")
@@ -96,6 +100,7 @@ public class CourseController {
         return successRes("Lấy danh sách khóa học thành công", courses);
     }
 
+    // note
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/enrolled")
     @PreAuthorize("isAuthenticated()")
