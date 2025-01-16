@@ -16,9 +16,9 @@ public interface EnrollmentMapper {
 
     CourseInfo toCourseInfo(Course entity);
 
-    EnrollmentRes toEnrollmentResponse(Enrollment entity);
+    EnrollmentRes toRes(Enrollment entity);
 
-    EnrollmentGetRes toEnrollmentGetResponse(Enrollment entity);
+    EnrollmentGetRes toGetRes(Enrollment entity);
 
-    EnrollmentEditRes toEnrollmentEditRes(Enrollment entity);
+    EnrollmentEditRes toEditRes(Enrollment entity);
 }

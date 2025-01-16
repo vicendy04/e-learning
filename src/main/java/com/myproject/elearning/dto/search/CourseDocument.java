@@ -19,7 +19,8 @@ public class CourseDocument {
     String thumbnailUrl;
 
     //    Integer enrolledCount;
-    //    Integer totalReviews;
+    //    Integer reviewCount;
+
     //    Integer totalLessons;
 
     String instructorId;

@@ -10,5 +10,5 @@ import org.mapstruct.Mapper;
 public interface GroupChatMapper {
     GroupChat toEntity(GroupChatCreateReq request);
 
-    GroupChatRes toResponse(GroupChat entity);
+    GroupChatRes toRes(GroupChat entity);
 }

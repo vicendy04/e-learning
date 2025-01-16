@@ -1,8 +1,8 @@
 package com.myproject.elearning.repository;
 
-import com.myproject.elearning.dto.projection.UserAuthDTO;
+import com.myproject.elearning.dto.projection.UserAuth;
 import java.util.Optional;
 
 public interface UserRepositoryCustom {
-    Optional<UserAuthDTO> findAuthDTOByEmail(String email);
+    Optional<UserAuth> findAuthDTOByEmail(String email);
 }

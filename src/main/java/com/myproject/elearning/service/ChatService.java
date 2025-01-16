@@ -1,6 +1,6 @@
 package com.myproject.elearning.service;
 
-import com.myproject.elearning.constant.AuthoritiesConstants;
+import com.myproject.elearning.constant.AuthConstants;
 import java.security.Principal;
 import java.util.Collection;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class ChatService {
 
         // Kiểm tra nếu user là ADMIN
         boolean isAdmin =
-                authorities.stream().map(GrantedAuthority::getAuthority).anyMatch(AuthoritiesConstants.ADMIN::equals);
+                authorities.stream().map(GrantedAuthority::getAuthority).anyMatch(AuthConstants.ADMIN::equals);
 
         if (isAdmin) {
             return true;
@@ -34,7 +34,7 @@ public class ChatService {
         // Kiểm tra nếu user là USER hoặc INSTRUCTOR
         return authorities.stream()
                 .map(GrantedAuthority::getAuthority)
-                .anyMatch(authority -> AuthoritiesConstants.USER.equals(authority)
-                        || AuthoritiesConstants.INSTRUCTOR.equals(authority));
+                .anyMatch(authority ->
+                        AuthConstants.USER.equals(authority) || AuthConstants.INSTRUCTOR.equals(authority));
     }
 }

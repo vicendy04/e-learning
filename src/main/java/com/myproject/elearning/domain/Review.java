@@ -24,7 +24,7 @@ public class Review {
     @Column(length = 1000)
     String comment;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     LocalDateTime createdAt;
 
     @Column(name = "updated_at")

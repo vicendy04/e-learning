@@ -10,8 +10,8 @@ import com.myproject.elearning.dto.request.enrollment.EnrollStatusUpdateReq;
 import com.myproject.elearning.dto.response.enrollment.EnrollmentEditRes;
 import com.myproject.elearning.dto.response.enrollment.EnrollmentGetRes;
 import com.myproject.elearning.dto.response.enrollment.EnrollmentRes;
-import com.myproject.elearning.exception.problemdetails.EmailAlreadyUsedException;
-import com.myproject.elearning.exception.problemdetails.InvalidIdException;
+import com.myproject.elearning.exception.problemdetails.EmailUsedEx;
+import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
 import com.myproject.elearning.mapper.EnrollmentMapper;
 import com.myproject.elearning.repository.CourseRepository;
 import com.myproject.elearning.repository.EnrollmentRepository;
@@ -36,23 +36,23 @@ public class EnrollService {
     @Transactional
     public EnrollmentRes enrollCourse(Long courseId, Long userId) {
         if (enrollmentRepository.existsByUserIdAndCourseId(userId, courseId)) {
-            throw new EmailAlreadyUsedException("Bạn đã đăng ký khóa học này rồi");
+            throw new EmailUsedEx("Bạn đã đăng ký khóa học này rồi");
         }
-        User userRef = userRepository.getReferenceIfExists(userId);
-        Course courseRef = courseRepository.getReferenceIfExists(courseId);
+        User userRef = userRepository.getReferenceById(userId);
+        Course courseRef = courseRepository.getReferenceById(courseId);
         Enrollment enrollment = new Enrollment();
         enrollment.setUser(userRef);
         enrollment.setCourse(courseRef);
-        Enrollment save = enrollmentRepository.save(enrollment);
         // đảm bảo tính atomic nhưng có thể gây ra bottleneck khi có nhiều concurrent requests
         courseRepository.incrementEnrollmentCount(courseId);
-        return enrollmentMapper.toEnrollmentResponse(save);
+        Enrollment save = enrollmentRepository.save(enrollment);
+        return enrollmentMapper.toRes(save);
     }
 
     @Transactional
     public void unrollCourse(Long courseId, Long userId) {
         if (!enrollmentRepository.existsByUserIdAndCourseId(userId, courseId)) {
-            throw new InvalidIdException("Không tìm thấy đăng ký khóa học");
+            throw new InvalidIdEx("Không tìm thấy đăng ký khóa học");
         }
         enrollmentRepository.deleteByUserIdAndCourseId(userId, courseId);
         courseRepository.decrementEnrollmentCount(courseId);
@@ -61,25 +61,24 @@ public class EnrollService {
     @Transactional(readOnly = true)
     public PagedRes<EnrollmentGetRes> getMyEnrollments(Pageable pageable, Long userId) {
         Page<Enrollment> enrollments = enrollmentRepository.getPagedEnrollmentsByUserId(userId, pageable);
-        return PagedRes.from(enrollments.map(enrollmentMapper::toEnrollmentGetResponse));
+        return PagedRes.from(enrollments.map(enrollmentMapper::toGetRes));
     }
 
     @Transactional(readOnly = true)
     public EnrollmentGetRes getEnrollment(Long enrollmentId) {
-        Enrollment enrollment = enrollmentRepository
-                .findByIdWithDetails(enrollmentId)
-                .orElseThrow(() -> new InvalidIdException(enrollmentId));
-        return enrollmentMapper.toEnrollmentGetResponse(enrollment);
+        Enrollment enrollment =
+                enrollmentRepository.findByIdWithDetails(enrollmentId).orElseThrow(() -> new InvalidIdEx(enrollmentId));
+        return enrollmentMapper.toGetRes(enrollment);
     }
 
     @Transactional
     public EnrollmentEditRes changeEnrollStatus(Long enrollmentId, EnrollStatusUpdateReq input) {
         Enrollment enrollment =
-                enrollmentRepository.findById(enrollmentId).orElseThrow(() -> new InvalidIdException(enrollmentId));
+                enrollmentRepository.findById(enrollmentId).orElseThrow(() -> new InvalidIdEx(enrollmentId));
         validateStatusTransition(enrollment, input);
         enrollment.setStatus(input.getStatus());
         enrollment.setReasonForDropping(input.getReasonForDropping());
-        return enrollmentMapper.toEnrollmentEditRes(enrollmentRepository.save(enrollment));
+        return enrollmentMapper.toEditRes(enrollmentRepository.save(enrollment));
     }
 
     private void validateStatusTransition(Enrollment enrollment, EnrollStatusUpdateReq input) {

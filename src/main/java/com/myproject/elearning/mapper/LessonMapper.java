@@ -14,9 +14,9 @@ public interface LessonMapper {
     Lesson toEntity(LessonCreateReq request);
 
     @Mapping(target = "chapterId", source = "chapter.id")
-    LessonGetRes toGetResponse(Lesson entity);
+    LessonGetRes toGetRes(Lesson entity);
 
-    LessonListRes toLessonListRes(Lesson entity);
+    LessonListRes toListRes(Lesson entity);
 
     @Named("partialUpdate")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

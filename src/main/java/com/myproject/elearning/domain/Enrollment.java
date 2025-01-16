@@ -28,7 +28,7 @@ public class Enrollment {
     @JsonIgnoreProperties({"enrollments", "contents"})
     Course course;
 
-    @Column(name = "enrolled_at")
+    @Column(name = "enrolled_at", updatable = false)
     Instant enrolledAt;
 
     @Column(name = "status")

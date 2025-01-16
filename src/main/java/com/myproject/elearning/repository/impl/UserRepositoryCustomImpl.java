@@ -1,6 +1,6 @@
 package com.myproject.elearning.repository.impl;
 
-import com.myproject.elearning.dto.projection.UserAuthDTO;
+import com.myproject.elearning.dto.projection.UserAuth;
 import com.myproject.elearning.repository.UserRepositoryCustom;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -15,7 +15,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
     private EntityManager entityManager;
 
     @Override
-    public Optional<UserAuthDTO> findAuthDTOByEmail(String email) {
+    public Optional<UserAuth> findAuthDTOByEmail(String email) {
         // left join
         Query query = entityManager.createNativeQuery(
                 """
@@ -29,11 +29,11 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				WHERE u.email = ?
 				GROUP BY u.id, u.email, u.password
 				""",
-                UserAuthDTO.class);
+                UserAuth.class);
 
         query.setParameter(1, email);
         try {
-            UserAuthDTO result = (UserAuthDTO) query.getSingleResult();
+            UserAuth result = (UserAuth) query.getSingleResult();
             return Optional.ofNullable(result);
         } catch (NoResultException e) {
             return Optional.empty();

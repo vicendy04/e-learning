@@ -24,10 +24,23 @@ services:
       - app_network
     restart: unless-stopped
 
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: redisinsight
+    ports:
+      - "5540:5540"
+    volumes:
+      - redisinsight_data:/data
+    networks:
+      - app_network
+    restart: unless-stopped
+
 volumes:
   redis_data:
     driver: local
   meilisearch_data:
+    driver: local
+  redisinsight_data:
     driver: local
 
 networks:

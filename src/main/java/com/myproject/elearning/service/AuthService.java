@@ -5,12 +5,12 @@ import static com.myproject.elearning.security.SecurityUtils.CLAIM_KEY_AUTHORITI
 import com.myproject.elearning.constant.ErrorMessageConstants;
 import com.myproject.elearning.domain.User;
 import com.myproject.elearning.dto.common.TokenPair;
-import com.myproject.elearning.dto.projection.UserAuthDTO;
+import com.myproject.elearning.dto.projection.UserAuth;
 import com.myproject.elearning.dto.request.auth.ChangePasswordReq;
 import com.myproject.elearning.dto.request.auth.LoginReq;
-import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
-import com.myproject.elearning.exception.problemdetails.InvalidCredentialsException;
-import com.myproject.elearning.exception.problemdetails.InvalidIdException;
+import com.myproject.elearning.exception.problemdetails.AnonymousUserEx;
+import com.myproject.elearning.exception.problemdetails.InvalidCredentialsEx;
+import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
 import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.security.JwtTokenUtils;
 import com.myproject.elearning.security.SecurityUtils;
@@ -53,10 +53,10 @@ public class AuthService {
     UserService userService;
     PasswordEncoder passwordEncoder;
 
-    public Authentication authenticate(LoginReq loginReq, UserAuthDTO authDTO) {
+    public Authentication authenticate(LoginReq loginReq, UserAuth authDTO) {
         // Verify password
         if (!passwordEncoder.matches(loginReq.getPassword(), authDTO.getPassword())) {
-            throw new InvalidCredentialsException("Invalid username or password");
+            throw new InvalidCredentialsEx("Invalid username or password");
         }
         return SecurityUtils.setAuthContext(authDTO);
     }
@@ -73,15 +73,15 @@ public class AuthService {
 
     @Transactional
     public void changePassword(ChangePasswordReq request) {
-        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
-        User user = userRepository.findById(curUserId).orElseThrow(() -> new InvalidIdException(curUserId));
+        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
+        User user = userRepository.findById(curUserId).orElseThrow(() -> new InvalidIdEx(curUserId));
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword()))
-            throw new InvalidIdException(ErrorMessageConstants.CURRENT_PASSWORD_INVALID);
+            throw new InvalidIdEx(ErrorMessageConstants.CURRENT_PASSWORD_INVALID);
         if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
-            throw new InvalidIdException(ErrorMessageConstants.PASSWORD_EXISTED);
+            throw new InvalidIdEx(ErrorMessageConstants.PASSWORD_EXISTED);
         }
         if (!Objects.equals(request.getNewPassword(), request.getConfirmPassword()))
-            throw new InvalidIdException(ErrorMessageConstants.CONFIRM_PASSWORD_INVALID);
+            throw new InvalidIdEx(ErrorMessageConstants.CONFIRM_PASSWORD_INVALID);
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
     }
 

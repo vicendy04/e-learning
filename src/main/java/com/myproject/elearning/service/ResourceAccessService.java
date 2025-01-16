@@ -1,8 +1,8 @@
 package com.myproject.elearning.service;
 
 import com.myproject.elearning.constant.ResourceType;
-import com.myproject.elearning.exception.problemdetails.AnonymousUserException;
-import com.myproject.elearning.exception.problemdetails.InvalidIdException;
+import com.myproject.elearning.exception.problemdetails.AnonymousUserEx;
+import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
 import com.myproject.elearning.repository.*;
 import com.myproject.elearning.security.SecurityUtils;
 import com.myproject.elearning.service.redis.RedisResourceAccessService;
@@ -26,7 +26,7 @@ public class ResourceAccessService {
     RedisResourceAccessService redisResourceAccess;
 
     private Long getCurrentUserId() {
-        return SecurityUtils.getLoginId().orElseThrow(AnonymousUserException::new);
+        return SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
     }
 
     private boolean isOwner(Long owner) {
@@ -44,7 +44,7 @@ public class ResourceAccessService {
         boolean isOwner = courseRepository
                 .findInstructorIdByCourseId(courseId)
                 .map(ownerId -> Objects.equals(userId, ownerId)) // if present
-                .orElseGet(() -> false); // if empty
+                .orElse(false); // if empty
         // cache
         redisResourceAccess.setCachedOwnership(ResourceType.COURSE, courseId, userId, isOwner);
         return isOwner;
@@ -59,7 +59,7 @@ public class ResourceAccessService {
         boolean isOwner = chapterRepository
                 .findInstructorIdByChapterId(chapterId)
                 .map(ownerId -> Objects.equals(userId, ownerId))
-                .orElseGet(() -> false);
+                .orElse(false);
         redisResourceAccess.setCachedOwnership(ResourceType.CHAPTER, chapterId, userId, isOwner);
         return isOwner;
     }
@@ -73,7 +73,7 @@ public class ResourceAccessService {
         boolean isOwner = lessonRepository
                 .findInstructorIdByChapterId(lessonId)
                 .map(ownerId -> Objects.equals(userId, ownerId))
-                .orElseGet(() -> false);
+                .orElse(false);
         redisResourceAccess.setCachedOwnership(ResourceType.LESSON, lessonId, userId, isOwner);
         return isOwner;
     }
@@ -81,25 +81,24 @@ public class ResourceAccessService {
     public boolean isEnrollmentOwner(Long enrollmentId) {
         Long owner = enrollmentRepository
                 .findUserIdByEnrollmentId(enrollmentId)
-                .orElseThrow(() -> new InvalidIdException(enrollmentId));
+                .orElseThrow(() -> new InvalidIdEx(enrollmentId));
         return isOwner(owner);
     }
 
     public boolean isDiscountOwner(Long disCountId) {
         Long owner = discountRepository
                 .findInstructorIdByCourseId(disCountId)
-                .orElseThrow(() -> new InvalidIdException(disCountId));
+                .orElseThrow(() -> new InvalidIdEx(disCountId));
         return isOwner(owner);
     }
 
     public boolean isPostOwner(Long postId) {
-        Long owner = postRepository.findUserIdByPostId(postId).orElseThrow(() -> new InvalidIdException(postId));
+        Long owner = postRepository.findUserIdByPostId(postId).orElseThrow(() -> new InvalidIdEx(postId));
         return isOwner(owner);
     }
 
     public boolean isReviewOwner(Long reviewId) {
-        Long owner =
-                reviewRepository.findUserIdByReviewId(reviewId).orElseThrow(() -> new InvalidIdException(reviewId));
+        Long owner = reviewRepository.findUserIdByReviewId(reviewId).orElseThrow(() -> new InvalidIdEx(reviewId));
         return isOwner(owner);
     }
 

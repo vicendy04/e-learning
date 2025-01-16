@@ -4,8 +4,8 @@ import com.myproject.elearning.domain.Discount;
 import com.myproject.elearning.dto.common.PagedRes;
 import com.myproject.elearning.dto.request.discount.DiscountCreateReq;
 import com.myproject.elearning.dto.response.discount.DiscountGetRes;
-import com.myproject.elearning.exception.problemdetails.InvalidDiscountException;
-import com.myproject.elearning.exception.problemdetails.InvalidIdException;
+import com.myproject.elearning.exception.problemdetails.InvalidDiscountEx;
+import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
 import com.myproject.elearning.mapper.DiscountMapper;
 import com.myproject.elearning.repository.CourseRepository;
 import com.myproject.elearning.repository.CourseRepository.CourseForValidDiscount;
@@ -31,14 +31,14 @@ public class DiscountService {
     @Transactional
     public String addDiscount(DiscountCreateReq request, Long instructorId) {
         if (discountRepository.existsByInstructorIdAndDiscountCode(instructorId, request.getDiscountCode())) {
-            throw new InvalidDiscountException("Mã giảm giá đã tồn tại");
+            throw new InvalidDiscountEx("Mã giảm giá đã tồn tại");
         }
 
         if (request.getAppliesTo() == Discount.DiscountAppliesTo.SPECIFIC) {
             Set<Long> instructorCourseIds = courseRepository.findCourseIdsByInstructorId(instructorId);
 
             if (!instructorCourseIds.containsAll(request.getSpecificCourseIds())) {
-                throw new InvalidDiscountException("Một số khóa học không thuộc về bạn");
+                throw new InvalidDiscountEx("Một số khóa học không thuộc về bạn");
             }
         }
 
@@ -49,7 +49,7 @@ public class DiscountService {
 
     public PagedRes<DiscountGetRes> getDiscountsForInstructor(Pageable pageable, Long instructorId) {
         Page<DiscountGetRes> discounts =
-                discountRepository.findAllByInstructorId(pageable, instructorId).map(discountMapper::toGetResponse);
+                discountRepository.findAllByInstructorId(pageable, instructorId).map(discountMapper::toGetRes);
         return PagedRes.from(discounts);
     }
 
@@ -75,9 +75,9 @@ public class DiscountService {
     public boolean validateDiscountForCourse(String discountCode, Long courseId) {
         Discount discount = discountRepository
                 .findByDiscountCode(discountCode)
-                .orElseThrow(() -> new InvalidDiscountException("Mã giảm giá không tồn tại"));
+                .orElseThrow(() -> new InvalidDiscountEx("Mã giảm giá không tồn tại"));
         CourseForValidDiscount course =
-                courseRepository.findCourseWithInstructor(courseId).orElseThrow(() -> new InvalidIdException(courseId));
+                courseRepository.findCourseWithInstructor(courseId).orElseThrow(() -> new InvalidIdEx(courseId));
         return isApplicableToCourse(discount, course);
     }
 

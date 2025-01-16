@@ -2,7 +2,7 @@ package com.myproject.elearning.config;
 
 import static com.myproject.elearning.security.SecurityUtils.JWT_ALGORITHM;
 
-import com.myproject.elearning.exception.problemdetails.TokenException;
+import com.myproject.elearning.exception.problemdetails.TokenEx;
 import com.myproject.elearning.service.TokenService;
 import com.myproject.elearning.service.redis.RedisTokenService;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
@@ -47,7 +47,7 @@ public class SecurityJwtConfig {
                 .build();
         return new JwtDecoder() {
             @Override
-            public Jwt decode(String token) throws TokenException {
+            public Jwt decode(String token) throws TokenEx {
                 Jwt jwt = jwtDecoder.decode(token);
                 String jti = jwt.getId();
                 Instant expiresAt = jwt.getExpiresAt();

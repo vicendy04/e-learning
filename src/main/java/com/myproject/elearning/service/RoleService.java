@@ -5,7 +5,7 @@ import com.myproject.elearning.domain.Role;
 import com.myproject.elearning.dto.common.PagedRes;
 import com.myproject.elearning.dto.request.role.CreateRoleReq;
 import com.myproject.elearning.dto.response.role.RoleDTO;
-import com.myproject.elearning.exception.problemdetails.InvalidIdException;
+import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
 import com.myproject.elearning.mapper.RoleMapper;
 import com.myproject.elearning.repository.RoleRepository;
 import lombok.AccessLevel;
@@ -35,14 +35,14 @@ public class RoleService {
     public RoleDTO getRole(Long id) {
         Role role = roleRepository
                 .findById(id)
-                .orElseThrow(() -> new InvalidIdException(ErrorMessageConstants.ROLE_NOT_FOUND + id));
+                .orElseThrow(() -> new InvalidIdEx(ErrorMessageConstants.ROLE_NOT_FOUND + id));
         return roleMapper.toDto(role);
     }
 
     public RoleDTO editRole(RoleDTO roleDTO) {
         Role role = roleRepository
                 .findById(roleDTO.getId())
-                .orElseThrow(() -> new InvalidIdException(ErrorMessageConstants.ROLE_NOT_FOUND + roleDTO.getId()));
+                .orElseThrow(() -> new InvalidIdEx(ErrorMessageConstants.ROLE_NOT_FOUND + roleDTO.getId()));
         role.setName(roleDTO.getName());
         Role savedRole = roleRepository.save(role);
         return roleMapper.toDto(savedRole);

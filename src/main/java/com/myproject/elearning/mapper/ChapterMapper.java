@@ -14,7 +14,7 @@ public interface ChapterMapper {
     Chapter toEntity(ChapterUpdateReq request);
 
     @Mapping(target = "courseId", source = "course.id")
-    ChapterGetRes toGetResponse(Chapter entity);
+    ChapterGetRes toGetRes(Chapter entity);
 
     @Named("partialUpdate")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

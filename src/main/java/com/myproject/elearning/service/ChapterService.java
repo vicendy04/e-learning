@@ -6,7 +6,7 @@ import com.myproject.elearning.dto.common.PagedRes;
 import com.myproject.elearning.dto.request.chapter.ChapterCreateReq;
 import com.myproject.elearning.dto.request.chapter.ChapterUpdateReq;
 import com.myproject.elearning.dto.response.chapter.ChapterGetRes;
-import com.myproject.elearning.exception.problemdetails.InvalidIdException;
+import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
 import com.myproject.elearning.mapper.ChapterMapper;
 import com.myproject.elearning.repository.ChapterRepository;
 import com.myproject.elearning.repository.CourseRepository;
@@ -34,25 +34,25 @@ public class ChapterService {
         chapter.setOrderIndex(existingChapters.size() + 1);
         chapter.setCourse(courseRepository.getReferenceById(courseId));
         Chapter savedChapter = chapterRepository.save(chapter);
-        return chapterMapper.toGetResponse(savedChapter);
+        return chapterMapper.toGetRes(savedChapter);
     }
 
     public ChapterGetRes getChapter(Long id) {
-        Chapter chapter = chapterRepository.findById(id).orElseThrow(() -> new InvalidIdException("Chapter not found"));
-        return chapterMapper.toGetResponse(chapter);
+        Chapter chapter = chapterRepository.findById(id).orElseThrow(() -> new InvalidIdEx("Chapter not found"));
+        return chapterMapper.toGetRes(chapter);
     }
 
     public PagedRes<ChapterGetRes> getChaptersByCourseId(Long courseId, Pageable pageable) {
         Page<Chapter> contents = chapterRepository.findByCourseIdWithCourse(courseId, pageable);
-        return PagedRes.from(contents.map(chapterMapper::toGetResponse));
+        return PagedRes.from(contents.map(chapterMapper::toGetRes));
     }
 
     @Transactional
     public ChapterGetRes editChapter(Long id, ChapterUpdateReq request) {
-        Chapter chapter = chapterRepository.findById(id).orElseThrow(() -> new InvalidIdException("Chapter not found"));
+        Chapter chapter = chapterRepository.findById(id).orElseThrow(() -> new InvalidIdEx("Chapter not found"));
         chapterMapper.partialUpdate(chapter, request);
         Chapter updatedChapter = chapterRepository.save(chapter);
-        return chapterMapper.toGetResponse(updatedChapter);
+        return chapterMapper.toGetRes(updatedChapter);
     }
 
     @Transactional
@@ -62,8 +62,7 @@ public class ChapterService {
 
     @Transactional
     public void delChaptersByCourseId(Long courseId) {
-        Course course =
-                courseRepository.findWithChaptersById(courseId).orElseThrow(() -> new InvalidIdException(courseId));
+        Course course = courseRepository.findWithChaptersById(courseId).orElseThrow(() -> new InvalidIdEx(courseId));
         course.getChapters().clear();
         courseRepository.save(course);
     }

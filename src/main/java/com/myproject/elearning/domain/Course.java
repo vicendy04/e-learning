@@ -16,6 +16,8 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
+// should be used when there are many columns, but only a few columns are updated frequently
+// @DynamicUpdate
 @Entity
 @Table(name = "courses")
 public class Course {
@@ -45,6 +47,9 @@ public class Course {
 
     @Column(name = "enrolled_count")
     Integer enrolledCount = 0;
+
+    @Column(name = "review_count")
+    Integer reviewCount = 0;
 
     @JsonIgnoreProperties("course")
     @OneToMany(

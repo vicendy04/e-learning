@@ -48,9 +48,8 @@ public class CourseSearchRepository {
     // I don't mind the 1 + n problem due to convenience
     @Transactional
     public void setupMeilisearch() throws JsonProcessingException {
-        List<CourseGetRes> courses = courseRepository.findAll().stream()
-                .map(courseMapper::toGetResponse)
-                .toList();
+        List<CourseGetRes> courses =
+                courseRepository.findAll().stream().map(courseMapper::toGetRes).toList();
 
         List<CourseDocument> documents =
                 courses.stream().map(courseSearchMapper::toCourseDocument).toList();

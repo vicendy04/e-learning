@@ -1,7 +1,7 @@
 package com.myproject.elearning.security;
 
-import com.myproject.elearning.constant.AuthoritiesConstants;
-import com.myproject.elearning.dto.projection.UserAuthDTO;
+import com.myproject.elearning.constant.AuthConstants;
+import com.myproject.elearning.dto.projection.UserAuth;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -43,15 +43,15 @@ public final class SecurityUtils {
     /**
      * Sets up the security context for the current user.
      *
-     * @param userAuthDTO Data transfer object containing user authentication information (user ID and role names)
+     * @param userAuth Data transfer object containing user authentication information (user ID and role names)
      * @return the configured Authentication object
      */
-    public static Authentication setAuthContext(UserAuthDTO userAuthDTO) {
-        List<GrantedAuthority> authorities = userAuthDTO.getRoleNames().stream()
+    public static Authentication setAuthContext(UserAuth userAuth) {
+        List<GrantedAuthority> authorities = userAuth.getRoleNames().stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
         Authentication authentication =
-                new UsernamePasswordAuthenticationToken(userAuthDTO.getId().toString(), null, authorities);
+                new UsernamePasswordAuthenticationToken(userAuth.getId().toString(), null, authorities);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return authentication;
     }
@@ -108,8 +108,7 @@ public final class SecurityUtils {
      */
     public static boolean isAuthenticated() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication != null
-                && getAuthorities(authentication).noneMatch(AuthoritiesConstants.ANONYMOUS::equals);
+        return authentication != null && getAuthorities(authentication).noneMatch(AuthConstants.ANONYMOUS::equals);
     }
 
     /**

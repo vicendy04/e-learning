@@ -23,7 +23,7 @@ public class GroupChat {
     @Column(name = "name", nullable = false)
     String name;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     LocalDateTime createdAt;
 
     @Column(name = "course_id", nullable = false, unique = true)

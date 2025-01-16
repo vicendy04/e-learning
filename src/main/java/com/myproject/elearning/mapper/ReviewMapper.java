@@ -12,9 +12,9 @@ import org.mapstruct.*;
 public interface ReviewMapper {
     Review toEntity(ReviewCreateReq request);
 
-    ReviewRes toResponse(Review entity);
+    ReviewRes toRes(Review entity);
 
-    ReviewUpdateRes toUpdateResponse(Review entity);
+    ReviewUpdateRes toUpdateRes(Review entity);
 
     @Named("partialUpdate")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

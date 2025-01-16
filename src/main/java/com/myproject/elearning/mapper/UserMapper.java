@@ -14,15 +14,11 @@ public interface UserMapper {
 
     Course toEntity(CourseCreateReq request);
 
-    UserUpdateReq toUpdateResponse(User entity);
-
     @Named("partialUpdate")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void partialUpdate(@MappingTarget User entity, UserUpdateReq request);
 
-    RegisterReq toRegisterRequest(User entity);
-
     User toEntity(RegisterReq request);
 
-    UserGetRes toGetResponse(User entity);
+    UserGetRes toGetRes(User entity);
 }

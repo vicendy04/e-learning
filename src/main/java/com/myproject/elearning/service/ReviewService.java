@@ -10,7 +10,7 @@ import com.myproject.elearning.dto.response.review.ReviewCourseRes;
 import com.myproject.elearning.dto.response.review.ReviewRes;
 import com.myproject.elearning.dto.response.review.ReviewUpdateRes;
 import com.myproject.elearning.dto.response.review.ReviewUserRes;
-import com.myproject.elearning.exception.problemdetails.InvalidIdException;
+import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
 import com.myproject.elearning.mapper.ReviewMapper;
 import com.myproject.elearning.repository.CourseRepository;
 import com.myproject.elearning.repository.ReviewRepository;
@@ -38,23 +38,25 @@ public class ReviewService {
             throw new IllegalStateException("Người dùng đã đánh giá khóa học này");
         }
         Review review = reviewMapper.toEntity(request);
-        User userRef = userRepository.getReferenceIfExists(userId);
-        Course courseRef = courseRepository.getReferenceIfExists(courseId);
+        User userRef = userRepository.getReferenceById(userId);
+        Course courseRef = courseRepository.getReferenceById(courseId);
         review.setUser(userRef);
         review.setCourse(courseRef);
-        return reviewMapper.toResponse(reviewRepository.save(review));
+        courseRepository.incrementReviewCount(courseId);
+        return reviewMapper.toRes(reviewRepository.save(review));
     }
 
     @Transactional
     public ReviewUpdateRes editReview(Long reviewId, ReviewUpdateReq request) {
-        Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new InvalidIdException(reviewId));
+        Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new InvalidIdEx(reviewId));
         reviewMapper.partialUpdate(review, request);
-        return reviewMapper.toUpdateResponse(reviewRepository.save(review));
+        return reviewMapper.toUpdateRes(reviewRepository.save(review));
     }
 
     @Transactional
-    public void delReview(Long reviewId) {
+    public void delReview(Long courseId, Long reviewId) {
         reviewRepository.deleteById(reviewId);
+        courseRepository.decrementReviewCount(courseId);
     }
 
     public PagedRes<ReviewCourseRes> getReviewsByCourse(Long courseId, Pageable pageable) {

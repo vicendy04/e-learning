@@ -21,7 +21,8 @@ public class CourseGetRes {
     String thumbnailUrl;
 
     Integer enrolledCount;
-    Integer totalReviews;
+    Integer reviewCount;
+
     Integer totalLessons; // Todo: tạo course, chapter luôn 1 lần
 
     Long instructorId;

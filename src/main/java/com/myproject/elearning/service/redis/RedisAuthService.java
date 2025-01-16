@@ -2,7 +2,7 @@ package com.myproject.elearning.service.redis;
 
 import static com.myproject.elearning.constant.RedisKeyConstants.getUserAuthKey;
 
-import com.myproject.elearning.dto.projection.UserAuthDTO;
+import com.myproject.elearning.dto.projection.UserAuth;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import lombok.AccessLevel;
@@ -24,8 +24,8 @@ public class RedisAuthService {
     ValueOperations<String, Object> valueOps;
     Random random;
 
-    public UserAuthDTO getCachedUser(String username) {
-        return (UserAuthDTO) valueOps.get(getUserAuthKey(username));
+    public UserAuth getCachedUser(String username) {
+        return (UserAuth) valueOps.get(getUserAuthKey(username));
     }
 
     public void setCachedUser(String username, Object userAuthDTO) {

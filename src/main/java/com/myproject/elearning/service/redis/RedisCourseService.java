@@ -1,11 +1,9 @@
 package com.myproject.elearning.service.redis;
 
-import static com.myproject.elearning.constant.RedisKeyConstants.COURSE_PREFIX;
 import static com.myproject.elearning.constant.RedisKeyConstants.getCourseKey;
 
 import com.myproject.elearning.dto.response.course.CourseGetRes;
 import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -27,10 +25,7 @@ public class RedisCourseService {
 
     public CourseGetRes getCachedCourse(Long id) {
         Object obj = valueOps.get(getCourseKey(id));
-        if (obj != null) {
-            return (CourseGetRes) obj;
-        }
-        return null;
+        return obj != null ? (CourseGetRes) obj : null;
     }
 
     public void setCachedCourse(Long id, CourseGetRes course, long expiryTimeInSeconds) {
@@ -40,13 +35,6 @@ public class RedisCourseService {
     public void setCachedCourse(Long id, CourseGetRes course) {
         long randomExpiry = DEFAULT_CACHE_DURATION + random.nextInt((int) MAX_RANDOM_EXPIRY);
         valueOps.set(getCourseKey(id), course, randomExpiry, TimeUnit.SECONDS);
-    }
-
-    public void invalidateAllCourseCache() {
-        Set<String> keys = redisTemplate.keys(COURSE_PREFIX + "*");
-        if (keys != null && !keys.isEmpty()) {
-            redisTemplate.delete(keys);
-        }
     }
 
     public Long getCacheExpiration(Long id) {

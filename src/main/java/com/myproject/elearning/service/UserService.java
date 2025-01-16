@@ -1,22 +1,23 @@
 package com.myproject.elearning.service;
 
-import com.myproject.elearning.constant.AuthoritiesConstants;
+import com.myproject.elearning.constant.AuthConstants;
 import com.myproject.elearning.domain.RefreshToken;
 import com.myproject.elearning.domain.Role;
 import com.myproject.elearning.domain.User;
 import com.myproject.elearning.dto.common.PagedRes;
-import com.myproject.elearning.dto.projection.UserAuthDTO;
+import com.myproject.elearning.dto.projection.UserAuth;
+import com.myproject.elearning.dto.projection.UserInfo;
 import com.myproject.elearning.dto.request.auth.RegisterReq;
 import com.myproject.elearning.dto.request.user.UserSearchDTO;
 import com.myproject.elearning.dto.request.user.UserUpdateReq;
 import com.myproject.elearning.dto.response.user.UserGetRes;
-import com.myproject.elearning.exception.problemdetails.InvalidCredentialsException;
-import com.myproject.elearning.exception.problemdetails.InvalidIdException;
+import com.myproject.elearning.exception.problemdetails.InvalidCredentialsEx;
+import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
 import com.myproject.elearning.mapper.UserMapper;
 import com.myproject.elearning.repository.RefreshTokenRepository;
 import com.myproject.elearning.repository.RoleRepository;
 import com.myproject.elearning.repository.UserRepository;
-import com.myproject.elearning.repository.specification.UserSpecification;
+import com.myproject.elearning.repository.specification.UserSpec;
 import com.myproject.elearning.security.SecurityUtils;
 import java.time.Instant;
 import java.util.HashSet;
@@ -58,12 +59,12 @@ public class UserService {
         }
         user.setRoles(roles);
         userRepository.save(user);
-        return userMapper.toGetResponse(user);
+        return userMapper.toGetRes(user);
     }
 
     public UserGetRes getUser(Long id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new InvalidIdException(id));
-        return userMapper.toGetResponse(user);
+        User user = userRepository.findById(id).orElseThrow(() -> new InvalidIdEx(id));
+        return userMapper.toGetRes(user);
     }
 
     @Transactional
@@ -77,14 +78,18 @@ public class UserService {
         refreshTokenRepository.save(refreshToken);
     }
 
-    public UserAuthDTO findAuthDTOByEmail(String email) {
+    public UserAuth findAuthDTOByEmail(String email) {
         return userRepository
                 .findAuthDTOByEmail(email)
-                .orElseThrow(() -> new InvalidCredentialsException("Invalid email or user does not exist"));
+                .orElseThrow(() -> new InvalidCredentialsEx("Invalid email or user does not exist"));
+    }
+
+    public UserInfo findUserInfo(Long userId) {
+        return userRepository.findUserInfo(userId).orElseThrow(() -> new InvalidIdEx(userId));
     }
 
     public String findEmailById(Long id) {
-        return userRepository.findEmailByUserId(id).orElseThrow(() -> new InvalidIdException("Email not found!"));
+        return userRepository.findEmailByUserId(id).orElseThrow(() -> new InvalidIdEx("Email not found!"));
     }
 
     private RefreshToken createNewRefreshToken(Long userId) {
@@ -97,11 +102,10 @@ public class UserService {
 
     @Transactional
     public UserGetRes editUser(Long id, UserUpdateReq userUpdateReq) {
-        User user = userRepository
-                .findById(id)
-                .orElseThrow(() -> new InvalidIdException("Entity with ID \" + id + \" not found"));
+        User user =
+                userRepository.findById(id).orElseThrow(() -> new InvalidIdEx("Entity with ID \" + id + \" not found"));
         userMapper.partialUpdate(user, userUpdateReq);
-        return userMapper.toGetResponse(user);
+        return userMapper.toGetRes(user);
     }
 
     public void delUser(Long id) {
@@ -109,12 +113,12 @@ public class UserService {
     }
 
     public PagedRes<UserGetRes> getUsers(UserSearchDTO searchDTO, Pageable pageable) {
-        if (SecurityUtils.hasCurrentUserNoneOfAuthorities(AuthoritiesConstants.ADMIN)) {
+        if (SecurityUtils.hasCurrentUserNoneOfAuthorities(AuthConstants.ADMIN)) {
             throw new AccessDeniedException("Chỉ admin mới có quyền xem danh sách người dùng");
         }
 
-        Specification<User> spec = UserSpecification.filterUsers(searchDTO);
-        Page<UserGetRes> users = userRepository.findAll(spec, pageable).map(userMapper::toGetResponse);
+        Specification<User> spec = UserSpec.filterUsers(searchDTO);
+        Page<UserGetRes> users = userRepository.findAll(spec, pageable).map(userMapper::toGetRes);
         return PagedRes.from(users);
     }
 }

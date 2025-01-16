@@ -3,8 +3,8 @@ package com.myproject.elearning.config;
 import static com.myproject.elearning.security.SecurityUtils.CLAIM_KEY_AUTHORITIES;
 import static org.springframework.security.config.Customizer.withDefaults;
 
-import com.myproject.elearning.security.JwtAccessDeniedHandler;
-import com.myproject.elearning.security.JwtAuthenticationEntryPoint;
+import com.myproject.elearning.security.JwtAuthEntryPoint;
+import com.myproject.elearning.security.JwtDeniedHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -63,9 +63,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(
-            HttpSecurity http,
-            JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
-            JwtAccessDeniedHandler jwtAccessDeniedHandler)
+            HttpSecurity http, JwtAuthEntryPoint jwtAuthEntryPoint, JwtDeniedHandler jwtDeniedHandler)
             throws Exception {
         http.cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
@@ -81,9 +79,9 @@ public class SecurityConfig {
                                 .authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder))
-                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                        .accessDeniedHandler(jwtAccessDeniedHandler))
-                .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(jwtAuthenticationEntryPoint));
+                        .authenticationEntryPoint(jwtAuthEntryPoint)
+                        .accessDeniedHandler(jwtDeniedHandler))
+                .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(jwtAuthEntryPoint));
 
         return http.build();
     }

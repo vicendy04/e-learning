@@ -8,8 +8,8 @@ import java.util.concurrent.TimeUnit;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -20,19 +20,19 @@ public class RedisResourceAccessService {
     static final long MAX_RANDOM_EXPIRY = 300; // 5 min
 
     RedisTemplate<String, Object> redisTemplate;
-    ValueOperations<String, Object> valueOps;
+    HashOperations<String, String, Object> hashOps;
     Random random;
 
     public Boolean getCachedOwnership(ResourceType type, Long resourceId, Long userId) {
-        String key = getOwnershipKey(type.value(), resourceId, userId);
-        Object value = valueOps.get(key);
-        return value != null ? (Boolean) value : null;
+        String key = getOwnershipKey(userId, type.value());
+        return (Boolean) hashOps.get(key, resourceId.toString());
     }
 
     public void setCachedOwnership(ResourceType type, Long resourceId, Long userId, boolean isOwner) {
-        String key = getOwnershipKey(type.value(), resourceId, userId);
+        String key = getOwnershipKey(userId, type.value());
         long randomExpiry = DEFAULT_CACHE_DURATION + random.nextInt((int) MAX_RANDOM_EXPIRY);
-        valueOps.set(key, isOwner, randomExpiry, TimeUnit.SECONDS);
+        hashOps.put(key, resourceId.toString(), isOwner);
+        redisTemplate.expire(key, randomExpiry, TimeUnit.SECONDS);
     }
 
     /**
@@ -42,8 +42,8 @@ public class RedisResourceAccessService {
      * - Without invalidating the cache: If the course is not found in the cache, it will return false when checking ownership.
      * - With invalidating the cache: A cache miss will occur, leading to a DB check, which will also return false if the course doesn't exist.
      */
-    public void invalidateOwnershipCache(ResourceType type, Long resourceId, Long userId) {
-        String key = getOwnershipKey(type.value(), resourceId, userId);
+    public void invalidateOwnershipCache(Long userId, ResourceType type) {
+        String key = getOwnershipKey(userId, type.value());
         if (key != null && !key.isEmpty()) {
             redisTemplate.delete(key);
         }

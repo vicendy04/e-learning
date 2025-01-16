@@ -1,6 +1,6 @@
 package com.myproject.elearning.security;
 
-import com.myproject.elearning.dto.projection.UserAuthDTO;
+import com.myproject.elearning.dto.projection.UserAuth;
 import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.service.redis.RedisAuthService;
 import java.util.List;
@@ -32,30 +32,24 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Object cachedUser = redisAuthService.getCachedUser(username);
 
-        if (cachedUser instanceof String s) {
-            if ("empty".equals(s)) {
-                throw new UsernameNotFoundException("Email not found");
-            }
+        if (cachedUser instanceof UserAuth userAuth) {
+            return createSpringSecurityUser(userAuth);
         }
 
-        if (cachedUser instanceof UserAuthDTO userAuthDTO) {
-            return createSpringSecurityUser(userAuthDTO);
-        }
-
-        UserAuthDTO userAuthDTO = userRepository.findAuthDTOByEmail(username).orElseGet(() -> {
+        UserAuth userAuth = userRepository.findAuthDTOByEmail(username).orElseGet(() -> {
             redisAuthService.setEmptyCache(username);
             throw new UsernameNotFoundException("Email not found");
         });
 
-        redisAuthService.setCachedUser(username, userAuthDTO);
-        return createSpringSecurityUser(userAuthDTO);
+        redisAuthService.setCachedUser(username, userAuth);
+        return createSpringSecurityUser(userAuth);
     }
 
-    private org.springframework.security.core.userdetails.User createSpringSecurityUser(UserAuthDTO userAuthDTO) {
-        List<GrantedAuthority> grantedAuthorities = userAuthDTO.getRoleNames().stream()
+    private org.springframework.security.core.userdetails.User createSpringSecurityUser(UserAuth userAuth) {
+        List<GrantedAuthority> grantedAuthorities = userAuth.getRoleNames().stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
         return new org.springframework.security.core.userdetails.User(
-                userAuthDTO.getId().toString(), userAuthDTO.getPassword(), grantedAuthorities);
+                userAuth.getId().toString(), userAuth.getPassword(), grantedAuthorities);
     }
 }

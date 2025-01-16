@@ -1,7 +1,7 @@
 package com.myproject.elearning.repository;
 
 import com.myproject.elearning.domain.Course;
-import com.myproject.elearning.exception.problemdetails.InvalidIdException;
+import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.Set;
@@ -41,6 +41,14 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
     Optional<CourseForValidDiscount> findCourseWithInstructor(@Param("courseId") Long courseId);
 
     @Modifying
+    @Query("UPDATE Course c SET c.reviewCount = c.reviewCount + 1 WHERE c.id = :courseId")
+    void incrementReviewCount(@Param("courseId") Long courseId);
+
+    @Modifying
+    @Query("UPDATE Course c SET c.reviewCount = c.reviewCount - 1 WHERE c.id = :courseId")
+    void decrementReviewCount(@Param("courseId") Long courseId);
+
+    @Modifying
     @Query("UPDATE Course c SET c.enrolledCount = c.enrolledCount + 1 WHERE c.id = :courseId")
     void incrementEnrollmentCount(@Param("courseId") Long courseId);
 
@@ -56,7 +64,7 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
 
     default Course getReferenceIfExists(Long id) {
         if (!existsById(id)) {
-            throw new InvalidIdException("Entity with ID " + id + " not found");
+            throw new InvalidIdEx("Entity with ID " + id + " not found");
         }
         return getReferenceById(id);
     }

@@ -4,7 +4,6 @@ import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.domain.Discount;
 import com.myproject.elearning.dto.request.course.CourseUpdateReq;
 import com.myproject.elearning.dto.request.discount.DiscountCreateReq;
-import com.myproject.elearning.dto.response.course.CourseUpdateRes;
 import com.myproject.elearning.dto.response.discount.DiscountGetRes;
 import com.myproject.elearning.mapper.base.MapperConfig;
 import java.util.Collections;
@@ -25,11 +24,9 @@ public interface DiscountMapper {
 
     Course toEntity(CourseUpdateReq request);
 
-    CourseUpdateRes toUpdateResponse(Course entity);
-
     @Named("partialUpdate")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void partialUpdate(@MappingTarget Course entity, CourseUpdateReq request);
 
-    DiscountGetRes toGetResponse(Discount entity);
+    DiscountGetRes toGetRes(Discount entity);
 }

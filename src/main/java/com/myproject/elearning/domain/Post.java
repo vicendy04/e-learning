@@ -37,7 +37,7 @@ public class Post {
             uniqueConstraints = @UniqueConstraint(columnNames = {"post_id", "user_id"}))
     Set<User> likedUsers = new HashSet<>();
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
     @Column(name = "updated_at")
@@ -46,7 +46,6 @@ public class Post {
     @PrePersist
     protected void onCreate() {
         createdAt = Instant.now();
-        updatedAt = Instant.now();
     }
 
     @PreUpdate

@@ -1,6 +1,6 @@
 package com.myproject.elearning.exception;
 
-import static com.myproject.elearning.web.rest.utils.ResponseUtils.errorRes;
+import static com.myproject.elearning.rest.utils.ResponseUtils.errorRes;
 
 import com.myproject.elearning.dto.common.ApiRes;
 import com.myproject.elearning.exception.problemdetails.*;
@@ -34,15 +34,15 @@ public class GlobalExceptionHandler {
     }
 
     private ProblemDetail getProblemDetail(Throwable ex) {
-        if (ex instanceof TokenException te) {
+        if (ex instanceof TokenEx te) {
             return te.getBody();
-        } else if (ex instanceof InvalidIdException iie) {
+        } else if (ex instanceof InvalidIdEx iie) {
             return iie.getBody();
-        } else if (ex instanceof EmailAlreadyUsedException eaue) {
+        } else if (ex instanceof EmailUsedEx eaue) {
             return eaue.getBody();
-        } else if (ex instanceof InvalidCredentialsException ice) {
+        } else if (ex instanceof InvalidCredentialsEx ice) {
             return ice.getBody();
-        } else if (ex instanceof InvalidDiscountException ide) {
+        } else if (ex instanceof InvalidDiscountEx ide) {
             return ide.getBody();
         } else if (ex instanceof MethodArgumentNotValidException manve) {
             manve.getBody().setProperty("errors", getFieldErrors(manve));
