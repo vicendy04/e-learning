@@ -9,15 +9,12 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
-/**
- * A role.
- */
 @Setter
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "roles")
-public class Role {
+@Table(name = "topics")
+public class Topic {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
@@ -25,7 +22,7 @@ public class Role {
     @Column(name = "name", unique = true, nullable = false)
     String name;
 
-    @JsonIgnoreProperties("roles")
-    @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
-    Set<User> users = new HashSet<>();
+    @JsonIgnoreProperties("preferences")
+    @ManyToMany(mappedBy = "preferences", fetch = FetchType.LAZY)
+    Set<User> interestedUsers = new HashSet<>();
 }

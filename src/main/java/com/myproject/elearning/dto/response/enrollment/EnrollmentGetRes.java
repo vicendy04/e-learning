@@ -26,7 +26,6 @@ public class EnrollmentGetRes {
         String title;
         String description;
         BigDecimal price;
-        Course.CourseCategory category;
         Course.Level level;
         String thumbnailUrl;
     }

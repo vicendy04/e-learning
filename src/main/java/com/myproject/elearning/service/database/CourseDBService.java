@@ -3,16 +3,19 @@ package com.myproject.elearning.service.database;
 import static com.myproject.elearning.mapper.CourseMapper.COURSE_MAPPER;
 
 import com.myproject.elearning.domain.Course;
+import com.myproject.elearning.domain.Topic;
 import com.myproject.elearning.domain.User;
 import com.myproject.elearning.dto.CourseData;
 import com.myproject.elearning.dto.common.PagedRes;
 import com.myproject.elearning.dto.request.course.CourseCreateReq;
 import com.myproject.elearning.dto.request.course.CourseSearch;
 import com.myproject.elearning.dto.request.course.CourseUpdateReq;
+import com.myproject.elearning.dto.response.course.CourseAddRes;
 import com.myproject.elearning.dto.response.course.CourseListRes;
 import com.myproject.elearning.dto.response.course.CourseUpdateRes;
 import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
 import com.myproject.elearning.repository.CourseRepository;
+import com.myproject.elearning.repository.TopicRepository;
 import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.repository.specification.CourseSpec;
 import lombok.AccessLevel;
@@ -33,19 +36,23 @@ import org.springframework.transaction.annotation.Transactional;
 public class CourseDBService {
     CourseRepository courseRepository;
     UserRepository userRepository;
+    TopicRepository topicRepository;
 
     @Transactional
-    public CourseData addCourse(Long instructorId, CourseCreateReq courseCreateReq) {
+    public CourseAddRes addCourse(Long instructorId, CourseCreateReq courseCreateReq) {
         Course course = COURSE_MAPPER.toEntity(courseCreateReq);
-        User user = userRepository.findById(instructorId).orElseThrow(() -> new InvalidIdEx(instructorId));
+        User user = userRepository.getReferenceById(instructorId);
         course.setInstructor(user);
+        Topic topic = topicRepository.getReferenceById(courseCreateReq.getTopicId());
+        course.setTopic(topic);
         Course savedCourse = courseRepository.save(course);
-        return COURSE_MAPPER.toData(savedCourse);
+        return COURSE_MAPPER.toAddRes(savedCourse);
     }
 
     @Transactional(readOnly = true)
     public CourseData getDBCourse(Long courseId) {
-        Course course = courseRepository.findWithInstructorById(courseId).orElseThrow(() -> new InvalidIdEx(courseId));
+        Course course =
+                courseRepository.findWithInstructorAndTopicById(courseId).orElseThrow(() -> new InvalidIdEx(courseId));
         return COURSE_MAPPER.toData(course);
     }
 
@@ -67,15 +74,16 @@ public class CourseDBService {
         courseRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
     public PagedRes<CourseListRes> getCourses(CourseSearch searchDTO, Pageable pageable) {
         Specification<Course> spec = CourseSpec.filterCourses(searchDTO);
-        Page<Course> all = courseRepository.findAll(spec, pageable);
+        Page<Course> all = courseRepository.findAllBy(pageable);
         Page<CourseListRes> map = all.map(COURSE_MAPPER::toListRes);
         return PagedRes.from(map);
     }
 
     public PagedRes<CourseListRes> getCoursesByInstructorId(Long instructorId, Pageable pageable) {
-        Page<Course> coursePage = courseRepository.findByInstructorId(instructorId, pageable);
+        Page<Course> coursePage = courseRepository.findAllByInstructorId(instructorId, pageable);
         return PagedRes.from(coursePage.map(COURSE_MAPPER::toListRes));
     }
 

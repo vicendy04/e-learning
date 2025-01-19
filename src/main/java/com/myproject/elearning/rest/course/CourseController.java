@@ -9,6 +9,7 @@ import com.myproject.elearning.dto.common.PagedRes;
 import com.myproject.elearning.dto.request.course.CourseCreateReq;
 import com.myproject.elearning.dto.request.course.CourseSearch;
 import com.myproject.elearning.dto.request.course.CourseUpdateReq;
+import com.myproject.elearning.dto.response.course.CourseAddRes;
 import com.myproject.elearning.dto.response.course.CourseGetRes;
 import com.myproject.elearning.dto.response.course.CourseListRes;
 import com.myproject.elearning.dto.response.course.CourseUpdateRes;
@@ -50,11 +51,9 @@ public class CourseController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
     @PreAuthorize("isAuthenticated() and hasAnyRole('INSTRUCTOR', 'ADMIN')")
-    public ApiRes<CourseGetRes> addCourse(@Valid @RequestBody CourseCreateReq courseCreateReq) {
+    public ApiRes<CourseAddRes> addCourse(@Valid @RequestBody CourseCreateReq courseCreateReq) {
         Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
-        CourseData data = courseService.addCourse(curUserId, courseCreateReq);
-        var res = COURSE_MAPPER.toGetRes(data);
-        courseSearchService.indexCourse(res);
+        CourseAddRes res = courseDBService.addCourse(curUserId, courseCreateReq);
         return successRes("Course created successfully", res);
     }
 
@@ -85,7 +84,7 @@ public class CourseController {
 
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{courseId}")
-    @PreAuthorize("isAuthenticated() and (hasRole('ADMIN') or @resourceAccessService.isCourseOwner(#id))")
+    @PreAuthorize("isAuthenticated() and (hasRole('ADMIN') or @resourceAccessService.isCourseOwner(#courseId))")
     public ApiRes<CourseUpdateRes> editCourse(
             @PathVariable(name = "courseId") Long courseId, @RequestBody CourseUpdateReq courseUpdateReq) {
         CourseUpdateRes updatedCourse = courseDBService.editCourse(courseId, courseUpdateReq);

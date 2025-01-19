@@ -15,19 +15,19 @@ public class CourseSpec {
         };
     }
 
-    public static Specification<Course> hasCategory(String category) {
-        return (root, query, criteriaBuilder) -> {
-            if (category == null || category.isEmpty()) {
-                return criteriaBuilder.conjunction();
-            }
-            try {
-                Course.CourseCategory courseCategory = Course.CourseCategory.valueOf(category.toUpperCase());
-                return criteriaBuilder.equal(root.get("category"), courseCategory);
-            } catch (IllegalArgumentException e) {
-                return criteriaBuilder.conjunction();
-            }
-        };
-    }
+    //    public static Specification<Course> hasCategory(String category) {
+    //        return (root, query, criteriaBuilder) -> {
+    //            if (category == null || category.isEmpty()) {
+    //                return criteriaBuilder.conjunction();
+    //            }
+    //            try {
+    //                Course.CourseCategory courseCategory = Course.CourseCategory.valueOf(category.toUpperCase());
+    //                return criteriaBuilder.equal(root.get("category"), courseCategory);
+    //            } catch (IllegalArgumentException e) {
+    //                return criteriaBuilder.conjunction();
+    //            }
+    //        };
+    //    }
 
     public static Specification<Course> hasPriceRange(BigDecimal minPrice, BigDecimal maxPrice) {
         return (root, query, criteriaBuilder) -> {
@@ -61,7 +61,7 @@ public class CourseSpec {
 
     public static Specification<Course> filterCourses(CourseSearch searchDTO) {
         return Specification.where(hasTitle(searchDTO.getTitle()))
-                .and(hasCategory(String.valueOf(searchDTO.getCategory())))
+                //                .and(hasCategory(String.valueOf(searchDTO.getCategory())))
                 .and(hasPriceRange(searchDTO.getMinPrice(), searchDTO.getMaxPrice()))
                 .and(searchByKeyword(searchDTO.getKeyword()));
     }

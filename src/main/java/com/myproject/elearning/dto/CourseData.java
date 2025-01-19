@@ -18,7 +18,6 @@ public class CourseData {
     String description;
     Integer duration;
     BigDecimal price;
-    Course.CourseCategory category;
     Course.Level level;
     String thumbnailUrl;
 
@@ -30,4 +29,7 @@ public class CourseData {
     Long instructorId;
     String instructorName;
     String imageUrl;
+
+    Long topicId;
+    String topicName;
 }

@@ -7,13 +7,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
-import org.springframework.hateoas.RepresentationModel;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CourseGetRes extends RepresentationModel<CourseGetRes> {
+public class CourseAddRes {
     Long id;
     String title;
     String description;
@@ -21,16 +20,8 @@ public class CourseGetRes extends RepresentationModel<CourseGetRes> {
     BigDecimal price;
     Course.Level level;
     String thumbnailUrl;
-
     Integer enrolledCount;
     Integer reviewCount;
-
-    Integer totalLessons; // Todo: tạo course, chapter luôn 1 lần
-
     Long instructorId;
-    String instructorName;
-    String imageUrl;
-
     Long topicId;
-    String topicName;
 }

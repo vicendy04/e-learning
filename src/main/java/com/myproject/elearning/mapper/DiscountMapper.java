@@ -1,14 +1,13 @@
 package com.myproject.elearning.mapper;
 
-import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.domain.Discount;
-import com.myproject.elearning.dto.request.course.CourseUpdateReq;
 import com.myproject.elearning.dto.request.discount.DiscountCreateReq;
 import com.myproject.elearning.dto.response.discount.DiscountRes;
 import com.myproject.elearning.mapper.base.MapperConfig;
 import java.util.Collections;
 import java.util.HashSet;
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(
@@ -23,12 +22,6 @@ public interface DiscountMapper {
             expression =
                     "java(dto.getAppliesTo() == Discount.DiscountAppliesTo.SPECIFIC ? new HashSet<>(dto.getSpecificCourseIds()) : Collections.EMPTY_SET)")
     Discount toEntity(DiscountCreateReq dto, Long instructorId);
-
-    Course toEntity(CourseUpdateReq request);
-
-    @Named("partialUpdate")
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void partialUpdate(@MappingTarget Course entity, CourseUpdateReq request);
 
     DiscountRes toRes(Discount entity);
 }

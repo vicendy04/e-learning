@@ -14,11 +14,13 @@ public class CourseListRes extends RepresentationModel<CourseListRes> {
     Long id;
     String title;
     Integer duration;
-    Course.CourseCategory category;
     Course.Level level;
 
     String thumbnailUrl;
     Integer enrolledCount;
     Integer reviewCount;
     Integer totalLessons; // Todo: tạo course, chapter luôn 1 lần
+
+    Long topicId;
+    String topicName;
 }

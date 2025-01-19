@@ -37,9 +37,9 @@ public class Course {
     @Column(name = "price", precision = 10, scale = 2)
     BigDecimal price;
 
-    @Column(name = "category", length = 50)
-    @Enumerated(EnumType.STRING)
-    CourseCategory category;
+    //    @Column(name = "category", length = 50)
+    //    @Enumerated(EnumType.STRING)
+    //    CourseCategory category;
 
     @Column(name = "level")
     @Enumerated(EnumType.STRING)
@@ -57,6 +57,14 @@ public class Course {
             cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             fetch = FetchType.LAZY)
     List<Enrollment> enrollments = new ArrayList<>();
+
+    //    small dataset
+    //    but Don't use eager fetching
+    //    @ManyToOne(fetch = FetchType.EAGER)
+    //    @Fetch(FetchMode.JOIN)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "topic_id")
+    Topic topic;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "instructor_id", nullable = false)
@@ -78,15 +86,15 @@ public class Course {
     @Column(name = "thumbnail_url")
     String thumbnailUrl;
 
-    public enum CourseCategory {
-        DEVELOPMENT,
-        DESIGN,
-        BUSINESS,
-        MARKETING,
-        SECURITY,
-        FINANCE,
-        COOKING,
-    }
+    //    public enum CourseCategory {
+    //        DEVELOPMENT,
+    //        DESIGN,
+    //        BUSINESS,
+    //        MARKETING,
+    //        SECURITY,
+    //        FINANCE,
+    //        COOKING,
+    //    }
 
     public enum Level {
         BEGINNER,

@@ -64,6 +64,16 @@ public class User {
             allowSetters = true)
     Set<Role> roles = new HashSet<>();
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "user_preferences",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "topic_id"))
+    @JsonIgnoreProperties(
+            value = {"interestedUsers"},
+            allowSetters = true)
+    Set<Topic> preferences = new HashSet<>();
+
     @JsonIgnoreProperties("user")
     @OneToMany(
             mappedBy = "user",

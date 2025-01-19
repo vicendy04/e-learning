@@ -7,6 +7,7 @@ import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.dto.CourseData;
 import com.myproject.elearning.dto.request.course.CourseCreateReq;
 import com.myproject.elearning.dto.request.course.CourseUpdateReq;
+import com.myproject.elearning.dto.response.course.CourseAddRes;
 import com.myproject.elearning.dto.response.course.CourseGetRes;
 import com.myproject.elearning.dto.response.course.CourseListRes;
 import com.myproject.elearning.dto.response.course.CourseUpdateRes;
@@ -22,8 +23,6 @@ public interface CourseMapper {
 
     Course toEntity(CourseCreateReq request);
 
-    Course toEntity(CourseUpdateReq request);
-
     CourseUpdateRes toUpdateRes(Course entity);
 
     @Named("partialUpdate")
@@ -37,15 +36,23 @@ public interface CourseMapper {
             expression = "java(entity.getInstructor().getFirstName() + \" \" + entity.getInstructor().getLastName())")
     CourseGetRes toGetRes(Course entity);
 
+    @Mapping(target = "instructorId", source = "instructor.id")
+    @Mapping(target = "topicId", source = "topic.id")
+    CourseAddRes toAddRes(Course entity);
+
     CourseGetRes toGetRes(CourseData data);
 
     @Mapping(target = "instructorId", source = "instructor.id")
     @Mapping(target = "imageUrl", source = "instructor.imageUrl")
+    @Mapping(target = "topicId", source = "topic.id")
+    @Mapping(target = "topicName", source = "topic.name")
     @Mapping(
             target = "instructorName",
             expression = "java(entity.getInstructor().getFirstName() + \" \" + entity.getInstructor().getLastName())")
     CourseData toData(Course entity);
 
+    @Mapping(target = "topicId", source = "topic.id")
+    @Mapping(target = "topicName", source = "topic.name")
     CourseListRes toListRes(Course entity);
 
     @AfterMapping

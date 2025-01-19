@@ -1,7 +1,6 @@
 package com.myproject.elearning.service;
 
 import com.myproject.elearning.dto.CourseData;
-import com.myproject.elearning.dto.request.course.CourseCreateReq;
 import com.myproject.elearning.service.database.CourseDBService;
 import com.myproject.elearning.service.redis.RedisCourseService;
 import lombok.AccessLevel;
@@ -24,15 +23,6 @@ public class CourseService {
         if (data != null) return data;
         data = courseDBService.getDBCourse(courseId);
         redisCourseService.set(courseId, data);
-        return data;
-    }
-
-    /**
-     * Adds a new course to the database and caches it in Redis.
-     */
-    public CourseData addCourse(Long instructorId, CourseCreateReq courseCreateReq) {
-        CourseData data = courseDBService.addCourse(instructorId, courseCreateReq);
-        redisCourseService.set(data.getId(), data);
         return data;
     }
 }

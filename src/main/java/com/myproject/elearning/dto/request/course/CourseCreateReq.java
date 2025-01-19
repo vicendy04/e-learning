@@ -26,11 +26,11 @@ public class CourseCreateReq {
     @PositiveOrZero(message = "Giá không hợp lệ")
     BigDecimal price;
 
-    @NotNull(message = "Danh mục không được để trống")
-    Course.CourseCategory category;
-
     @NotNull(message = "Cấp độ không được để trống")
     Course.Level level;
 
     String thumbnailUrl;
+
+    @NotNull(message = "Topic không được để trống")
+    Long topicId;
 }

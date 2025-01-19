@@ -16,13 +16,17 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecificationExecutor<Course> {
-    Page<Course> findByInstructorId(Long instructorId, Pageable pageable);
+    @EntityGraph(attributePaths = "topic")
+    Page<Course> findAllByInstructorId(Long instructorId, Pageable pageable);
+
+    @EntityGraph(attributePaths = "topic")
+    Page<Course> findAllBy(Pageable pageable);
 
     @EntityGraph(attributePaths = "chapters")
     Optional<Course> findWithChaptersById(Long id);
 
-    @EntityGraph(attributePaths = "instructor")
-    Optional<Course> findWithInstructorById(Long id);
+    @EntityGraph(attributePaths = {"instructor", "topic"})
+    Optional<Course> findWithInstructorAndTopicById(Long id);
 
     @Query("SELECT COUNT(e) FROM Enrollment e WHERE e.course.id =:courseId")
     int countEnrollmentsByCourseId(@Param("courseId") Long courseId);

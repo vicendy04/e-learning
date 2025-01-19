@@ -12,7 +12,6 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CourseSearch {
     String title;
-    Course.CourseCategory category;
     String keyword;
     BigDecimal minPrice;
     BigDecimal maxPrice;
