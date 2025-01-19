@@ -1,5 +1,8 @@
 package com.myproject.elearning.repository;
 
+import static com.myproject.elearning.mapper.CourseMapper.COURSE_MAPPER;
+import static com.myproject.elearning.mapper.CourseSearchMapper.COURSE_SEARCH_MAPPER;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.meilisearch.sdk.Index;
@@ -9,8 +12,6 @@ import com.myproject.elearning.dto.common.PagedRes;
 import com.myproject.elearning.dto.response.course.CourseGetRes;
 import com.myproject.elearning.dto.search.CourseDocument;
 import com.myproject.elearning.dto.search.SearchCriteria;
-import com.myproject.elearning.mapper.CourseMapper;
-import com.myproject.elearning.mapper.CourseSearchMapper;
 import com.myproject.elearning.repository.specification.CourseQueryBuilder;
 import java.util.List;
 import lombok.AccessLevel;
@@ -25,9 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CourseSearchRepository {
     Index courseIndex;
     ObjectMapper objectMapper;
-    CourseSearchMapper courseSearchMapper;
     CourseRepository courseRepository;
-    CourseMapper courseMapper;
 
     public PagedRes<CourseDocument> search(SearchCriteria criteria, int page, int size) {
         SearchRequest searchRequest = CourseQueryBuilder.buildQuery(criteria, page, size);
@@ -41,7 +40,7 @@ public class CourseSearchRepository {
     }
 
     public void indexCourse(CourseGetRes course) throws JsonProcessingException {
-        CourseDocument doc = courseSearchMapper.toCourseDocument(course);
+        CourseDocument doc = COURSE_SEARCH_MAPPER.toCourseDocument(course);
         courseIndex.addDocuments(objectMapper.writeValueAsString(doc)); // => { "taskUid": 0 }
     }
 
@@ -49,10 +48,10 @@ public class CourseSearchRepository {
     @Transactional
     public void setupMeilisearch() throws JsonProcessingException {
         List<CourseGetRes> courses =
-                courseRepository.findAll().stream().map(courseMapper::toGetRes).toList();
+                courseRepository.findAll().stream().map(COURSE_MAPPER::toGetRes).toList();
 
         List<CourseDocument> documents =
-                courses.stream().map(courseSearchMapper::toCourseDocument).toList();
+                courses.stream().map(COURSE_SEARCH_MAPPER::toCourseDocument).toList();
 
         var task = courseIndex.addDocuments(objectMapper.writeValueAsString(documents), "id");
         System.out.println("TaskUID: " + task.getTaskUid());

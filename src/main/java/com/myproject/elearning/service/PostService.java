@@ -1,5 +1,7 @@
 package com.myproject.elearning.service;
 
+import static com.myproject.elearning.mapper.PostMapper.POST_MAPPER;
+
 import com.myproject.elearning.domain.Post;
 import com.myproject.elearning.dto.common.PagedRes;
 import com.myproject.elearning.dto.request.post.PostCreateReq;
@@ -8,7 +10,6 @@ import com.myproject.elearning.dto.response.post.PostGetRes;
 import com.myproject.elearning.dto.response.post.PostListRes;
 import com.myproject.elearning.dto.response.post.PostUpdateRes;
 import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
-import com.myproject.elearning.mapper.PostMapper;
 import com.myproject.elearning.repository.PostRepository;
 import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.security.SecurityUtils;
@@ -32,12 +33,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class PostService {
     PostRepository postRepository;
     UserRepository userRepository;
-    PostMapper postMapper;
     RedisPostService redisPostService;
 
     @Transactional
     public Post addPost(Long userId, PostCreateReq request) {
-        Post post = postMapper.toEntity(request);
+        Post post = POST_MAPPER.toEntity(request);
         post.setUser(userRepository.getReferenceById(userId));
         return postRepository.save(post);
     }
@@ -57,7 +57,7 @@ public class PostService {
 
     public PagedRes<PostListRes> getPostsByUser(Long userId, Pageable pageable) {
         Page<Post> posts = postRepository.findAllByUserId(userId, pageable);
-        return PagedRes.from(posts.map(postMapper::toListRes));
+        return PagedRes.from(posts.map(POST_MAPPER::toListRes));
     }
 
     public void like(Long postId, Long userId) {
@@ -76,8 +76,8 @@ public class PostService {
     @Transactional
     public PostUpdateRes editPost(Long id, PostUpdateReq request) {
         Post post = postRepository.findById(id).orElseThrow(() -> new InvalidIdEx(id));
-        postMapper.partialUpdate(post, request);
-        return postMapper.toUpdateRes(postRepository.save(post));
+        POST_MAPPER.partialUpdate(post, request);
+        return POST_MAPPER.toUpdateRes(postRepository.save(post));
     }
 
     private Set<Long> filterIds(Set<Long> topPostIds, List<PostGetRes> postFromCache) {

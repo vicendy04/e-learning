@@ -1,5 +1,7 @@
 package com.myproject.elearning.service;
 
+import static com.myproject.elearning.mapper.UserMapper.USER_MAPPER;
+
 import com.myproject.elearning.constant.AuthConstants;
 import com.myproject.elearning.domain.RefreshToken;
 import com.myproject.elearning.domain.Role;
@@ -10,10 +12,9 @@ import com.myproject.elearning.dto.projection.UserInfo;
 import com.myproject.elearning.dto.request.auth.RegisterReq;
 import com.myproject.elearning.dto.request.user.UserSearchDTO;
 import com.myproject.elearning.dto.request.user.UserUpdateReq;
-import com.myproject.elearning.dto.response.user.UserGetRes;
+import com.myproject.elearning.dto.response.user.UserRes;
 import com.myproject.elearning.exception.problemdetails.InvalidCredentialsEx;
 import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
-import com.myproject.elearning.mapper.UserMapper;
 import com.myproject.elearning.repository.RefreshTokenRepository;
 import com.myproject.elearning.repository.RoleRepository;
 import com.myproject.elearning.repository.UserRepository;
@@ -44,13 +45,12 @@ public class UserService {
     RefreshTokenRepository refreshTokenRepository;
     RoleRepository roleRepository;
     PasswordEncoder passwordEncoder;
-    UserMapper userMapper;
 
     @Transactional
-    public UserGetRes addUser(RegisterReq registerReq) {
+    public UserRes addUser(RegisterReq registerReq) {
         String encryptedPassword = passwordEncoder.encode(registerReq.getPassword());
         registerReq.setPassword(encryptedPassword);
-        User user = userMapper.toEntity(registerReq);
+        User user = USER_MAPPER.toEntity(registerReq);
         Set<Role> roles = new HashSet<>();
         if (registerReq.isInstructor()) {
             roles.add(roleRepository.getReferenceById(3L));
@@ -59,12 +59,12 @@ public class UserService {
         }
         user.setRoles(roles);
         userRepository.save(user);
-        return userMapper.toGetRes(user);
+        return USER_MAPPER.toRes(user);
     }
 
-    public UserGetRes getUser(Long id) {
+    public UserRes getUser(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new InvalidIdEx(id));
-        return userMapper.toGetRes(user);
+        return USER_MAPPER.toRes(user);
     }
 
     @Transactional
@@ -101,24 +101,24 @@ public class UserService {
     }
 
     @Transactional
-    public UserGetRes editUser(Long id, UserUpdateReq userUpdateReq) {
+    public UserRes editUser(Long id, UserUpdateReq userUpdateReq) {
         User user =
                 userRepository.findById(id).orElseThrow(() -> new InvalidIdEx("Entity with ID \" + id + \" not found"));
-        userMapper.partialUpdate(user, userUpdateReq);
-        return userMapper.toGetRes(user);
+        USER_MAPPER.partialUpdate(user, userUpdateReq);
+        return USER_MAPPER.toRes(user);
     }
 
     public void delUser(Long id) {
         userRepository.deleteById(id);
     }
 
-    public PagedRes<UserGetRes> getUsers(UserSearchDTO searchDTO, Pageable pageable) {
+    public PagedRes<UserRes> getUsers(UserSearchDTO searchDTO, Pageable pageable) {
         if (SecurityUtils.hasCurrentUserNoneOfAuthorities(AuthConstants.ADMIN)) {
             throw new AccessDeniedException("Chỉ admin mới có quyền xem danh sách người dùng");
         }
 
         Specification<User> spec = UserSpec.filterUsers(searchDTO);
-        Page<UserGetRes> users = userRepository.findAll(spec, pageable).map(userMapper::toGetRes);
+        Page<UserRes> users = userRepository.findAll(spec, pageable).map(USER_MAPPER::toRes);
         return PagedRes.from(users);
     }
 }

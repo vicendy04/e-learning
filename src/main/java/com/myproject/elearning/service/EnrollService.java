@@ -1,6 +1,7 @@
 package com.myproject.elearning.service;
 
 import static com.myproject.elearning.domain.Enrollment.EnrollmentStatus;
+import static com.myproject.elearning.mapper.EnrollmentMapper.ENROLLMENT_MAPPER;
 
 import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.domain.Enrollment;
@@ -12,7 +13,6 @@ import com.myproject.elearning.dto.response.enrollment.EnrollmentGetRes;
 import com.myproject.elearning.dto.response.enrollment.EnrollmentRes;
 import com.myproject.elearning.exception.problemdetails.EmailUsedEx;
 import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
-import com.myproject.elearning.mapper.EnrollmentMapper;
 import com.myproject.elearning.repository.CourseRepository;
 import com.myproject.elearning.repository.EnrollmentRepository;
 import com.myproject.elearning.repository.UserRepository;
@@ -31,7 +31,6 @@ public class EnrollService {
     EnrollmentRepository enrollmentRepository;
     CourseRepository courseRepository;
     UserRepository userRepository;
-    EnrollmentMapper enrollmentMapper;
 
     @Transactional
     public EnrollmentRes enrollCourse(Long courseId, Long userId) {
@@ -46,7 +45,7 @@ public class EnrollService {
         // đảm bảo tính atomic nhưng có thể gây ra bottleneck khi có nhiều concurrent requests
         courseRepository.incrementEnrollmentCount(courseId);
         Enrollment save = enrollmentRepository.save(enrollment);
-        return enrollmentMapper.toRes(save);
+        return ENROLLMENT_MAPPER.toRes(save);
     }
 
     @Transactional
@@ -61,14 +60,14 @@ public class EnrollService {
     @Transactional(readOnly = true)
     public PagedRes<EnrollmentGetRes> getMyEnrollments(Pageable pageable, Long userId) {
         Page<Enrollment> enrollments = enrollmentRepository.getPagedEnrollmentsByUserId(userId, pageable);
-        return PagedRes.from(enrollments.map(enrollmentMapper::toGetRes));
+        return PagedRes.from(enrollments.map(ENROLLMENT_MAPPER::toGetRes));
     }
 
     @Transactional(readOnly = true)
     public EnrollmentGetRes getEnrollment(Long enrollmentId) {
         Enrollment enrollment =
                 enrollmentRepository.findByIdWithDetails(enrollmentId).orElseThrow(() -> new InvalidIdEx(enrollmentId));
-        return enrollmentMapper.toGetRes(enrollment);
+        return ENROLLMENT_MAPPER.toGetRes(enrollment);
     }
 
     @Transactional
@@ -78,7 +77,7 @@ public class EnrollService {
         validateStatusTransition(enrollment, input);
         enrollment.setStatus(input.getStatus());
         enrollment.setReasonForDropping(input.getReasonForDropping());
-        return enrollmentMapper.toEditRes(enrollmentRepository.save(enrollment));
+        return ENROLLMENT_MAPPER.toEditRes(enrollmentRepository.save(enrollment));
     }
 
     private void validateStatusTransition(Enrollment enrollment, EnrollStatusUpdateReq input) {

@@ -8,7 +8,7 @@ import com.myproject.elearning.dto.request.auth.RegisterReq;
 import com.myproject.elearning.dto.request.user.UserSearchDTO;
 import com.myproject.elearning.dto.request.user.UserUpdateReq;
 import com.myproject.elearning.dto.response.enrollment.EnrollmentGetRes;
-import com.myproject.elearning.dto.response.user.UserGetRes;
+import com.myproject.elearning.dto.response.user.UserRes;
 import com.myproject.elearning.exception.problemdetails.AnonymousUserEx;
 import com.myproject.elearning.security.SecurityUtils;
 import com.myproject.elearning.service.EnrollService;
@@ -37,16 +37,16 @@ public class UserController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
-    public ApiRes<UserGetRes> addUser(@Valid @RequestBody RegisterReq registerReq) {
-        UserGetRes newUser = userService.addUser(registerReq);
+    public ApiRes<UserRes> addUser(@Valid @RequestBody RegisterReq registerReq) {
+        UserRes newUser = userService.addUser(registerReq);
         return successRes("User created successfully", newUser);
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/{id}")
+    @GetMapping("/{userId}")
     @PreAuthorize("isAuthenticated()")
-    public ApiRes<UserGetRes> getUser(@PathVariable(name = "id") Long id) {
-        UserGetRes user = userService.getUser(id);
+    public ApiRes<UserRes> getUser(@PathVariable(name = "userId") Long userId) {
+        UserRes user = userService.getUser(userId);
         return successRes("User retrieved successfully", user);
     }
 
@@ -64,18 +64,19 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("")
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiRes<PagedRes<UserGetRes>> getUsers(
+    public ApiRes<PagedRes<UserRes>> getUsers(
             @ModelAttribute UserSearchDTO searchDTO,
             @PageableDefault(size = 5, page = 0, sort = "username", direction = Sort.Direction.ASC) Pageable pageable) {
-        PagedRes<UserGetRes> users = userService.getUsers(searchDTO, pageable);
+        PagedRes<UserRes> users = userService.getUsers(searchDTO, pageable);
         return successRes("Users retrieved successfully", users);
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @PutMapping("/{id}")
+    @PutMapping("/{userId}")
     @PreAuthorize("isAuthenticated() and (hasRole('ADMIN') or @resourceAccessService.isUserOwner(#id))")
-    public ApiRes<UserGetRes> editUser(@PathVariable(name = "id") Long id, @RequestBody UserUpdateReq userUpdateReq) {
-        UserGetRes updatedUser = userService.editUser(id, userUpdateReq);
+    public ApiRes<UserRes> editUser(
+            @PathVariable(name = "userId") Long userId, @RequestBody UserUpdateReq userUpdateReq) {
+        UserRes updatedUser = userService.editUser(userId, userUpdateReq);
         return successRes("User updated successfully", updatedUser);
     }
 
@@ -89,10 +90,10 @@ public class UserController {
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiRes<Void> delUser(@PathVariable(name = "id") Long id) {
-        userService.delUser(id);
+    public ApiRes<Void> delUser(@PathVariable(name = "userId") Long userId) {
+        userService.delUser(userId);
         return successRes("User deleted successfully", null);
     }
 }

@@ -4,16 +4,18 @@ import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.domain.Discount;
 import com.myproject.elearning.dto.request.course.CourseUpdateReq;
 import com.myproject.elearning.dto.request.discount.DiscountCreateReq;
-import com.myproject.elearning.dto.response.discount.DiscountGetRes;
+import com.myproject.elearning.dto.response.discount.DiscountRes;
 import com.myproject.elearning.mapper.base.MapperConfig;
 import java.util.Collections;
 import java.util.HashSet;
 import org.mapstruct.*;
+import org.mapstruct.factory.Mappers;
 
 @Mapper(
         config = MapperConfig.class,
         imports = {HashSet.class, Collections.class})
 public interface DiscountMapper {
+    DiscountMapper DISCOUNT_MAPPER = Mappers.getMapper(DiscountMapper.class);
 
     @Mapping(target = "id", ignore = true) // fix DiscountCreateMapperImpl
     @Mapping(
@@ -28,5 +30,5 @@ public interface DiscountMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void partialUpdate(@MappingTarget Course entity, CourseUpdateReq request);
 
-    DiscountGetRes toGetRes(Discount entity);
+    DiscountRes toRes(Discount entity);
 }

@@ -2,7 +2,7 @@ package com.myproject.elearning.service.redis;
 
 import static com.myproject.elearning.constant.RedisKeyConstants.getCourseKey;
 
-import com.myproject.elearning.dto.response.course.CourseGetRes;
+import com.myproject.elearning.dto.CourseData;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import lombok.AccessLevel;
@@ -23,16 +23,16 @@ public class RedisCourseService {
     ValueOperations<String, Object> valueOps;
     Random random;
 
-    public CourseGetRes getCachedCourse(Long id) {
+    public CourseData get(Long id) {
         Object obj = valueOps.get(getCourseKey(id));
-        return obj != null ? (CourseGetRes) obj : null;
+        return obj != null ? (CourseData) obj : null;
     }
 
-    public void setCachedCourse(Long id, CourseGetRes course, long expiryTimeInSeconds) {
+    public void set(Long id, CourseData course, long expiryTimeInSeconds) {
         valueOps.set(getCourseKey(id), course, expiryTimeInSeconds, TimeUnit.SECONDS);
     }
 
-    public void setCachedCourse(Long id, CourseGetRes course) {
+    public void set(Long id, CourseData course) {
         long randomExpiry = DEFAULT_CACHE_DURATION + random.nextInt((int) MAX_RANDOM_EXPIRY);
         valueOps.set(getCourseKey(id), course, randomExpiry, TimeUnit.SECONDS);
     }

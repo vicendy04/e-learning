@@ -1,13 +1,13 @@
 package com.myproject.elearning.service;
 
+import static com.myproject.elearning.mapper.LessonMapper.LESSON_MAPPER;
+
 import com.myproject.elearning.domain.Chapter;
 import com.myproject.elearning.domain.Lesson;
 import com.myproject.elearning.dto.request.lesson.LessonCreateReq;
 import com.myproject.elearning.dto.request.lesson.LessonUpdateReq;
-import com.myproject.elearning.dto.response.lesson.LessonGetRes;
-import com.myproject.elearning.dto.response.lesson.LessonListRes;
+import com.myproject.elearning.dto.response.lesson.LessonRes;
 import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
-import com.myproject.elearning.mapper.LessonMapper;
 import com.myproject.elearning.repository.ChapterRepository;
 import com.myproject.elearning.repository.LessonRepository;
 import java.util.List;
@@ -24,27 +24,26 @@ import org.springframework.transaction.annotation.Transactional;
 public class LessonService {
     LessonRepository lessonRepository;
     ChapterRepository chapterRepository;
-    LessonMapper lessonMapper;
 
     @Transactional
-    public LessonGetRes addLessonToChapter(Long chapterId, LessonCreateReq request) {
-        Lesson lesson = lessonMapper.toEntity(request);
+    public LessonRes addLessonToChapter(Long chapterId, LessonCreateReq request) {
+        Lesson lesson = LESSON_MAPPER.toEntity(request);
         List<Lesson> existingLessons = lessonRepository.findByChapterIdOrderByOrderIndexAsc(chapterId);
         lesson.setOrderIndex(existingLessons.size() + 1);
         Chapter chapterRef = chapterRepository.getReferenceById(chapterId);
         lesson.setChapter(chapterRef);
-        return lessonMapper.toGetRes(lessonRepository.save(lesson));
+        return LESSON_MAPPER.toRes(lessonRepository.save(lesson));
     }
 
-    public LessonGetRes getLesson(Long id) {
-        return lessonMapper.toGetRes(lessonRepository.findByIdWithChapter(id).orElseThrow(() -> new InvalidIdEx(id)));
+    public LessonRes getLesson(Long id) {
+        return LESSON_MAPPER.toRes(lessonRepository.findByIdWithChapter(id).orElseThrow(() -> new InvalidIdEx(id)));
     }
 
     @Transactional
-    public LessonGetRes editLesson(Long id, LessonUpdateReq request) {
+    public LessonRes editLesson(Long id, LessonUpdateReq request) {
         Lesson lesson = lessonRepository.findById(id).orElseThrow(() -> new InvalidIdEx("Bài học không tồn tại"));
-        lessonMapper.partialUpdate(lesson, request);
-        return lessonMapper.toGetRes(lessonRepository.save(lesson));
+        LESSON_MAPPER.partialUpdate(lesson, request);
+        return LESSON_MAPPER.toRes(lessonRepository.save(lesson));
     }
 
     @Transactional
@@ -52,9 +51,9 @@ public class LessonService {
         lessonRepository.deleteById(id);
     }
 
-    public List<LessonListRes> getLessonsByChapterId(Long chapterId) {
+    public List<LessonRes> getLessonsByChapterId(Long chapterId) {
         List<Lesson> lessons = lessonRepository.findAllByChapterId(chapterId);
-        return lessons.stream().map(lessonMapper::toListRes).collect(Collectors.toList());
+        return lessons.stream().map(LESSON_MAPPER::toRes).collect(Collectors.toList());
     }
 
     @Transactional

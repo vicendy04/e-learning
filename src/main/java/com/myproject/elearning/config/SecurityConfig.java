@@ -36,6 +36,15 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final JwtDecoder jwtDecoder;
+
+    private static final String[] PUBLIC_GET_ENDPOINTS = {
+        "/api/v1/posts/{id}",
+        "/api/v1/courses/{courseId}",
+        "/api/v1/courses",
+        "/api/v1/courses/{courseId}/chapters",
+        "/api/v1/courses/{courseId}/chapters/expanded"
+    };
+
     private static final String[] PUBLIC_URLS = {
         "/swagger-ui/**",
         "/swagger-ui.html",
@@ -44,11 +53,10 @@ public class SecurityConfig {
         "/chat-test.html",
         "/post-like-test.html",
         "/course-search.html",
+        "course-detail.html",
         "/api/v1/courses/chat/**",
         "/ws/**",
-        "/api/v1/auth/login",
-        "/api/v1/auth/refresh",
-        "/api/v1/auth/logout",
+        "/api/v1/auth/**",
         "/api/v1/courses/search",
         "/actuator/**",
         "/api/v1/test-performance/**",
@@ -65,25 +73,22 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(
             HttpSecurity http, JwtAuthEntryPoint jwtAuthEntryPoint, JwtDeniedHandler jwtDeniedHandler)
             throws Exception {
-        http.cors(withDefaults())
+        return http.cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(authz ->
-                        // prettier-ignore
-                        authz.requestMatchers(PUBLIC_URLS)
-                                .permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/v1/posts/{id}")
-                                .permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/v1/users")
-                                .permitAll()
-                                .anyRequest()
-                                .authenticated())
+                .authorizeHttpRequests(authz -> authz.requestMatchers(PUBLIC_URLS)
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, PUBLIC_GET_ENDPOINTS)
+                        .permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/users")
+                        .permitAll()
+                        .anyRequest()
+                        .authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder))
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(jwtDecoder))
                         .authenticationEntryPoint(jwtAuthEntryPoint)
                         .accessDeniedHandler(jwtDeniedHandler))
-                .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(jwtAuthEntryPoint));
-
-        return http.build();
+                .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(jwtAuthEntryPoint))
+                .build();
     }
 
     @Bean

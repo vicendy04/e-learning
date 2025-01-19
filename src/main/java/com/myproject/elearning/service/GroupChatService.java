@@ -1,10 +1,11 @@
 package com.myproject.elearning.service;
 
+import static com.myproject.elearning.mapper.GroupChatMapper.GROUP_CHAT_MAPPER;
+
 import com.myproject.elearning.domain.GroupChat;
 import com.myproject.elearning.dto.request.chat.GroupChatCreateReq;
 import com.myproject.elearning.dto.response.chat.GroupChatRes;
 import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
-import com.myproject.elearning.mapper.GroupChatMapper;
 import com.myproject.elearning.repository.CourseRepository;
 import com.myproject.elearning.repository.GroupChatRepository;
 import lombok.AccessLevel;
@@ -19,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class GroupChatService {
     GroupChatRepository groupChatRepository;
     CourseRepository courseRepository;
-    GroupChatMapper groupChatMapper;
 
     // check xem course co dung la cua teacher ko?
     @Transactional
@@ -30,12 +30,12 @@ public class GroupChatService {
         if (groupChatRepository.existsByCourseId(request.getCourseId())) {
             throw new InvalidIdEx("Khóa học này đã có nhóm chat");
         }
-        GroupChat groupChat = groupChatMapper.toEntity(request);
-        return groupChatMapper.toRes(groupChatRepository.save(groupChat));
+        GroupChat groupChat = GROUP_CHAT_MAPPER.toEntity(request);
+        return GROUP_CHAT_MAPPER.toRes(groupChatRepository.save(groupChat));
     }
 
     public GroupChatRes getGroupChatByCourse(Long courseId) {
         GroupChat groupChat = groupChatRepository.findByCourseId(courseId).orElseThrow(() -> new InvalidIdEx(courseId));
-        return groupChatMapper.toRes(groupChat);
+        return GROUP_CHAT_MAPPER.toRes(groupChat);
     }
 }

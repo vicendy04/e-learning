@@ -1,12 +1,13 @@
 package com.myproject.elearning.service;
 
+import static com.myproject.elearning.mapper.RoleMapper.ROLE_MAPPER;
+
 import com.myproject.elearning.constant.ErrorMessageConstants;
 import com.myproject.elearning.domain.Role;
 import com.myproject.elearning.dto.common.PagedRes;
 import com.myproject.elearning.dto.request.role.CreateRoleReq;
 import com.myproject.elearning.dto.response.role.RoleDTO;
 import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
-import com.myproject.elearning.mapper.RoleMapper;
 import com.myproject.elearning.repository.RoleRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -23,20 +24,19 @@ import org.springframework.stereotype.Service;
 @Service
 public class RoleService {
     RoleRepository roleRepository;
-    RoleMapper roleMapper;
 
     public RoleDTO addRole(CreateRoleReq req) {
         Role role = new Role();
         role.setName(req.getName());
         Role saved = roleRepository.save(role);
-        return roleMapper.toDto(saved);
+        return ROLE_MAPPER.toDto(saved);
     }
 
     public RoleDTO getRole(Long id) {
         Role role = roleRepository
                 .findById(id)
                 .orElseThrow(() -> new InvalidIdEx(ErrorMessageConstants.ROLE_NOT_FOUND + id));
-        return roleMapper.toDto(role);
+        return ROLE_MAPPER.toDto(role);
     }
 
     public RoleDTO editRole(RoleDTO roleDTO) {
@@ -45,7 +45,7 @@ public class RoleService {
                 .orElseThrow(() -> new InvalidIdEx(ErrorMessageConstants.ROLE_NOT_FOUND + roleDTO.getId()));
         role.setName(roleDTO.getName());
         Role savedRole = roleRepository.save(role);
-        return roleMapper.toDto(savedRole);
+        return ROLE_MAPPER.toDto(savedRole);
     }
 
     public void delRole(Long id) {
@@ -54,6 +54,6 @@ public class RoleService {
 
     public PagedRes<RoleDTO> getRoles(Pageable pageable) {
         Page<Role> rolesPage = roleRepository.findAll(pageable);
-        return PagedRes.from(rolesPage.map(roleMapper::toDto));
+        return PagedRes.from(rolesPage.map(ROLE_MAPPER::toDto));
     }
 }

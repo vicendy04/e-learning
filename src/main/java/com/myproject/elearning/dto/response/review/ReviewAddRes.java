@@ -9,7 +9,7 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ReviewRes {
+public class ReviewAddRes {
     Long id;
     Integer rating;
     String comment;

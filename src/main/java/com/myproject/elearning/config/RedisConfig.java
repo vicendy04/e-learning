@@ -54,7 +54,8 @@ public class RedisConfig {
         template.setHashKeySerializer(new StringRedisSerializer());
         template.setHashValueSerializer(redisSerializer);
         template.setConnectionFactory(connectionFactory);
-        template.setEnableTransactionSupport(true); // Enable transaction
+        template.setEnableTransactionSupport(true);
+        template.afterPropertiesSet();
         return template;
     }
 

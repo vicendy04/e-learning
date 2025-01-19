@@ -1,5 +1,6 @@
 package com.myproject.elearning.rest.content;
 
+import static com.myproject.elearning.mapper.PostMapper.POST_MAPPER;
 import static com.myproject.elearning.rest.utils.ResponseUtils.errorRes;
 import static com.myproject.elearning.rest.utils.ResponseUtils.successRes;
 
@@ -13,7 +14,6 @@ import com.myproject.elearning.dto.response.post.PostGetRes;
 import com.myproject.elearning.dto.response.post.PostListRes;
 import com.myproject.elearning.dto.response.post.PostUpdateRes;
 import com.myproject.elearning.exception.problemdetails.AnonymousUserEx;
-import com.myproject.elearning.mapper.PostMapper;
 import com.myproject.elearning.security.SecurityUtils;
 import com.myproject.elearning.service.PostService;
 import com.myproject.elearning.service.UserService;
@@ -39,7 +39,6 @@ public class PostController {
     PostService postService;
     UserService userService;
     RedisPostService redisPostService;
-    PostMapper postMapper;
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/top-like")
@@ -58,7 +57,7 @@ public class PostController {
         Long userId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
         Post post = postService.addPost(userId, request);
         UserInfo userInfo = userService.findUserInfo(userId);
-        PostGetRes response = postMapper.toGetRes(post, userInfo);
+        PostGetRes response = POST_MAPPER.toGetRes(post, userInfo);
         redisPostService.setCachedPost(post.getId(), response);
         return successRes("Tạo bài viết thành công", response);
     }

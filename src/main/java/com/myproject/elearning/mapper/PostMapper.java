@@ -9,9 +9,12 @@ import com.myproject.elearning.dto.response.post.PostListRes;
 import com.myproject.elearning.dto.response.post.PostUpdateRes;
 import com.myproject.elearning.mapper.base.MapperConfig;
 import org.mapstruct.*;
+import org.mapstruct.factory.Mappers;
 
 @Mapper(config = MapperConfig.class)
 public interface PostMapper {
+    PostMapper POST_MAPPER = Mappers.getMapper(PostMapper.class);
+
     Post toEntity(PostCreateReq request);
 
     @Mapping(target = "id", source = "entity.id")

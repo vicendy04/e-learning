@@ -9,7 +9,7 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class LessonGetRes {
+public class LessonRes {
     Long id;
     String title;
     String contentUrl;

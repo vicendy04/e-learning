@@ -3,7 +3,6 @@ package com.myproject.elearning.dto.response.discount;
 import com.myproject.elearning.domain.Discount;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,11 +20,5 @@ public class DiscountRes {
     String discountCode;
     LocalDateTime startDate;
     LocalDateTime endDate;
-    Integer maxUses;
-    Integer usesCount;
-    Integer maxUsesPerUser;
     BigDecimal minOrderValue;
-    Boolean isActive;
-    Discount.DiscountAppliesTo appliesTo;
-    Set<Long> specificCourseIds;
 }

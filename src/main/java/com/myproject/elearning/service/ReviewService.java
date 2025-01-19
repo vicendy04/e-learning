@@ -1,17 +1,18 @@
 package com.myproject.elearning.service;
 
+import static com.myproject.elearning.mapper.ReviewMapper.REVIEW_MAPPER;
+
 import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.domain.Review;
 import com.myproject.elearning.domain.User;
 import com.myproject.elearning.dto.common.PagedRes;
 import com.myproject.elearning.dto.request.review.ReviewCreateReq;
 import com.myproject.elearning.dto.request.review.ReviewUpdateReq;
+import com.myproject.elearning.dto.response.review.ReviewAddRes;
 import com.myproject.elearning.dto.response.review.ReviewCourseRes;
-import com.myproject.elearning.dto.response.review.ReviewRes;
 import com.myproject.elearning.dto.response.review.ReviewUpdateRes;
 import com.myproject.elearning.dto.response.review.ReviewUserRes;
 import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
-import com.myproject.elearning.mapper.ReviewMapper;
 import com.myproject.elearning.repository.CourseRepository;
 import com.myproject.elearning.repository.ReviewRepository;
 import com.myproject.elearning.repository.UserRepository;
@@ -30,27 +31,26 @@ public class ReviewService {
     ReviewRepository reviewRepository;
     CourseRepository courseRepository;
     UserRepository userRepository;
-    ReviewMapper reviewMapper;
 
     @Transactional
-    public ReviewRes addReview(Long userId, Long courseId, ReviewCreateReq request) {
+    public ReviewAddRes addReview(Long userId, Long courseId, ReviewCreateReq request) {
         if (reviewRepository.existsByUserIdAndCourseId(userId, courseId)) {
             throw new IllegalStateException("Người dùng đã đánh giá khóa học này");
         }
-        Review review = reviewMapper.toEntity(request);
+        Review review = REVIEW_MAPPER.toEntity(request);
         User userRef = userRepository.getReferenceById(userId);
         Course courseRef = courseRepository.getReferenceById(courseId);
         review.setUser(userRef);
         review.setCourse(courseRef);
         courseRepository.incrementReviewCount(courseId);
-        return reviewMapper.toRes(reviewRepository.save(review));
+        return REVIEW_MAPPER.toAddRes(reviewRepository.save(review));
     }
 
     @Transactional
     public ReviewUpdateRes editReview(Long reviewId, ReviewUpdateReq request) {
         Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new InvalidIdEx(reviewId));
-        reviewMapper.partialUpdate(review, request);
-        return reviewMapper.toUpdateRes(reviewRepository.save(review));
+        REVIEW_MAPPER.partialUpdate(review, request);
+        return REVIEW_MAPPER.toUpdateRes(reviewRepository.save(review));
     }
 
     @Transactional

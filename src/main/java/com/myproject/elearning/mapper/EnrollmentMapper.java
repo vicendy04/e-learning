@@ -8,9 +8,12 @@ import com.myproject.elearning.dto.response.enrollment.EnrollmentGetRes.CourseIn
 import com.myproject.elearning.dto.response.enrollment.EnrollmentRes;
 import com.myproject.elearning.mapper.base.MapperConfig;
 import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
 
 @Mapper(config = MapperConfig.class)
 public interface EnrollmentMapper {
+
+    EnrollmentMapper ENROLLMENT_MAPPER = Mappers.getMapper(EnrollmentMapper.class);
 
     Course toEntity(CourseInfo request);
 

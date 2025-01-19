@@ -1,12 +1,13 @@
 package com.myproject.elearning.service;
 
+import static com.myproject.elearning.mapper.DiscountMapper.DISCOUNT_MAPPER;
+
 import com.myproject.elearning.domain.Discount;
 import com.myproject.elearning.dto.common.PagedRes;
 import com.myproject.elearning.dto.request.discount.DiscountCreateReq;
-import com.myproject.elearning.dto.response.discount.DiscountGetRes;
+import com.myproject.elearning.dto.response.discount.DiscountRes;
 import com.myproject.elearning.exception.problemdetails.InvalidDiscountEx;
 import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
-import com.myproject.elearning.mapper.DiscountMapper;
 import com.myproject.elearning.repository.CourseRepository;
 import com.myproject.elearning.repository.CourseRepository.CourseForValidDiscount;
 import com.myproject.elearning.repository.DiscountRepository;
@@ -26,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class DiscountService {
     DiscountRepository discountRepository;
     CourseRepository courseRepository;
-    DiscountMapper discountMapper;
 
     @Transactional
     public String addDiscount(DiscountCreateReq request, Long instructorId) {
@@ -42,14 +42,14 @@ public class DiscountService {
             }
         }
 
-        Discount discount = discountMapper.toEntity(request, instructorId);
+        Discount discount = DISCOUNT_MAPPER.toEntity(request, instructorId);
         discountRepository.save(discount);
         return request.getDiscountCode();
     }
 
-    public PagedRes<DiscountGetRes> getDiscountsForInstructor(Pageable pageable, Long instructorId) {
-        Page<DiscountGetRes> discounts =
-                discountRepository.findAllByInstructorId(pageable, instructorId).map(discountMapper::toGetRes);
+    public PagedRes<DiscountRes> getDiscountsForInstructor(Pageable pageable, Long instructorId) {
+        Page<DiscountRes> discounts =
+                discountRepository.findAllByInstructorId(pageable, instructorId).map(DISCOUNT_MAPPER::toRes);
         return PagedRes.from(discounts);
     }
 

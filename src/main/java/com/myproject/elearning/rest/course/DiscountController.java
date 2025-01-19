@@ -6,7 +6,7 @@ import com.myproject.elearning.dto.common.ApiRes;
 import com.myproject.elearning.dto.common.PagedRes;
 import com.myproject.elearning.dto.request.discount.ApplyDiscountReq;
 import com.myproject.elearning.dto.request.discount.DiscountCreateReq;
-import com.myproject.elearning.dto.response.discount.DiscountGetRes;
+import com.myproject.elearning.dto.response.discount.DiscountRes;
 import com.myproject.elearning.exception.problemdetails.AnonymousUserEx;
 import com.myproject.elearning.exception.problemdetails.InvalidDiscountEx;
 import com.myproject.elearning.security.SecurityUtils;
@@ -44,11 +44,11 @@ public class DiscountController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("")
     @PreAuthorize("isAuthenticated() and hasAnyRole('INSTRUCTOR', 'ADMIN')")
-    public ApiRes<PagedRes<DiscountGetRes>> getDiscountsForInstructor(
+    public ApiRes<PagedRes<DiscountRes>> getDiscountsForInstructor(
             @PageableDefault(size = 5, page = 0, sort = "discountName", direction = Sort.Direction.ASC)
                     Pageable pageable) {
         Long instructorId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
-        PagedRes<DiscountGetRes> discounts = discountService.getDiscountsForInstructor(pageable, instructorId);
+        PagedRes<DiscountRes> discounts = discountService.getDiscountsForInstructor(pageable, instructorId);
         return successRes("Retrieved successfully", discounts);
     }
 
@@ -64,10 +64,10 @@ public class DiscountController {
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @DeleteMapping("/{id}")
-    @PreAuthorize("isAuthenticated() and (hasRole('ADMIN') or @resourceAccessService.isDiscountOwner(#id))")
-    public ApiRes<Void> delDiscountVoucher(@PathVariable Long id) {
-        discountService.delDiscountVoucher(id);
+    @DeleteMapping("/{discountId}")
+    @PreAuthorize("isAuthenticated() and (hasRole('ADMIN') or @resourceAccessService.isDiscountOwner(#discountId))")
+    public ApiRes<Void> delDiscountVoucher(@PathVariable Long discountId) {
+        discountService.delDiscountVoucher(discountId);
         return successRes("Deleted successfully", null);
     }
 }

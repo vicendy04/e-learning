@@ -1,4 +1,4 @@
-package com.myproject.elearning.dto.response.course;
+package com.myproject.elearning.dto;
 
 import com.myproject.elearning.domain.Course;
 import java.math.BigDecimal;
@@ -7,13 +7,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
-import org.springframework.hateoas.RepresentationModel;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CourseGetRes extends RepresentationModel<CourseGetRes> {
+public class CourseData {
     Long id;
     String title;
     String description;

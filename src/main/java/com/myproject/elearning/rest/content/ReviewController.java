@@ -6,8 +6,8 @@ import com.myproject.elearning.dto.common.ApiRes;
 import com.myproject.elearning.dto.common.PagedRes;
 import com.myproject.elearning.dto.request.review.ReviewCreateReq;
 import com.myproject.elearning.dto.request.review.ReviewUpdateReq;
+import com.myproject.elearning.dto.response.review.ReviewAddRes;
 import com.myproject.elearning.dto.response.review.ReviewCourseRes;
-import com.myproject.elearning.dto.response.review.ReviewRes;
 import com.myproject.elearning.dto.response.review.ReviewUpdateRes;
 import com.myproject.elearning.dto.response.review.ReviewUserRes;
 import com.myproject.elearning.exception.problemdetails.AnonymousUserEx;
@@ -34,9 +34,9 @@ public class ReviewController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/courses/{courseId}/reviews")
     @PreAuthorize("isAuthenticated() and hasAnyRole('USER')")
-    public ApiRes<ReviewRes> addReview(@PathVariable Long courseId, @Valid @RequestBody ReviewCreateReq request) {
+    public ApiRes<ReviewAddRes> addReview(@PathVariable Long courseId, @Valid @RequestBody ReviewCreateReq request) {
         Long userId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
-        ReviewRes review = reviewService.addReview(userId, courseId, request);
+        ReviewAddRes review = reviewService.addReview(userId, courseId, request);
         return successRes("Đánh giá đã được tạo thành công", review);
     }
 

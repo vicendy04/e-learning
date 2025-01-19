@@ -7,13 +7,14 @@ import com.myproject.elearning.dto.response.course.CourseGetRes;
 import com.myproject.elearning.mapper.CourseMapper;
 import com.myproject.elearning.repository.CourseRepository;
 import com.myproject.elearning.repository.UserRepository;
+import com.myproject.elearning.service.database.CourseDBService;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class CourseServiceTest {
+class CourseDBServiceTest {
     @Mock
     private CourseRepository courseRepository;
 
@@ -24,7 +25,7 @@ class CourseServiceTest {
     private UserRepository userRepository;
 
     @InjectMocks
-    private CourseService courseService;
+    private CourseDBService courseDBService;
 
     private Course course;
     private User instructor;
