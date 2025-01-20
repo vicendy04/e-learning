@@ -53,14 +53,6 @@ public class AuthService {
     UserService userService;
     PasswordEncoder passwordEncoder;
 
-    public Authentication authenticate(LoginReq loginReq, UserAuth authDTO) {
-        // Verify password
-        if (!passwordEncoder.matches(loginReq.getPassword(), authDTO.getPassword())) {
-            throw new InvalidCredentialsEx("Invalid username or password");
-        }
-        return SecurityUtils.setAuthContext(authDTO);
-    }
-
     @Transactional
     public TokenPair generateTokenPair(Authentication authentication) {
         String accessToken = generateAccessToken(authentication);
@@ -134,6 +126,14 @@ public class AuthService {
                 .build();
 
         return encodeClaims(claims);
+    }
+
+    public Authentication authenticate(LoginReq loginReq, UserAuth authDTO) {
+        // Verify password
+        if (!passwordEncoder.matches(loginReq.getPassword(), authDTO.getPassword())) {
+            throw new InvalidCredentialsEx("Invalid username or password");
+        }
+        return SecurityUtils.setAuthContext(authDTO);
     }
 
     private String encodeClaims(JwtClaimsSet claims) {

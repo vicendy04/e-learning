@@ -1,12 +1,13 @@
 package com.myproject.elearning.service;
 
+import static com.myproject.elearning.mapper.UserMapper.USER_MAPPER;
+
 import com.myproject.elearning.constant.AuthConstants;
 import com.myproject.elearning.domain.RefreshToken;
 import com.myproject.elearning.domain.Role;
 import com.myproject.elearning.domain.User;
 import com.myproject.elearning.dto.common.PagedRes;
 import com.myproject.elearning.dto.projection.UserAuth;
-import com.myproject.elearning.dto.projection.UserInfo;
 import com.myproject.elearning.dto.request.auth.RegisterReq;
 import com.myproject.elearning.dto.request.user.UserSearchDTO;
 import com.myproject.elearning.dto.request.user.UserUpdateReq;
@@ -18,6 +19,9 @@ import com.myproject.elearning.repository.RoleRepository;
 import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.repository.specification.UserSpec;
 import com.myproject.elearning.security.SecurityUtils;
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -28,12 +32,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
-
-import static com.myproject.elearning.mapper.UserMapper.USER_MAPPER;
 
 /**
  * Service class for managing users.
@@ -63,6 +61,7 @@ public class UserService {
         return USER_MAPPER.toRes(user);
     }
 
+    @Transactional(readOnly = true)
     public UserRes getUser(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new InvalidIdEx(id));
         return USER_MAPPER.toRes(user);
@@ -79,18 +78,15 @@ public class UserService {
         refreshTokenRepository.save(refreshToken);
     }
 
+    @Transactional(readOnly = true)
     public UserAuth findAuthDTOByEmail(String email) {
         return userRepository
                 .findAuthDTOByEmail(email)
                 .orElseThrow(() -> new InvalidCredentialsEx("Invalid email or user does not exist"));
     }
 
-    public UserInfo findUserInfo(Long userId) {
-        return userRepository.findUserInfo(userId).orElseThrow(() -> new InvalidIdEx(userId));
-    }
-
     public String findEmailById(Long id) {
-        return userRepository.findEmailByUserId(id).orElseThrow(() -> new InvalidIdEx("Email not found!"));
+        return userRepository.findEmailById(id).orElseThrow(() -> new InvalidIdEx("Email not found!"));
     }
 
     private RefreshToken createNewRefreshToken(Long userId) {

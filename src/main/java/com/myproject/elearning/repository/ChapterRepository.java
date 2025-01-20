@@ -12,23 +12,22 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ChapterRepository extends JpaRepository<Chapter, Long>, JpaSpecificationExecutor<Chapter> {
+    List<Chapter> findByCourseId(@Param("courseId") Long courseId);
+
     List<Chapter> findByCourseIdOrderByOrderIndexAsc(Long courseId);
 
     @EntityGraph(attributePaths = "lessons")
     Optional<Chapter> findWithLessonsById(Long id);
-
-    @Query("SELECT c FROM Chapter c WHERE c.course.id = :courseId")
-    List<Chapter> findByCourseId(@Param("courseId") Long courseId);
 
     @Query("""
 				SELECT c.course.instructor.id
 				FROM Chapter c
 				WHERE c.id = :chapterId
 			""")
-    Optional<Long> findInstructorIdByChapterId(Long chapterId);
+    Optional<Long> findInstructorIdById(Long chapterId);
 
     @Query("SELECT c FROM Chapter c " + "LEFT JOIN FETCH c.lessons l "
             + "WHERE c.course.id = :courseId "
             + "ORDER BY c.orderIndex ASC, l.orderIndex ASC")
-    List<Chapter> findByCourseIdWithLessons(@Param("courseId") Long courseId);
+    List<Chapter> findAllWithLessonsByCourseId(@Param("courseId") Long courseId);
 }

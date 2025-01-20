@@ -2,12 +2,13 @@ package com.myproject.elearning.dto;
 
 import com.myproject.elearning.domain.Course;
 import java.math.BigDecimal;
-
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
 @Getter
-@Builder
+@Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CourseData {
     Long id;

@@ -1,7 +1,6 @@
 package com.myproject.elearning.mapper;
 
 import com.myproject.elearning.domain.Post;
-import com.myproject.elearning.dto.projection.UserInfo;
 import com.myproject.elearning.dto.request.post.PostCreateReq;
 import com.myproject.elearning.dto.request.post.PostUpdateReq;
 import com.myproject.elearning.dto.response.post.PostGetRes;
@@ -15,10 +14,9 @@ import org.mapstruct.factory.Mappers;
 public interface PostMapper {
     PostMapper POST_MAPPER = Mappers.getMapper(PostMapper.class);
 
-    @Mapping(target = "id", source = "entity.id")
-    @Mapping(target = "userId", source = "side.id")
-    @Mapping(target = "username", source = "side.username")
-    PostGetRes toGetRes(Post entity, UserInfo side);
+    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "username", source = "user.username")
+    PostGetRes toGetRes(Post entity);
 
     Post toEntity(PostCreateReq request);
 

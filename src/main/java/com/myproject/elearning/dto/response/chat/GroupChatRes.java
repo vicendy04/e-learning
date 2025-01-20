@@ -2,13 +2,12 @@ package com.myproject.elearning.dto.response.chat;
 
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
 @Getter
-@Builder
+@Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class GroupChatRes {
     Long id;

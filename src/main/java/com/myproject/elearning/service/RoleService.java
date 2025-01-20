@@ -15,6 +15,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service class for managing roles.
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 public class RoleService {
     RoleRepository roleRepository;
 
+    @Transactional
     public RoleDTO addRole(CreateRoleReq req) {
         Role role = new Role();
         role.setName(req.getName());
@@ -39,6 +41,7 @@ public class RoleService {
         return ROLE_MAPPER.toDto(role);
     }
 
+    @Transactional
     public RoleDTO editRole(RoleDTO roleDTO) {
         Role role = roleRepository
                 .findById(roleDTO.getId())
@@ -48,6 +51,7 @@ public class RoleService {
         return ROLE_MAPPER.toDto(savedRole);
     }
 
+    @Transactional
     public void delRole(Long id) {
         roleRepository.deleteById(id);
     }

@@ -7,6 +7,9 @@ import com.myproject.elearning.dto.common.ApiRes;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
@@ -19,16 +22,12 @@ import org.springframework.stereotype.Component;
  * Custom implementation of the {@link AuthenticationEntryPoint} interface
  * by wrapping the response in {@link ProblemDetail} format.
  */
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Component
 public class JwtAuthEntryPoint implements AuthenticationEntryPoint {
-    private final BearerTokenAuthenticationEntryPoint bearerTokenAuthEntryPointDelegate;
-    private final ObjectMapper objectMapper;
-
-    public JwtAuthEntryPoint(
-            BearerTokenAuthenticationEntryPoint bearerTokenAuthEntryPointDelegate, ObjectMapper objectMapper) {
-        this.bearerTokenAuthEntryPointDelegate = bearerTokenAuthEntryPointDelegate;
-        this.objectMapper = objectMapper;
-    }
+    ObjectMapper objectMapper;
+    BearerTokenAuthenticationEntryPoint bearerTokenAuthEntryPointDelegate;
 
     @Override
     public void commence(

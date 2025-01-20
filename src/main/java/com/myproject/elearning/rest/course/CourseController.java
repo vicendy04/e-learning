@@ -16,11 +16,9 @@ import com.myproject.elearning.dto.response.course.CourseUpdateRes;
 import com.myproject.elearning.dto.response.enrollment.EnrollmentRes;
 import com.myproject.elearning.exception.problemdetails.AnonymousUserEx;
 import com.myproject.elearning.security.SecurityUtils;
-import com.myproject.elearning.service.CourseSearchService;
 import com.myproject.elearning.service.CourseService;
 import com.myproject.elearning.service.EnrollService;
 import com.myproject.elearning.service.ReviewService;
-import com.myproject.elearning.service.database.CourseDBService;
 import com.myproject.elearning.service.redis.RedisCourseService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -41,26 +39,24 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/courses")
 @RestController
 public class CourseController {
-    CourseDBService courseDBService;
-    EnrollService enrollService;
     CourseService courseService;
+    EnrollService enrollService;
     ReviewService reviewService;
     RedisCourseService redisCourseService;
-    CourseSearchService courseSearchService;
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
     @PreAuthorize("isAuthenticated() and hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ApiRes<CourseAddRes> addCourse(@Valid @RequestBody CourseCreateReq courseCreateReq) {
         Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
-        CourseAddRes res = courseDBService.addCourse(curUserId, courseCreateReq);
-        return successRes("Course created successfully", res);
+        var newCourse = courseService.addCourse(curUserId, courseCreateReq);
+        return successRes("Course created successfully", newCourse);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{courseId}")
     public ApiRes<CourseGetRes> getCourse(@PathVariable(name = "courseId") Long courseId) {
-        CourseData data = courseService.getCourse(courseId);
+        CourseData data = redisCourseService.getAside(courseId);
         var res = COURSE_MAPPER.toGetRes(data);
         return successRes("Course retrieved successfully", res);
     }
@@ -78,7 +74,7 @@ public class CourseController {
     public ApiRes<PagedRes<CourseListRes>> getCourses(
             @ModelAttribute CourseSearch searchDTO,
             @PageableDefault(size = 10, page = 0, sort = "title", direction = Sort.Direction.ASC) Pageable pageable) {
-        PagedRes<CourseListRes> courses = courseDBService.getCourses(searchDTO, pageable);
+        var courses = courseService.getCourses(searchDTO, pageable);
         return successRes("Courses retrieved successfully", courses);
     }
 
@@ -87,16 +83,16 @@ public class CourseController {
     @PreAuthorize("isAuthenticated() and (hasRole('ADMIN') or @resourceAccessService.isCourseOwner(#courseId))")
     public ApiRes<CourseUpdateRes> editCourse(
             @PathVariable(name = "courseId") Long courseId, @RequestBody CourseUpdateReq courseUpdateReq) {
-        CourseUpdateRes updatedCourse = courseDBService.editCourse(courseId, courseUpdateReq);
+        var editedCourse = courseService.editCourse(courseId, courseUpdateReq);
         redisCourseService.invalidateCourseCache(courseId);
-        return successRes("Course updated successfully", updatedCourse);
+        return successRes("Course updated successfully", editedCourse);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{courseId}")
     @PreAuthorize("isAuthenticated() and (hasRole('ADMIN') or @resourceAccessService.isCourseOwner(#id))")
     public ApiRes<Void> delCourse(@PathVariable(name = "courseId") Long courseId) {
-        courseDBService.delCourse(courseId);
+        courseService.delCourse(courseId);
         redisCourseService.invalidateCourseCache(courseId);
         return successRes("Course deleted successfully", null);
     }
@@ -106,7 +102,7 @@ public class CourseController {
     @PreAuthorize("isAuthenticated() and hasAnyRole('USER')")
     public ApiRes<EnrollmentRes> enrollCourse(@PathVariable Long courseId) {
         Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
-        EnrollmentRes enrollment = enrollService.enrollCourse(courseId, curUserId);
+        var enrollment = enrollService.enrollCourse(courseId, curUserId);
         return successRes("Enrolled successfully", enrollment);
     }
 
@@ -126,7 +122,7 @@ public class CourseController {
     public ApiRes<PagedRes<CourseListRes>> getMyCourses(
             @PageableDefault(size = 10, page = 0, sort = "title", direction = Sort.Direction.ASC) Pageable pageable) {
         Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
-        PagedRes<CourseListRes> courses = courseDBService.getCoursesByInstructorId(curUserId, pageable);
+        var courses = courseService.getCoursesByInstructorId(curUserId, pageable);
         return successRes("Lấy danh sách khóa học thành công", courses);
     }
 
@@ -137,7 +133,7 @@ public class CourseController {
     public ApiRes<PagedRes<CourseListRes>> getEnrolledCourses(
             @PageableDefault(size = 10, page = 0, sort = "title", direction = Sort.Direction.ASC) Pageable pageable) {
         Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
-        PagedRes<CourseListRes> enrolledCourses = courseDBService.getEnrolledCourses(curUserId, pageable);
+        var enrolledCourses = courseService.getEnrolledCourses(curUserId, pageable);
         return successRes("Lấy danh sách khóa học đã đăng ký thành công", enrolledCourses);
     }
 }

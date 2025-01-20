@@ -3,6 +3,7 @@ package com.myproject.elearning.service.redis;
 import static com.myproject.elearning.constant.RedisKeyConstants.getUserAuthKey;
 
 import com.myproject.elearning.dto.projection.UserAuth;
+import com.myproject.elearning.service.UserService;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import lombok.AccessLevel;
@@ -20,20 +21,29 @@ public class RedisAuthService {
     static final long MAX_RANDOM_EXPIRY = 300; // 5 min
     static final long DEFAULT_CACHE_MISS_DURATION = 30;
 
-    RedisTemplate<String, Object> redisTemplate;
-    ValueOperations<String, Object> valueOps;
     Random random;
+    UserService userService;
+    ValueOperations<String, Object> valueOps;
+    RedisTemplate<String, Object> redisTemplate;
 
-    public UserAuth getCachedUser(String username) {
-        return (UserAuth) valueOps.get(getUserAuthKey(username));
+    public UserAuth getAside(String email) {
+        UserAuth data = this.get(email);
+        if (data != null) return data;
+        data = userService.findAuthDTOByEmail(email);
+        this.set(email, data);
+        return data;
     }
 
-    public void setCachedUser(String username, Object userAuthDTO) {
+    private UserAuth get(String email) {
+        return (UserAuth) valueOps.get(getUserAuthKey(email));
+    }
+
+    public void set(String username, Object userAuthDTO) {
         long randomExpiry = DEFAULT_CACHE_DURATION + random.nextInt((int) MAX_RANDOM_EXPIRY);
         valueOps.set(getUserAuthKey(username), userAuthDTO, randomExpiry, TimeUnit.SECONDS);
     }
 
-    public void setEmptyCache(String username) {
+    private void setEmptyCache(String username) {
         valueOps.set(getUserAuthKey(username), "empty", DEFAULT_CACHE_MISS_DURATION, TimeUnit.SECONDS);
     }
 

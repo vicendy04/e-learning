@@ -2,9 +2,11 @@ package com.myproject.elearning.security;
 
 import com.myproject.elearning.dto.projection.UserAuth;
 import com.myproject.elearning.repository.UserRepository;
-import com.myproject.elearning.service.redis.RedisAuthService;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,31 +19,18 @@ import org.springframework.stereotype.Component;
  * Custom user authentication.
  * No longer in use.
  */
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Component("userDetailsService")
 public class CustomUserDetailsService implements UserDetailsService {
-    private final UserRepository userRepository;
-    private final RedisAuthService redisAuthService;
-
-    public CustomUserDetailsService(UserRepository userRepository, RedisAuthService redisAuthService) {
-        this.userRepository = userRepository;
-        this.redisAuthService = redisAuthService;
-    }
+    UserRepository userRepository;
 
     // * No longer in use.
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Object cachedUser = redisAuthService.getCachedUser(username);
-
-        if (cachedUser instanceof UserAuth userAuth) {
-            return createSpringSecurityUser(userAuth);
-        }
-
-        UserAuth userAuth = userRepository.findAuthDTOByEmail(username).orElseGet(() -> {
-            redisAuthService.setEmptyCache(username);
-            throw new UsernameNotFoundException("Email not found");
-        });
-
-        redisAuthService.setCachedUser(username, userAuth);
+        UserAuth userAuth = userRepository
+                .findAuthDTOByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Email not found"));
         return createSpringSecurityUser(userAuth);
     }
 

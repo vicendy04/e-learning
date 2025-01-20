@@ -38,7 +38,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
     public ApiRes<UserRes> addUser(@Valid @RequestBody RegisterReq registerReq) {
-        UserRes newUser = userService.addUser(registerReq);
+        var newUser = userService.addUser(registerReq);
         return successRes("User created successfully", newUser);
     }
 
@@ -46,7 +46,7 @@ public class UserController {
     @GetMapping("/{userId}")
     @PreAuthorize("isAuthenticated()")
     public ApiRes<UserRes> getUser(@PathVariable(name = "userId") Long userId) {
-        UserRes user = userService.getUser(userId);
+        var user = userService.getUser(userId);
         return successRes("User retrieved successfully", user);
     }
 
@@ -57,7 +57,7 @@ public class UserController {
     @GetMapping("/enrollments/{enrollmentId}")
     @PreAuthorize("isAuthenticated() and (hasRole('ADMIN') or @resourceAccessService.isEnrollmentOwner(#enrollmentId))")
     public ApiRes<EnrollmentGetRes> getEnrollment(@PathVariable Long enrollmentId) {
-        EnrollmentGetRes enrollment = enrollService.getEnrollment(enrollmentId);
+        var enrollment = enrollService.getEnrollment(enrollmentId);
         return successRes("Enrollment retrieved successfully", enrollment);
     }
 
@@ -67,7 +67,7 @@ public class UserController {
     public ApiRes<PagedRes<UserRes>> getUsers(
             @ModelAttribute UserSearchDTO searchDTO,
             @PageableDefault(size = 5, page = 0, sort = "username", direction = Sort.Direction.ASC) Pageable pageable) {
-        PagedRes<UserRes> users = userService.getUsers(searchDTO, pageable);
+        var users = userService.getUsers(searchDTO, pageable);
         return successRes("Users retrieved successfully", users);
     }
 
@@ -76,8 +76,8 @@ public class UserController {
     @PreAuthorize("isAuthenticated() and (hasRole('ADMIN') or @resourceAccessService.isUserOwner(#id))")
     public ApiRes<UserRes> editUser(
             @PathVariable(name = "userId") Long userId, @RequestBody UserUpdateReq userUpdateReq) {
-        UserRes updatedUser = userService.editUser(userId, userUpdateReq);
-        return successRes("User updated successfully", updatedUser);
+        var editedUser = userService.editUser(userId, userUpdateReq);
+        return successRes("User updated successfully", editedUser);
     }
 
     @ResponseStatus(HttpStatus.OK)
@@ -85,7 +85,7 @@ public class UserController {
     @PreAuthorize("isAuthenticated() and hasAnyRole('USER', 'ADMIN')")
     public ApiRes<PagedRes<EnrollmentGetRes>> getMyEnrollments(@PageableDefault(size = 5, page = 0) Pageable pageable) {
         Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
-        PagedRes<EnrollmentGetRes> enrollments = enrollService.getMyEnrollments(pageable, curUserId);
+        var enrollments = enrollService.getMyEnrollments(pageable, curUserId);
         return successRes("User enrollments retrieved successfully", enrollments);
     }
 

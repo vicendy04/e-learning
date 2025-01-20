@@ -66,7 +66,7 @@ public class EnrollService {
     @Transactional(readOnly = true)
     public EnrollmentGetRes getEnrollment(Long enrollmentId) {
         Enrollment enrollment =
-                enrollmentRepository.findByIdWithDetails(enrollmentId).orElseThrow(() -> new InvalidIdEx(enrollmentId));
+                enrollmentRepository.findWithCourseById(enrollmentId).orElseThrow(() -> new InvalidIdEx(enrollmentId));
         return ENROLLMENT_MAPPER.toGetRes(enrollment);
     }
 

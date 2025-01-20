@@ -10,15 +10,12 @@ import com.myproject.elearning.dto.response.post.PostGetRes;
 import com.myproject.elearning.dto.response.post.PostListRes;
 import com.myproject.elearning.dto.response.post.PostUpdateRes;
 import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
+import com.myproject.elearning.repository.PostLikeRepositoryCustom;
 import com.myproject.elearning.repository.PostRepository;
 import com.myproject.elearning.repository.UserRepository;
-import com.myproject.elearning.security.SecurityUtils;
-import com.myproject.elearning.service.redis.RedisPostService;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -32,40 +29,28 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class PostService {
     PostRepository postRepository;
+    PostLikeRepositoryCustom postLikeRepositoryCustom;
     UserRepository userRepository;
-    RedisPostService redisPostService;
 
     @Transactional
-    public Post addPost(Long userId, PostCreateReq request) {
+    public PostGetRes addPost(Long userId, PostCreateReq request) {
         Post post = POST_MAPPER.toEntity(request);
         post.setUser(userRepository.getReferenceById(userId));
-        return postRepository.save(post);
+        postRepository.save(post);
+        return POST_MAPPER.toGetRes(post);
     }
 
-    // Todo: có thể optimize bằng cách cho isLiked vào entity PostLike
+    @Transactional(readOnly = true)
     public PostGetRes getPost(Long postId) {
         PostGetRes postGetRes = postRepository.findPostGetResById(postId).orElseThrow(() -> new InvalidIdEx(postId));
-        Optional<Long> optional = SecurityUtils.getLoginId();
-        optional.ifPresent(userId -> {
-            boolean liked = redisPostService.hasLiked(postId, userId);
-            postGetRes.setLikedByCurrentUser(liked);
-        });
-        Long likesCount = redisPostService.getLikesCount(postId);
-        postGetRes.setLikesCount(likesCount);
+        var likeCount = postLikeRepositoryCustom.countById(postId);
+        postGetRes.setLikesCount(likeCount);
         return postGetRes;
     }
 
     public PagedRes<PostListRes> getPostsByUser(Long userId, Pageable pageable) {
         Page<Post> posts = postRepository.findAllByUserId(userId, pageable);
         return PagedRes.from(posts.map(POST_MAPPER::toListRes));
-    }
-
-    public void like(Long postId, Long userId) {
-        redisPostService.like(postId, userId);
-    }
-
-    public void unlike(Long postId, Long userId) {
-        redisPostService.unlike(postId, userId);
     }
 
     @Transactional
@@ -80,31 +65,13 @@ public class PostService {
         return POST_MAPPER.toUpdateRes(postRepository.save(post));
     }
 
-    private Set<Long> filterIds(Set<Long> topPostIds, List<PostGetRes> postFromCache) {
+    public Set<Long> filterIds(Set<Long> topPostIds, List<PostGetRes> postFromCache) {
         Set<Long> idsInCache = postFromCache.stream().map(PostGetRes::getId).collect(Collectors.toSet());
         return topPostIds.stream().filter(id -> !idsInCache.contains(id)).collect(Collectors.toSet());
     }
 
-    public List<PostGetRes> getTopPosts(Set<Long> topPostIds) {
-        // get posts from cache
-        List<PostGetRes> postFromCache = redisPostService.getPosts(topPostIds);
-        // filter ids which are not in cache
-        Set<Long> idsNotInCache = filterIds(topPostIds, postFromCache);
-        // get posts from db
-        List<PostGetRes> postFromDB = postRepository.findPostGetResByIds(idsNotInCache);
-        // combine
-        List<PostGetRes> postGetResList =
-                Stream.concat(postFromCache.stream(), postFromDB.stream()).collect(Collectors.toList());
-
-        Long userId = SecurityUtils.getLoginId().orElse(null);
-        for (PostGetRes postGetRes : postGetResList) {
-            if (userId != null) {
-                boolean liked = redisPostService.hasLiked(postGetRes.getId(), userId);
-                postGetRes.setLikedByCurrentUser(liked);
-            }
-            Long likesCount = redisPostService.getLikesCount(postGetRes.getId());
-            postGetRes.setLikesCount(likesCount);
-        }
-        return postGetResList;
+    @Transactional(readOnly = true)
+    public List<PostGetRes> getTopPosts(Set<Long> idsNotInCache) {
+        return postRepository.findPostGetResByIds(idsNotInCache);
     }
 }

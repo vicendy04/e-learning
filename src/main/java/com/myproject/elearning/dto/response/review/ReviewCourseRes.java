@@ -1,15 +1,11 @@
 package com.myproject.elearning.dto.response.review;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDateTime;
-
 @Getter
-@Builder
+@Setter
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ReviewCourseRes {
@@ -22,7 +18,15 @@ public class ReviewCourseRes {
     String username;
     String imageUrl;
 
-    public ReviewCourseRes(Long id, Integer rating, String comment, LocalDateTime createdAt, LocalDateTime updatedAt, Long userId, String username, String imageUrl) {
+    public ReviewCourseRes(
+            Long id,
+            Integer rating,
+            String comment,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt,
+            Long userId,
+            String username,
+            String imageUrl) {
         this.id = id;
         this.rating = rating;
         this.comment = comment;

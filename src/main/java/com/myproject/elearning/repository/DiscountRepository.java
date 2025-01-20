@@ -17,7 +17,7 @@ import org.springframework.stereotype.Repository;
 public interface DiscountRepository extends JpaRepository<Discount, Long>, JpaSpecificationExecutor<Discount> {
     boolean existsByInstructorIdAndDiscountCode(Long id, String discountCode);
 
-    Page<Discount> findAllByInstructorId(Pageable pageable, Long instructorId);
+    Page<Discount> findAllByInstructorId(Long instructorId, Pageable pageable);
 
     @EntityGraph(attributePaths = {"specificCourseIds", "instructorId"})
     Optional<Discount> findByDiscountCode(@Param("discountCode") String discountCode);

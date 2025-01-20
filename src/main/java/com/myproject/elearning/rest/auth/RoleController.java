@@ -32,7 +32,7 @@ public class RoleController {
     @PostMapping("")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiRes<RoleDTO> addRole(@Valid @RequestBody CreateRoleReq req) {
-        RoleDTO newRole = roleService.addRole(req);
+        var newRole = roleService.addRole(req);
         return successRes("Role created successfully", newRole);
     }
 
@@ -40,7 +40,7 @@ public class RoleController {
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiRes<RoleDTO> getRole(@PathVariable Long id) {
-        RoleDTO role = roleService.getRole(id);
+        var role = roleService.getRole(id);
         return successRes("Role retrieved successfully", role);
     }
 
@@ -49,7 +49,7 @@ public class RoleController {
     @PreAuthorize("hasRole('ADMIN')")
     public ApiRes<PagedRes<RoleDTO>> getRoles(
             @PageableDefault(size = 5, page = 0, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
-        PagedRes<RoleDTO> roles = roleService.getRoles(pageable);
+        var roles = roleService.getRoles(pageable);
         return successRes("Roles retrieved successfully", roles);
     }
 
@@ -57,8 +57,8 @@ public class RoleController {
     @PutMapping("")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiRes<RoleDTO> editRole(@RequestBody RoleDTO role) {
-        RoleDTO updatedRole = roleService.editRole(role);
-        return successRes("Role updated successfully", updatedRole);
+        var editedRole = roleService.editRole(role);
+        return successRes("Role updated successfully", editedRole);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)

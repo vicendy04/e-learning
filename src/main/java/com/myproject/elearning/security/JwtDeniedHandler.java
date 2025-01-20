@@ -7,6 +7,9 @@ import com.myproject.elearning.dto.common.ApiRes;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
@@ -18,16 +21,12 @@ import org.springframework.stereotype.Component;
 /**
  * Not working.
  */
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Component
 public class JwtDeniedHandler implements AccessDeniedHandler {
-    private final BearerTokenAccessDeniedHandler bearerTokenAccessDeniedHandlerDelegate;
-    private final ObjectMapper objectMapper;
-
-    public JwtDeniedHandler(
-            BearerTokenAccessDeniedHandler bearerTokenAccessDeniedHandlerDelegate, ObjectMapper objectMapper) {
-        this.bearerTokenAccessDeniedHandlerDelegate = bearerTokenAccessDeniedHandlerDelegate;
-        this.objectMapper = objectMapper;
-    }
+    ObjectMapper objectMapper;
+    BearerTokenAccessDeniedHandler bearerTokenAccessDeniedHandlerDelegate;
 
     @Override
     public void handle(

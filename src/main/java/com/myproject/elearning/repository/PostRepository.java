@@ -22,7 +22,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     int deleteByIdAndUserId(@Param("postId") Long postId, @Param("userId") Long userId);
 
     @Query("SELECT p.user.id FROM Post p WHERE p.id = :postId")
-    Optional<Long> findUserIdByPostId(@Param("postId") Long postId);
+    Optional<Long> findUserIdById(@Param("postId") Long postId);
 
     @Query(
             """
@@ -33,15 +33,12 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 			""")
     Optional<PostGetRes> findPostGetResById(@Param("id") Long id);
 
-    /**
-     * <a href="https://stackoverflow.com/questions/52185052/optionallistt-for-empty-list-in-repository-layer-returns-optional-empty-ho">...</a>
-     */
     @Query(
             """
-			SELECT new com.myproject.elearning.dto.response.post.PostGetRes(p.id, p.content, u.id, u.username)
-			FROM Post p
-			JOIN p.user u
-			WHERE p.id IN :ids
-			""")
+					SELECT new com.myproject.elearning.dto.response.post.PostGetRes(p.id, p.content, u.id, u.username)
+					FROM Post p
+					JOIN p.user u
+					WHERE p.id IN :ids
+					""")
     List<PostGetRes> findPostGetResByIds(Set<Long> ids);
 }

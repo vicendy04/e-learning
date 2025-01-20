@@ -68,7 +68,7 @@ public class ChapterService {
     }
 
     public List<ExpandedChapterRes> getExpandedChapters(Long courseId) {
-        List<Chapter> chapters = chapterRepository.findByCourseIdWithLessons(courseId);
+        List<Chapter> chapters = chapterRepository.findAllWithLessonsByCourseId(courseId);
         return chapters.stream().map(CHAPTER_MAPPER::toExpandedChapterRes).collect(Collectors.toList());
     }
 }

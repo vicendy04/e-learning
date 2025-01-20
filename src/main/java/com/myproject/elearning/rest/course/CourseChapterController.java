@@ -26,14 +26,14 @@ public class CourseChapterController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("")
     public ApiRes<List<ChapterRes>> getChaptersByCourseId(@PathVariable Long courseId) {
-        List<ChapterRes> chapters = chapterService.getChaptersByCourseId(courseId);
+        var chapters = chapterService.getChaptersByCourseId(courseId);
         return successRes("Contents retrieved successfully", chapters);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/expanded")
     public ApiRes<List<ExpandedChapterRes>> getExpandedChapters(@PathVariable Long courseId) {
-        List<ExpandedChapterRes> chapters = chapterService.getExpandedChapters(courseId);
+        var chapters = chapterService.getExpandedChapters(courseId);
         return successRes("Retrieved successfully", chapters);
     }
 
@@ -42,8 +42,8 @@ public class CourseChapterController {
     @PreAuthorize("isAuthenticated() and (hasRole('ADMIN') or @resourceAccessService.isCourseOwner(#courseId))")
     public ApiRes<ChapterRes> addChapterToCourse(
             @PathVariable Long courseId, @Valid @RequestBody ChapterCreateReq request) {
-        ChapterRes chapter = chapterService.addChapter(courseId, request);
-        return successRes("Chapter added successfully", chapter);
+        var newChapter = chapterService.addChapter(courseId, request);
+        return successRes("Chapter added successfully", newChapter);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)

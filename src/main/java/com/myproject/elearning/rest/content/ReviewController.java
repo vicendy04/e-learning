@@ -36,8 +36,8 @@ public class ReviewController {
     @PreAuthorize("isAuthenticated() and hasAnyRole('USER')")
     public ApiRes<ReviewAddRes> addReview(@PathVariable Long courseId, @Valid @RequestBody ReviewCreateReq request) {
         Long userId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
-        ReviewAddRes review = reviewService.addReview(userId, courseId, request);
-        return successRes("Đánh giá đã được tạo thành công", review);
+        var newReview = reviewService.addReview(userId, courseId, request);
+        return successRes("Đánh giá đã được tạo thành công", newReview);
     }
 
     @ResponseStatus(HttpStatus.OK)
@@ -45,8 +45,8 @@ public class ReviewController {
     @PreAuthorize("isAuthenticated() and (hasRole('ADMIN') or @resourceAccessService.isReviewOwner(#reviewId))")
     public ApiRes<ReviewUpdateRes> editReview(
             @PathVariable Long reviewId, @Valid @RequestBody ReviewUpdateReq request) {
-        ReviewUpdateRes review = reviewService.editReview(reviewId, request);
-        return successRes("Đánh giá đã được cập nhật thành công", review);
+        var editedReview = reviewService.editReview(reviewId, request);
+        return successRes("Đánh giá đã được cập nhật thành công", editedReview);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -62,7 +62,7 @@ public class ReviewController {
     public ApiRes<PagedRes<ReviewCourseRes>> getReviewsByCourse(
             @PathVariable Long courseId,
             @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        PagedRes<ReviewCourseRes> reviews = reviewService.getReviewsByCourse(courseId, pageable);
+        var reviews = reviewService.getReviewsByCourse(courseId, pageable);
         return successRes("Lấy danh sách đánh giá thành công", reviews);
     }
 
@@ -72,7 +72,7 @@ public class ReviewController {
     public ApiRes<PagedRes<ReviewUserRes>> getReviewsByUser(
             @PathVariable Long userId,
             @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        PagedRes<ReviewUserRes> reviews = reviewService.getReviewsByUser(userId, pageable);
+        var reviews = reviewService.getReviewsByUser(userId, pageable);
         return successRes("Lấy danh sách đánh giá thành công", reviews);
     }
 }

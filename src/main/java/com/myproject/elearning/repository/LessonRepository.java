@@ -16,14 +16,10 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
 				FROM Lesson l
 				WHERE l.id = :lessonId
 			""")
-    Optional<Long> findInstructorIdByChapterId(Long lessonId);
+    Optional<Long> findInstructorIdById(Long lessonId);
 
     @Query("SELECT l FROM Lesson l LEFT JOIN FETCH l.chapter WHERE l.id = :id")
-    Optional<Lesson> findByIdWithChapter(Long id);
-
-    Optional<Lesson> findByIdAndChapterCourseInstructorId(Long id, Long instructorId);
-
-    boolean existsByIdAndChapterCourseInstructorId(Long id, Long instructorId);
+    Optional<Lesson> findWithChapterById(Long id);
 
     List<Lesson> findByChapterIdOrderByOrderIndexAsc(Long chapterId);
 }

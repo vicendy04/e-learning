@@ -12,9 +12,7 @@ public class RedisKeyConstants {
     public static final String LIKE_STATUS = "1";
     public static final String UNLIKE_STATUS = "0";
 
-    private RedisKeyConstants() {
-
-    }
+    private RedisKeyConstants() {}
 
     public static String getUserAuthKey(String username) {
         return String.format(USER_AUTH_PREFIX, username);

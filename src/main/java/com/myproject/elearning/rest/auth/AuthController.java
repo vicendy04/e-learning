@@ -41,59 +41,55 @@ public class AuthController {
     AuthService authService;
     UserService userService;
     TokenService tokenService;
-    RedisAuthService redisAuthService;
-    JwtDecoder refreshTokenDecoder;
     JwtTokenUtils jwtTokenUtils;
+    JwtDecoder refreshTokenDecoder;
+    RedisAuthService redisAuthService;
 
     @PostMapping("/login")
     public ResponseEntity<ApiRes<String>> authorize(@Valid @RequestBody LoginReq loginReq) {
-        UserAuth userAuth = redisAuthService.getCachedUser(loginReq.getEmail());
-        if (userAuth == null) {
-            userAuth = userService.findAuthDTOByEmail(loginReq.getEmail());
-            redisAuthService.setCachedUser(loginReq.getEmail(), userAuth);
-        }
+        UserAuth userAuth = redisAuthService.getAside(loginReq.getEmail());
         Authentication authentication = authService.authenticate(loginReq, userAuth);
-        TokenPair authenticationResponse = authService.generateTokenPair(authentication);
-        ApiRes<String> response = successRes("Success", authenticationResponse.getAccessToken());
-        ResponseCookie refreshTokenCookie = CookieUtils.addRefreshCookie(authenticationResponse.getRefreshToken());
+        TokenPair tokenPair = authService.generateTokenPair(authentication);
+        ResponseCookie cookie = CookieUtils.addRefreshCookie(tokenPair.getRefreshToken());
+        var res = successRes("Success", tokenPair.getAccessToken());
         return ResponseEntity.status(HttpStatus.OK)
-                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
-                .body(response);
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(res);
     }
 
     @PostMapping("/change-password")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiRes<Void>> changePassword(@RequestBody @Valid ChangePasswordReq request) {
+    public ResponseEntity<ApiRes<Object>> changePassword(@RequestBody @Valid ChangePasswordReq request) {
         authService.changePassword(request);
-        ApiRes<Void> response = successRes("Change password successfully", null);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        var res = successRes("Change password successfully", null);
+        return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiRes<Void>> logout(
+    public ResponseEntity<ApiRes<Object>> logout(
             @CookieValue(name = "refresh_token", required = false) String refreshTokenCookie) throws ParseException {
         if (refreshTokenCookie == null) {
-            ApiRes<Void> response = errorRes("Refresh token is missing", null);
-            return ResponseEntity.badRequest().body(response);
+            var res = errorRes("Refresh token is missing", null);
+            return ResponseEntity.badRequest().body(res);
         }
         Jwt jwt = refreshTokenDecoder.decode(refreshTokenCookie);
         authService.logout(jwt);
-        ApiRes<Void> response = successRes("Log out successfully", null);
-        ResponseCookie clearCookie = CookieUtils.delRefreshCookie();
+        ResponseCookie cookie = CookieUtils.delRefreshCookie();
+        var res = successRes("Log out successfully", null);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .header(HttpHeaders.SET_COOKIE, clearCookie.toString())
-                .body(response);
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(res);
     }
 
     @GetMapping(value = "/info")
     public ResponseEntity<ApiRes<String>> isAuthenticated(Principal principal) {
-        ApiRes<String> response;
+        ApiRes<String> res;
         if (Objects.isNull(principal)) {
-            response = errorRes("Not authenticated", "GUEST");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            res = errorRes("Not authenticated", "GUEST");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(res);
         } else {
-            response = successRes("Authenticated", principal.getName());
-            return ResponseEntity.status(HttpStatus.OK).body(response);
+            res = successRes("Authenticated", principal.getName());
+            return ResponseEntity.status(HttpStatus.OK).body(res);
         }
     }
 
@@ -105,17 +101,13 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorRes("Invalid refresh token", null));
         }
         String email = userService.findEmailById(Long.valueOf(jwt.getSubject()));
-        UserAuth userAuth = redisAuthService.getCachedUser(email);
-        if (userAuth == null) {
-            userAuth = userService.findAuthDTOByEmail(email);
-            redisAuthService.setCachedUser(email, userAuth);
-        }
+        UserAuth userAuth = redisAuthService.getAside(email);
         Authentication authentication = SecurityUtils.setAuthContext(userAuth);
-        TokenPair authenticationResponse = authService.generateTokenPairForRefresh(jwt, authentication);
-        ApiRes<String> response = successRes("Success", authenticationResponse.getAccessToken());
-        ResponseCookie responseCookie = CookieUtils.addRefreshCookie(authenticationResponse.getRefreshToken());
+        TokenPair tokenPair = authService.generateTokenPairForRefresh(jwt, authentication);
+        ResponseCookie cookie = CookieUtils.addRefreshCookie(tokenPair.getRefreshToken());
+        var res = successRes("Success", tokenPair.getAccessToken());
         return ResponseEntity.status(HttpStatus.OK)
-                .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
-                .body(response);
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(res);
     }
 }

@@ -3,6 +3,7 @@ package com.myproject.elearning.service.redis;
 import static com.myproject.elearning.constant.RedisKeyConstants.getCourseKey;
 
 import com.myproject.elearning.dto.CourseData;
+import com.myproject.elearning.service.CourseService;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import lombok.AccessLevel;
@@ -19,9 +20,18 @@ public class RedisCourseService {
     static final long DEFAULT_CACHE_DURATION = 3600; // 60 min
     static final long MAX_RANDOM_EXPIRY = 300; // 5 min
 
-    RedisTemplate<String, Object> redisTemplate;
-    ValueOperations<String, Object> valueOps;
     Random random;
+    CourseService courseService;
+    ValueOperations<String, Object> valueOps;
+    RedisTemplate<String, Object> redisTemplate;
+
+    public CourseData getAside(Long courseId) {
+        CourseData data = this.get(courseId);
+        if (data != null) return data;
+        data = courseService.getDBCourse(courseId);
+        this.set(courseId, data);
+        return data;
+    }
 
     public CourseData get(Long id) {
         Object obj = valueOps.get(getCourseKey(id));

@@ -22,14 +22,11 @@ import org.springframework.web.bind.annotation.*;
 public class EnrollController {
     EnrollService enrollService;
 
-    // Danger: @PostAuthorize should not be used as it only checks after method execution, which could lead to unwanted
-    // data changes
-    // @PostAuthorize("hasAnyRole('ADMIN') or returnObject.data.user.id == #jwt.subject")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("")
     @PreAuthorize("isAuthenticated() and (hasRole('ADMIN') or @resourceAccessService.isEnrollmentOwner(#enrollmentId))")
     public ApiRes<EnrollmentGetRes> getEnrollment(@PathVariable Long enrollmentId) {
-        EnrollmentGetRes enrollment = enrollService.getEnrollment(enrollmentId);
+        var enrollment = enrollService.getEnrollment(enrollmentId);
         return successRes("Enrollment retrieved successfully", enrollment);
     }
 
@@ -38,7 +35,7 @@ public class EnrollController {
     @PreAuthorize("isAuthenticated() and (hasRole('ADMIN') or @resourceAccessService.isEnrollmentOwner(#enrollmentId))")
     public ApiRes<EnrollmentEditRes> changeEnrollStatus(
             @PathVariable Long enrollmentId, @Valid @RequestBody EnrollStatusUpdateReq statusUpdateInput) {
-        EnrollmentEditRes editedEnrollment = enrollService.changeEnrollStatus(enrollmentId, statusUpdateInput);
+        var editedEnrollment = enrollService.changeEnrollStatus(enrollmentId, statusUpdateInput);
         return successRes("Enrollment status changed successfully", editedEnrollment);
     }
 }

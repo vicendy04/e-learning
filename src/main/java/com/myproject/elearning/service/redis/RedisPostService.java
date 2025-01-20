@@ -5,9 +5,11 @@ import static com.myproject.elearning.constant.RedisKeyConstants.*;
 import com.myproject.elearning.constant.RedisKeyConstants;
 import com.myproject.elearning.dto.response.post.PostGetRes;
 import com.myproject.elearning.repository.PostLikeRepositoryCustom;
+import com.myproject.elearning.service.PostService;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -26,12 +28,13 @@ public class RedisPostService {
     static final long COUNT_CACHE_TTL = 300;
     static final long MAX_RANDOM_EXPIRY = 300; // 5 min
 
-    RedisTemplate<String, Object> redisTemplate;
-    HashOperations<String, String, Object> hashOps;
-    ValueOperations<String, Object> valueOps;
-    ZSetOperations<String, Object> zSetOps;
-    PostLikeRepositoryCustom postLikeRepository;
     Random random;
+    PostService postService;
+    ZSetOperations<String, Object> zSetOps;
+    ValueOperations<String, Object> valueOps;
+    PostLikeRepositoryCustom postLikeRepository;
+    HashOperations<String, String, Object> hashOps;
+    RedisTemplate<String, Object> redisTemplate;
 
     public void like(Long postId, Long userId) {
         String key = getPostLikesKey(postId);
@@ -45,14 +48,22 @@ public class RedisPostService {
         redisTemplate.expire(key, DEFAULT_CACHE_DURATION, TimeUnit.SECONDS);
     }
 
-    public void setCachedPost(Long id, PostGetRes post) {
+    public void set(Long id, PostGetRes post) {
         long randomExpiry = POST_TTL + random.nextInt((int) MAX_RANDOM_EXPIRY);
         valueOps.set(getPostKey(id), post, randomExpiry, TimeUnit.SECONDS);
     }
 
-    public PostGetRes getCache(Long id) {
+    public PostGetRes get(Long id) {
         Object obj = valueOps.get(getCourseKey(id));
         return obj != null ? (PostGetRes) obj : null;
+    }
+
+    public PostGetRes getAside(Long postId) {
+        PostGetRes data = this.get(postId);
+        if (data != null) return data;
+        data = postService.getPost(postId);
+        this.set(postId, data);
+        return data;
     }
 
     public void evict(Long id) {
@@ -69,9 +80,23 @@ public class RedisPostService {
 
     public Set<Long> getTopPostIds(int startRank, int endRank) {
         Set<Object> range = zSetOps.range(TOP_LIKE_PREFIX, startRank, endRank);
-        if (range != null && !range.isEmpty())
-            return range.stream().map(o -> (Long) o).collect(Collectors.toSet());
+        if (range != null && !range.isEmpty()) {
+            return range.stream()
+                    .map(o -> o instanceof Long ? (Long) o : Long.valueOf(o.toString()))
+                    .collect(Collectors.toSet());
+        }
         return Collections.emptySet();
+    }
+
+    public List<PostGetRes> getTopPosts(Set<Long> topPostIds) {
+        var postFromCache = this.getPosts(topPostIds);
+        Set<Long> idsNotInCache = postService.filterIds(topPostIds, postFromCache);
+        var postFromDB = postService.getTopPosts(idsNotInCache);
+        //        for (PostGetRes postGetRes : data) {
+        //            Long likesCount = this.getLikesCount(postGetRes.getId());
+        //            postGetRes.setLikesCount(likesCount);
+        //        }
+        return Stream.concat(postFromCache.stream(), postFromDB.stream()).toList();
     }
 
     public List<PostGetRes> getPosts(Set<Long> ids) {
@@ -86,17 +111,17 @@ public class RedisPostService {
         return Collections.emptyList();
     }
 
-    public boolean hasLiked(Long postId, Long userId) {
-        String key = getPostLikesKey(postId);
-        Object value = hashOps.get(key, userId.toString());
-        if (value == null) {
-            boolean isLiked = postLikeRepository.isPostLikedByUser(postId, userId);
-            hashOps.put(key, userId.toString(), isLiked ? LIKE_STATUS : UNLIKE_STATUS);
-            redisTemplate.expire(key, DEFAULT_CACHE_DURATION, TimeUnit.SECONDS);
-            return isLiked;
-        }
-        return LIKE_STATUS.equals(value);
-    }
+    //    public boolean hasLiked(Long postId, Long userId) {
+    //        String key = getPostLikesKey(postId);
+    //        Object value = hashOps.get(key, userId.toString());
+    //        if (value == null) {
+    //            boolean isLiked = postLikeRepository.isPostLikedByUser(postId, userId);
+    //            hashOps.put(key, userId.toString(), isLiked ? LIKE_STATUS : UNLIKE_STATUS);
+    //            redisTemplate.expire(key, DEFAULT_CACHE_DURATION, TimeUnit.SECONDS);
+    //            return isLiked;
+    //        }
+    //        return LIKE_STATUS.equals(value);
+    //    }
 
     /**
      * The value retrieved from the cache is inconsistent with actually values
@@ -105,7 +130,7 @@ public class RedisPostService {
         String countKey = getPostLikesCountKey(postId);
         Object count = valueOps.get(countKey);
         if (count == null) {
-            Long dbCount = postLikeRepository.countByPostId(postId);
+            Long dbCount = postLikeRepository.countById(postId);
             long randomExpiry = COUNT_CACHE_TTL + random.nextInt((int) MAX_RANDOM_EXPIRY);
             valueOps.set(countKey, dbCount.toString(), randomExpiry, TimeUnit.SECONDS);
             // Add to the top likes ZSet

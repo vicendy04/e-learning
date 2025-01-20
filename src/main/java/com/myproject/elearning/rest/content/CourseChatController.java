@@ -11,23 +11,22 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequestMapping("/api/v1/courses/chat")
 @RestController
 public class CourseChatController {
-    Logger logger = LoggerFactory.getLogger(CourseChatController.class);
+    RedisSubscriber redisSubscriber;
     GroupChatService groupChatService;
     RedisMessageListenerContainer redisMessageListener;
-    RedisSubscriber redisSubscriber;
 
     /**
      * Tạo group chat trong database
@@ -41,7 +40,7 @@ public class CourseChatController {
         String channelName = "chat:" + groupChat.getId();
         ChannelTopic topic = ChannelTopic.of(channelName);
         redisMessageListener.addMessageListener(redisSubscriber, topic);
-        logger.info("Created chat room for course: {}", request.getCourseId());
+        log.info("Created chat room for course: {}", request.getCourseId());
         return successRes("Chat room created successfully", groupChat);
     }
 }

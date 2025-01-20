@@ -3,13 +3,12 @@ package com.myproject.elearning.dto.request.role;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
 @Getter
-@Builder
+@Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CreateRoleReq {
     @NotBlank(message = "Role name is required")

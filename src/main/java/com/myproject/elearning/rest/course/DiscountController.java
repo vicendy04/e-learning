@@ -48,7 +48,7 @@ public class DiscountController {
             @PageableDefault(size = 5, page = 0, sort = "discountName", direction = Sort.Direction.ASC)
                     Pageable pageable) {
         Long instructorId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
-        PagedRes<DiscountRes> discounts = discountService.getDiscountsForInstructor(pageable, instructorId);
+        var discounts = discountService.getDiscountsForInstructor(instructorId, pageable);
         return successRes("Retrieved successfully", discounts);
     }
 

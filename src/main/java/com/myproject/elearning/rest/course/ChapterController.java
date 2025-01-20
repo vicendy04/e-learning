@@ -29,7 +29,7 @@ public class ChapterController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("")
     public ApiRes<ChapterRes> getChapter(@PathVariable Long chapterId) {
-        ChapterRes chapter = chapterService.getChapter(chapterId);
+        var chapter = chapterService.getChapter(chapterId);
         return successRes("Chapter retrieved successfully", chapter);
     }
 
@@ -37,8 +37,8 @@ public class ChapterController {
     @PutMapping("")
     @PreAuthorize("isAuthenticated() and (hasRole('ADMIN') or @resourceAccessService.isChapterOwner(#chapterId))")
     public ApiRes<ChapterRes> editChapter(@PathVariable Long chapterId, @Valid @RequestBody ChapterUpdateReq request) {
-        ChapterRes chapter = chapterService.editChapter(chapterId, request);
-        return successRes("Chapter updated successfully", chapter);
+        var editedChapter = chapterService.editChapter(chapterId, request);
+        return successRes("Chapter updated successfully", editedChapter);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -52,7 +52,7 @@ public class ChapterController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/lessons")
     public ApiRes<List<LessonRes>> getLessonsByChapterId(@PathVariable Long chapterId) {
-        List<LessonRes> lessons = lessonService.getLessonsByChapterId(chapterId);
+        var lessons = lessonService.getLessonsByChapterId(chapterId);
         return successRes("Danh sách bài học", lessons);
     }
 
@@ -61,8 +61,8 @@ public class ChapterController {
     @PreAuthorize("isAuthenticated() and (hasRole('ADMIN') or @resourceAccessService.isChapterOwner(#chapterId))")
     public ApiRes<LessonRes> addLessonToChapter(
             @PathVariable Long chapterId, @Valid @RequestBody LessonCreateReq request) {
-        LessonRes createdLesson = lessonService.addLessonToChapter(chapterId, request);
-        return successRes("Thêm bài học thành công", createdLesson);
+        var newLesson = lessonService.addLessonToChapter(chapterId, request);
+        return successRes("Thêm bài học thành công", newLesson);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)

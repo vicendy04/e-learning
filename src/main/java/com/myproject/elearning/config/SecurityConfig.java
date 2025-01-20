@@ -1,5 +1,8 @@
 package com.myproject.elearning.config;
 
+import static com.myproject.elearning.security.SecurityUtils.CLAIM_KEY_AUTHORITIES;
+import static org.springframework.security.config.Customizer.withDefaults;
+
 import com.myproject.elearning.security.JwtAuthEntryPoint;
 import com.myproject.elearning.security.JwtDeniedHandler;
 import lombok.AccessLevel;
@@ -20,9 +23,6 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
-import static com.myproject.elearning.security.SecurityUtils.CLAIM_KEY_AUTHORITIES;
-import static org.springframework.security.config.Customizer.withDefaults;
-
 /**
  * <a href="https://www.danvega.dev/blog/spring-security-jwt">...</a>
  * little out-date, but useful
@@ -40,30 +40,30 @@ public class SecurityConfig {
     JwtDecoder jwtDecoder;
 
     private static final String[] PUBLIC_GET_ENDPOINTS = {
-            "/api/v1/posts/{id}",
-            "/api/v1/courses/{courseId}",
-            "/api/v1/courses",
-            "/api/v1/courses/{courseId}/chapters",
-            "/api/v1/courses/{courseId}/chapters/expanded"
+        "/api/v1/posts/{id}",
+        "/api/v1/courses/{courseId}",
+        "/api/v1/courses",
+        "/api/v1/courses/{courseId}/chapters",
+        "/api/v1/courses/{courseId}/chapters/expanded"
     };
 
     private static final String[] PUBLIC_URLS = {
-            "/swagger-ui/**",
-            "/swagger-ui.html",
-            "/v3/api-docs/**",
-            "/api-docs/**",
-            "/chat-test.html",
-            "/post-like-test.html",
-            "/course-search.html",
-            "course-detail.html",
-            "/api/v1/courses/chat/**",
-            "/ws/**",
-            "/api/v1/auth/**",
-            "/api/v1/courses/search",
-            "/actuator/**",
-            "/api/v1/test-performance/**",
-            "/api/v1/test/**",
-            "/api/demo/**"
+        "/swagger-ui/**",
+        "/swagger-ui.html",
+        "/v3/api-docs/**",
+        "/api-docs/**",
+        "/chat-test.html",
+        "/post-like-test.html",
+        "/course-search.html",
+        "course-detail.html",
+        "/api/v1/courses/chat/**",
+        "/ws/**",
+        "/api/v1/auth/**",
+        "/api/v1/courses/search",
+        "/actuator/**",
+        "/api/v1/test-performance/**",
+        "/api/v1/test/**",
+        "/api/demo/**"
     };
 
     @Bean

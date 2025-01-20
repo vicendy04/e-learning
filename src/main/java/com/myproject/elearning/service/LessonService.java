@@ -36,7 +36,7 @@ public class LessonService {
     }
 
     public LessonRes getLesson(Long id) {
-        return LESSON_MAPPER.toRes(lessonRepository.findByIdWithChapter(id).orElseThrow(() -> new InvalidIdEx(id)));
+        return LESSON_MAPPER.toRes(lessonRepository.findWithChapterById(id).orElseThrow(() -> new InvalidIdEx(id)));
     }
 
     @Transactional

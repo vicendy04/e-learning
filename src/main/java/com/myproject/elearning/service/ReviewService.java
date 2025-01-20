@@ -70,6 +70,6 @@ public class ReviewService {
     }
 
     public Double getAverageRating(Long courseId) {
-        return reviewRepository.getAverageRatingByCourseId(courseId);
+        return courseRepository.getAverageRatingById(courseId);
     }
 }

@@ -42,7 +42,7 @@ public class ResourceAccessService {
         }
         // cache miss, query db
         boolean isOwner = courseRepository
-                .findInstructorIdByCourseId(courseId)
+                .findInstructorIdById(courseId)
                 .map(ownerId -> Objects.equals(userId, ownerId)) // if present
                 .orElse(false); // if empty
         // cache
@@ -57,7 +57,7 @@ public class ResourceAccessService {
             return cached;
         }
         boolean isOwner = chapterRepository
-                .findInstructorIdByChapterId(chapterId)
+                .findInstructorIdById(chapterId)
                 .map(ownerId -> Objects.equals(userId, ownerId))
                 .orElse(false);
         redisResourceAccess.setCachedOwnership(ResourceType.CHAPTER, chapterId, userId, isOwner);
@@ -71,7 +71,7 @@ public class ResourceAccessService {
             return cached;
         }
         boolean isOwner = lessonRepository
-                .findInstructorIdByChapterId(lessonId)
+                .findInstructorIdById(lessonId)
                 .map(ownerId -> Objects.equals(userId, ownerId))
                 .orElse(false);
         redisResourceAccess.setCachedOwnership(ResourceType.LESSON, lessonId, userId, isOwner);
@@ -80,7 +80,7 @@ public class ResourceAccessService {
 
     public boolean isEnrollmentOwner(Long enrollmentId) {
         Long owner = enrollmentRepository
-                .findUserIdByEnrollmentId(enrollmentId)
+                .findInstructorIdById(enrollmentId)
                 .orElseThrow(() -> new InvalidIdEx(enrollmentId));
         return isOwner(owner);
     }
@@ -93,12 +93,12 @@ public class ResourceAccessService {
     }
 
     public boolean isPostOwner(Long postId) {
-        Long owner = postRepository.findUserIdByPostId(postId).orElseThrow(() -> new InvalidIdEx(postId));
+        Long owner = postRepository.findUserIdById(postId).orElseThrow(() -> new InvalidIdEx(postId));
         return isOwner(owner);
     }
 
     public boolean isReviewOwner(Long reviewId) {
-        Long owner = reviewRepository.findUserIdByReviewId(reviewId).orElseThrow(() -> new InvalidIdEx(reviewId));
+        Long owner = reviewRepository.findUserIdById(reviewId).orElseThrow(() -> new InvalidIdEx(reviewId));
         return isOwner(owner);
     }
 

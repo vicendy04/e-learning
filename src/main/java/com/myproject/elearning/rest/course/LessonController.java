@@ -24,7 +24,7 @@ public class LessonController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("")
     public ApiRes<LessonRes> getLesson(@PathVariable Long lessonId) {
-        LessonRes lesson = lessonService.getLesson(lessonId);
+        var lesson = lessonService.getLesson(lessonId);
         return successRes("Bài học được tìm thấy", lesson);
     }
 
@@ -32,8 +32,8 @@ public class LessonController {
     @PutMapping("")
     @PreAuthorize("isAuthenticated() and (hasRole('ADMIN') or @resourceAccessService.isLessonOwner(#lessonId))")
     public ApiRes<LessonRes> editLesson(@PathVariable Long lessonId, @Valid @RequestBody LessonUpdateReq request) {
-        LessonRes updatedLesson = lessonService.editLesson(lessonId, request);
-        return successRes("Cập nhật bài học thành công", updatedLesson);
+        var editedLesson = lessonService.editLesson(lessonId, request);
+        return successRes("Cập nhật bài học thành công", editedLesson);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)

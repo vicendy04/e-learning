@@ -28,21 +28,18 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
     @EntityGraph(attributePaths = {"instructor", "topic"})
     Optional<Course> findWithInstructorAndTopicById(Long id);
 
-    @Query("SELECT COUNT(e) FROM Enrollment e WHERE e.course.id =:courseId")
-    int countEnrollmentsByCourseId(@Param("courseId") Long courseId);
-
     @Query("SELECT c.id FROM Course c WHERE c.instructor.id = :instructorId")
-    Set<Long> findCourseIdsByInstructorId(@Param("instructorId") Long instructorId);
+    Set<Long> findIdsByInstructorId(@Param("instructorId") Long instructorId);
 
     @Query(
             """
-					SELECT c.id as id,
-						c.price as price,
-						c.instructor.id as instructorId
-					FROM Course c
-					WHERE c.id = :courseId
-					""")
-    Optional<CourseForValidDiscount> findCourseWithInstructor(@Param("courseId") Long courseId);
+			SELECT c.id as id,
+				c.price as price,
+				c.instructor.id as instructorId
+			FROM Course c
+			WHERE c.id = :courseId
+			""")
+    Optional<CourseForValidDiscount> findCourseDetailsForDiscount(@Param("courseId") Long courseId);
 
     @Modifying
     @Query("UPDATE Course c SET c.reviewCount = c.reviewCount + 1 WHERE c.id = :courseId")
@@ -61,10 +58,13 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
     void decrementEnrollmentCount(@Param("courseId") Long courseId);
 
     @Query(value = "SELECT c FROM Course c JOIN c.enrollments e WHERE e.user.id = :userId")
-    Page<Course> findByEnrollmentsUserId(@Param("userId") Long userId, Pageable pageable);
+    Page<Course> findAllByEnrollmentUserId(@Param("userId") Long userId, Pageable pageable);
 
     @Query("SELECT c.instructor.id FROM Course c WHERE c.id = :courseId")
-    Optional<Long> findInstructorIdByCourseId(@Param("courseId") Long courseId);
+    Optional<Long> findInstructorIdById(@Param("courseId") Long courseId);
+
+    @Query("SELECT AVG(r.rating) FROM Review r WHERE r.course.id = :courseId")
+    Double getAverageRatingById(@Param("courseId") Long courseId);
 
     default Course getReferenceIfExists(Long id) {
         if (!existsById(id)) {

@@ -1,5 +1,8 @@
 package com.myproject.elearning.mapper;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.dto.CourseData;
 import com.myproject.elearning.dto.request.course.CourseCreateReq;
@@ -13,9 +16,6 @@ import com.myproject.elearning.rest.course.CourseChapterController;
 import com.myproject.elearning.rest.course.CourseController;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Mapper(config = MapperConfig.class)
 public interface CourseMapper {
@@ -54,7 +54,6 @@ public interface CourseMapper {
     @Named("partialUpdate")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void partialUpdate(@MappingTarget Course entity, CourseUpdateReq request);
-
 
     @AfterMapping
     default void addLinks(@MappingTarget CourseListRes dto) {

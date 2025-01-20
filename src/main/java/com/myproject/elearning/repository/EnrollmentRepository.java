@@ -4,6 +4,7 @@ import com.myproject.elearning.domain.Enrollment;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -15,19 +16,20 @@ import org.springframework.transaction.annotation.Transactional;
 public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
     boolean existsByUserIdAndCourseId(Long id, Long courseId);
 
+    int countEnrollmentByCourseId(@Param("courseId") Long courseId);
+
     @Query("SELECT e.user.id FROM Enrollment e WHERE e.id = :enrollmentId")
-    Optional<Long> findUserIdByEnrollmentId(@Param("enrollmentId") Long enrollmentId);
+    Optional<Long> findInstructorIdById(@Param("enrollmentId") Long enrollmentId);
 
     @Transactional
     @Modifying
     @Query("DELETE FROM Enrollment e WHERE e.user.id = :userId AND e.course.id = :courseId")
     void deleteByUserIdAndCourseId(@Param("userId") Long userId, @Param("courseId") Long courseId);
 
-    @Query("SELECT e FROM Enrollment e " + "LEFT JOIN FETCH e.user u "
-            + "LEFT JOIN FETCH e.course c "
+    @Query("SELECT e FROM Enrollment e " + "LEFT JOIN FETCH e.user u " + "LEFT JOIN FETCH e.course c "
             + "WHERE e.user.id = :id")
     Page<Enrollment> getPagedEnrollmentsByUserId(Long id, Pageable pageable);
 
-    @Query("SELECT e FROM Enrollment e " + "LEFT JOIN FETCH e.course c " + "WHERE e.id = :enrollmentId")
-    Optional<Enrollment> findByIdWithDetails(@Param("enrollmentId") Long enrollmentId);
+    @EntityGraph(attributePaths = "course")
+    Optional<Enrollment> findWithCourseById(@Param("enrollmentId") Long enrollmentId);
 }

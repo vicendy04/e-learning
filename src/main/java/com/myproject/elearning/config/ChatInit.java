@@ -4,6 +4,7 @@ import com.myproject.elearning.domain.GroupChat;
 import com.myproject.elearning.repository.GroupChatRepository;
 import com.myproject.elearning.service.messaging.RedisSubscriber;
 import jakarta.annotation.PostConstruct;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -11,8 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor

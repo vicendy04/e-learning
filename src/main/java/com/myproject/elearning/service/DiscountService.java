@@ -35,7 +35,7 @@ public class DiscountService {
         }
 
         if (request.getAppliesTo() == Discount.DiscountAppliesTo.SPECIFIC) {
-            Set<Long> instructorCourseIds = courseRepository.findCourseIdsByInstructorId(instructorId);
+            Set<Long> instructorCourseIds = courseRepository.findIdsByInstructorId(instructorId);
 
             if (!instructorCourseIds.containsAll(request.getSpecificCourseIds())) {
                 throw new InvalidDiscountEx("Một số khóa học không thuộc về bạn");
@@ -47,9 +47,9 @@ public class DiscountService {
         return request.getDiscountCode();
     }
 
-    public PagedRes<DiscountRes> getDiscountsForInstructor(Pageable pageable, Long instructorId) {
+    public PagedRes<DiscountRes> getDiscountsForInstructor(Long instructorId, Pageable pageable) {
         Page<DiscountRes> discounts =
-                discountRepository.findAllByInstructorId(pageable, instructorId).map(DISCOUNT_MAPPER::toRes);
+                discountRepository.findAllByInstructorId(instructorId, pageable).map(DISCOUNT_MAPPER::toRes);
         return PagedRes.from(discounts);
     }
 
@@ -77,7 +77,7 @@ public class DiscountService {
                 .findByDiscountCode(discountCode)
                 .orElseThrow(() -> new InvalidDiscountEx("Mã giảm giá không tồn tại"));
         CourseForValidDiscount course =
-                courseRepository.findCourseWithInstructor(courseId).orElseThrow(() -> new InvalidIdEx(courseId));
+                courseRepository.findCourseDetailsForDiscount(courseId).orElseThrow(() -> new InvalidIdEx(courseId));
         return isApplicableToCourse(discount, course);
     }
 
