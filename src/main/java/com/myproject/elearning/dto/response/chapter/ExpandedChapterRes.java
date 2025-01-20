@@ -3,12 +3,13 @@ package com.myproject.elearning.dto.response.chapter;
 import com.myproject.elearning.domain.Lesson;
 import java.util.List;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
 @Getter
-@Setter
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ExpandedChapterRes {
     Long id;

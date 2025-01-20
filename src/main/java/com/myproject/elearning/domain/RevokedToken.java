@@ -4,11 +4,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -16,7 +17,6 @@ import lombok.experimental.FieldDefaults;
 @Entity
 @Table(name = "revoked_tokens")
 public class RevokedToken {
-
     @Id
     String jti;
 

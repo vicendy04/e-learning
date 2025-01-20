@@ -1,7 +1,5 @@
 package com.myproject.elearning.service;
 
-import static com.myproject.elearning.mapper.UserMapper.USER_MAPPER;
-
 import com.myproject.elearning.constant.AuthConstants;
 import com.myproject.elearning.domain.RefreshToken;
 import com.myproject.elearning.domain.Role;
@@ -20,9 +18,6 @@ import com.myproject.elearning.repository.RoleRepository;
 import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.repository.specification.UserSpec;
 import com.myproject.elearning.security.SecurityUtils;
-import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -33,6 +28,12 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
+
+import static com.myproject.elearning.mapper.UserMapper.USER_MAPPER;
 
 /**
  * Service class for managing users.

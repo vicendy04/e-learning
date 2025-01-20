@@ -1,6 +1,8 @@
 package com.myproject.elearning.config;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -16,11 +18,12 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Component
 public class WsInterceptor implements ChannelInterceptor {
 
-    private final JwtDecoder jwtDecoder;
-    private final JwtAuthenticationConverter jwtAuthenticationConverter;
+    JwtAuthenticationConverter jwtAuthenticationConverter;
+    JwtDecoder jwtDecoder;
 
     @Override
     public Message<?> preSend(@NotNull Message<?> message, @NotNull MessageChannel channel) {

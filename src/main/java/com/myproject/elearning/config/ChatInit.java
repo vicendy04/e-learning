@@ -4,24 +4,24 @@ import com.myproject.elearning.domain.GroupChat;
 import com.myproject.elearning.repository.GroupChatRepository;
 import com.myproject.elearning.service.messaging.RedisSubscriber;
 import jakarta.annotation.PostConstruct;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
+@Slf4j
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Component
 public class ChatInit {
-    Logger logger = LoggerFactory.getLogger(ChatInit.class);
-    RedisMessageListenerContainer redisMessageListenerContainer;
     RedisSubscriber redisSubscriber;
     GroupChatRepository groupChatRepository;
+    RedisMessageListenerContainer redisMessageListenerContainer;
 
     @PostConstruct
     public void init() {
@@ -31,6 +31,6 @@ public class ChatInit {
             ChannelTopic topic = ChannelTopic.of(channelName);
             redisMessageListenerContainer.addMessageListener(redisSubscriber, topic);
         });
-        logger.info("Registered listener for all group chats");
+        log.info("Registered listener for all group chats");
     }
 }

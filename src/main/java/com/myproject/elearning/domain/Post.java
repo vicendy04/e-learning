@@ -38,10 +38,10 @@ public class Post {
     Set<User> likedUsers = new HashSet<>();
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;
+    Instant createdAt;
 
     @Column(name = "updated_at")
-    private Instant updatedAt;
+    Instant updatedAt;
 
     @PrePersist
     protected void onCreate() {

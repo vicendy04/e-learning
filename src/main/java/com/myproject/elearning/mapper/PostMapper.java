@@ -15,12 +15,12 @@ import org.mapstruct.factory.Mappers;
 public interface PostMapper {
     PostMapper POST_MAPPER = Mappers.getMapper(PostMapper.class);
 
-    Post toEntity(PostCreateReq request);
-
     @Mapping(target = "id", source = "entity.id")
     @Mapping(target = "userId", source = "side.id")
     @Mapping(target = "username", source = "side.username")
     PostGetRes toGetRes(Post entity, UserInfo side);
+
+    Post toEntity(PostCreateReq request);
 
     PostListRes toListRes(Post entity);
 

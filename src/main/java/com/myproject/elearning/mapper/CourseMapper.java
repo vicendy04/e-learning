@@ -1,8 +1,5 @@
 package com.myproject.elearning.mapper;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
 import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.dto.CourseData;
 import com.myproject.elearning.dto.request.course.CourseCreateReq;
@@ -17,17 +14,12 @@ import com.myproject.elearning.rest.course.CourseController;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @Mapper(config = MapperConfig.class)
 public interface CourseMapper {
     CourseMapper COURSE_MAPPER = Mappers.getMapper(CourseMapper.class);
-
-    Course toEntity(CourseCreateReq request);
-
-    CourseUpdateRes toUpdateRes(Course entity);
-
-    @Named("partialUpdate")
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void partialUpdate(@MappingTarget Course entity, CourseUpdateReq request);
 
     @Mapping(target = "instructorId", source = "instructor.id")
     @Mapping(target = "imageUrl", source = "instructor.imageUrl")
@@ -39,8 +31,6 @@ public interface CourseMapper {
     @Mapping(target = "instructorId", source = "instructor.id")
     @Mapping(target = "topicId", source = "topic.id")
     CourseAddRes toAddRes(Course entity);
-
-    CourseGetRes toGetRes(CourseData data);
 
     @Mapping(target = "instructorId", source = "instructor.id")
     @Mapping(target = "imageUrl", source = "instructor.imageUrl")
@@ -54,6 +44,17 @@ public interface CourseMapper {
     @Mapping(target = "topicId", source = "topic.id")
     @Mapping(target = "topicName", source = "topic.name")
     CourseListRes toListRes(Course entity);
+
+    Course toEntity(CourseCreateReq request);
+
+    CourseUpdateRes toUpdateRes(Course entity);
+
+    CourseGetRes toGetRes(CourseData data);
+
+    @Named("partialUpdate")
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void partialUpdate(@MappingTarget Course entity, CourseUpdateReq request);
+
 
     @AfterMapping
     default void addLinks(@MappingTarget CourseListRes dto) {

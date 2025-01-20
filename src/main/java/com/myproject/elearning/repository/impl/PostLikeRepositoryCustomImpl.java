@@ -5,19 +5,21 @@ import com.myproject.elearning.repository.PostLikeRepositoryCustom;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+/**
+ * <a href="https://mkyong.com/spring/spring-jdbctemplate-batchupdate-example/">...</a>
+ */
 @Repository
 public class PostLikeRepositoryCustomImpl implements PostLikeRepositoryCustom {
     private static final int BATCH_SIZE = 100;
-
     private final JdbcTemplate jdbcTemplate;
-
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -56,11 +58,11 @@ public class PostLikeRepositoryCustomImpl implements PostLikeRepositoryCustom {
     public boolean isPostLikedByUser(Long postId, Long userId) {
         Query query = entityManager.createNativeQuery(
                 """
-						SELECT COUNT(*)
-						FROM post_likes pl
-						WHERE pl.post_id = ?
-						AND pl.user_id = ?
-						""");
+                        SELECT COUNT(*)
+                        FROM post_likes pl
+                        WHERE pl.post_id = ?
+                        AND pl.user_id = ?
+                        """);
 
         query.setParameter(1, postId);
         query.setParameter(2, userId);
@@ -73,10 +75,10 @@ public class PostLikeRepositoryCustomImpl implements PostLikeRepositoryCustom {
     public Long countByPostId(Long postId) {
         Query query = entityManager.createNativeQuery(
                 """
-						SELECT COUNT(*)
-						FROM post_likes pl
-						WHERE pl.post_id = ?
-						""");
+                        SELECT COUNT(*)
+                        FROM post_likes pl
+                        WHERE pl.post_id = ?
+                        """);
 
         query.setParameter(1, postId);
 

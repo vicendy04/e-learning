@@ -12,10 +12,10 @@ import org.mapstruct.factory.Mappers;
 public interface LessonMapper {
     LessonMapper LESSON_MAPPER = Mappers.getMapper(LessonMapper.class);
 
-    Lesson toEntity(LessonCreateReq request);
-
     @Mapping(target = "chapterId", source = "chapter.id")
     LessonRes toRes(Lesson entity);
+
+    Lesson toEntity(LessonCreateReq request);
 
     @Named("partialUpdate")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
