@@ -5,13 +5,17 @@ import static com.myproject.elearning.rest.utils.ResponseUtils.successRes;
 import com.myproject.elearning.dto.common.ApiRes;
 import com.myproject.elearning.dto.common.PagedRes;
 import com.myproject.elearning.dto.request.auth.RegisterReq;
+import com.myproject.elearning.dto.request.user.EditPreferencesReq;
+import com.myproject.elearning.dto.request.user.SetPreferencesReq;
 import com.myproject.elearning.dto.request.user.UserSearchDTO;
 import com.myproject.elearning.dto.request.user.UserUpdateReq;
 import com.myproject.elearning.dto.response.enrollment.EnrollmentGetRes;
+import com.myproject.elearning.dto.response.user.PreferenceRes;
 import com.myproject.elearning.dto.response.user.UserRes;
 import com.myproject.elearning.exception.problemdetails.AnonymousUserEx;
 import com.myproject.elearning.security.SecurityUtils;
 import com.myproject.elearning.service.EnrollService;
+import com.myproject.elearning.service.UserPreferenceService;
 import com.myproject.elearning.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -34,6 +38,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     UserService userService;
     EnrollService enrollService;
+    UserPreferenceService userPreferenceService;
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
@@ -95,5 +100,32 @@ public class UserController {
     public ApiRes<Void> delUser(@PathVariable(name = "userId") Long userId) {
         userService.delUser(userId);
         return successRes("User deleted successfully", null);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/initial-preferences")
+    @PreAuthorize("isAuthenticated()")
+    public ApiRes<Void> setInitialPreferences(@Valid @RequestBody SetPreferencesReq request) {
+        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
+        userPreferenceService.setInitialPreferences(curUserId, request.getTopicIds());
+        return successRes("Preferences set successfully", null);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/preferences")
+    @PreAuthorize("isAuthenticated()")
+    public ApiRes<UserRes> updatePreferences(@Valid @RequestBody EditPreferencesReq request) {
+        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
+        userPreferenceService.updatePreferences(curUserId, request.getAddTopicIds(), request.getDelTopicIds());
+        return successRes("Preferences updated successfully", null);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/my-preferences")
+    @PreAuthorize("isAuthenticated() and hasAnyRole('USER', 'ADMIN')")
+    public ApiRes<PreferenceRes> getMyPreferences() {
+        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
+        var res = userPreferenceService.getMyPreferences(curUserId);
+        return successRes("User perferences retrieved successfully", res);
     }
 }

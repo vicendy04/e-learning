@@ -1,7 +1,5 @@
 package com.myproject.elearning.service;
 
-import static com.myproject.elearning.mapper.CourseMapper.COURSE_MAPPER;
-
 import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.domain.Topic;
 import com.myproject.elearning.domain.User;
@@ -18,15 +16,17 @@ import com.myproject.elearning.repository.CourseRepository;
 import com.myproject.elearning.repository.EnrollmentRepository;
 import com.myproject.elearning.repository.TopicRepository;
 import com.myproject.elearning.repository.UserRepository;
-import com.myproject.elearning.repository.specification.CourseSpec;
+import com.myproject.elearning.service.test.CourseFilters;
+import com.myproject.elearning.service.test.CourseSearcher;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.myproject.elearning.mapper.CourseMapper.COURSE_MAPPER;
 
 /**
  * Service class for managing courses.
@@ -78,10 +78,16 @@ public class CourseService {
 
     @Transactional(readOnly = true)
     public PagedRes<CourseListRes> getCourses(CourseSearch searchDTO, Pageable pageable) {
-        Specification<Course> spec = CourseSpec.filterCourses(searchDTO);
+//        Specification<Course> spec = CourseSpec.filterCourses(searchDTO);
         Page<Course> all = courseRepository.findAllBy(pageable);
         Page<CourseListRes> map = all.map(COURSE_MAPPER::toListRes);
         return PagedRes.from(map);
+    }
+
+    @Transactional(readOnly = true)
+    public PagedRes<CourseListRes> getCourses2(CourseFilters filters, CourseSearcher searcher) {
+        Page<Course> courses = searcher.search(filters);
+        return PagedRes.from(courses.map(COURSE_MAPPER::toListRes));
     }
 
     public PagedRes<CourseListRes> getCoursesByInstructorId(Long instructorId, Pageable pageable) {

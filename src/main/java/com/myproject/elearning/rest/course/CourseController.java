@@ -1,13 +1,9 @@
 package com.myproject.elearning.rest.course;
 
-import static com.myproject.elearning.mapper.CourseMapper.COURSE_MAPPER;
-import static com.myproject.elearning.rest.utils.ResponseUtils.successRes;
-
 import com.myproject.elearning.dto.CourseData;
 import com.myproject.elearning.dto.common.ApiRes;
 import com.myproject.elearning.dto.common.PagedRes;
 import com.myproject.elearning.dto.request.course.CourseCreateReq;
-import com.myproject.elearning.dto.request.course.CourseSearch;
 import com.myproject.elearning.dto.request.course.CourseUpdateReq;
 import com.myproject.elearning.dto.response.course.CourseAddRes;
 import com.myproject.elearning.dto.response.course.CourseGetRes;
@@ -20,6 +16,9 @@ import com.myproject.elearning.service.CourseService;
 import com.myproject.elearning.service.EnrollService;
 import com.myproject.elearning.service.ReviewService;
 import com.myproject.elearning.service.redis.RedisCourseService;
+import com.myproject.elearning.service.test.CourseFilters;
+import com.myproject.elearning.service.test.DefaultCourseSearcher;
+import com.myproject.elearning.service.test.PersonalizedCourseSearcher;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +29,9 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import static com.myproject.elearning.mapper.CourseMapper.COURSE_MAPPER;
+import static com.myproject.elearning.rest.utils.ResponseUtils.successRes;
 
 /**
  * REST controller for courses
@@ -43,6 +45,8 @@ public class CourseController {
     EnrollService enrollService;
     ReviewService reviewService;
     RedisCourseService redisCourseService;
+    DefaultCourseSearcher defaultCourseSearcher;
+    PersonalizedCourseSearcher personalizedCourseSearcher;
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
@@ -70,11 +74,24 @@ public class CourseController {
 
     // note
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("")
+    @PostMapping("a")
     public ApiRes<PagedRes<CourseListRes>> getCourses(
-            @ModelAttribute CourseSearch searchDTO,
-            @PageableDefault(size = 10, page = 0, sort = "title", direction = Sort.Direction.ASC) Pageable pageable) {
-        var courses = courseService.getCourses(searchDTO, pageable);
+            @Valid @RequestBody CourseFilters filters)
+//            @ModelAttribute CourseSearch searchDTO,
+//            @PageableDefault(size = 10, page = 0, sort = "title", direction = Sort.Direction.ASC) Pageable pageable)
+    {
+//        var courses = courseService.getCourses(searchDTO, pageable);
+        var courses = courseService.getCourses2(filters, defaultCourseSearcher);
+        return successRes("Courses retrieved successfully", courses);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/personalized")
+    @PreAuthorize("isAuthenticated()")
+    public ApiRes<PagedRes<CourseListRes>> getCourses2(
+            @Valid @RequestBody CourseFilters filters
+    ) {
+        var courses = courseService.getCourses2(filters, personalizedCourseSearcher);
         return successRes("Courses retrieved successfully", courses);
     }
 

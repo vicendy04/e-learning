@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <a href="https://mkyong.com/spring/spring-jdbctemplate-batchupdate-example/">...</a>
+ * <a href="https://medium.tuanh.net/bulk-insert-in-spring-boot-a-comprehensive-guide-ad729e511b70">...</a>
  */
 @Repository
 public class PostLikeRepositoryCustomImpl implements PostLikeRepositoryCustom {
