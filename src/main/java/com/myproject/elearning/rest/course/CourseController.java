@@ -1,24 +1,25 @@
 package com.myproject.elearning.rest.course;
 
+import static com.myproject.elearning.mapper.CourseMapper.COURSE_MAPPER;
+import static com.myproject.elearning.rest.utils.ResponseUtils.successRes;
+
 import com.myproject.elearning.dto.CourseData;
 import com.myproject.elearning.dto.common.ApiRes;
 import com.myproject.elearning.dto.common.PagedRes;
 import com.myproject.elearning.dto.request.course.CourseCreateReq;
 import com.myproject.elearning.dto.request.course.CourseUpdateReq;
-import com.myproject.elearning.dto.response.course.CourseAddRes;
-import com.myproject.elearning.dto.response.course.CourseGetRes;
-import com.myproject.elearning.dto.response.course.CourseListRes;
-import com.myproject.elearning.dto.response.course.CourseUpdateRes;
+import com.myproject.elearning.dto.response.course.*;
 import com.myproject.elearning.dto.response.enrollment.EnrollmentRes;
+import com.myproject.elearning.dto.search.CourseFilters;
 import com.myproject.elearning.exception.problemdetails.AnonymousUserEx;
+import com.myproject.elearning.rest.utils.PageBuilder;
 import com.myproject.elearning.security.SecurityUtils;
 import com.myproject.elearning.service.CourseService;
 import com.myproject.elearning.service.EnrollService;
 import com.myproject.elearning.service.ReviewService;
 import com.myproject.elearning.service.redis.RedisCourseService;
-import com.myproject.elearning.service.test.CourseFilters;
-import com.myproject.elearning.service.test.DefaultCourseSearcher;
-import com.myproject.elearning.service.test.PersonalizedCourseSearcher;
+import com.myproject.elearning.service.strategy.CourseSearcher;
+import com.myproject.elearning.service.strategy.StrategyFactory;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -29,9 +30,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import static com.myproject.elearning.mapper.CourseMapper.COURSE_MAPPER;
-import static com.myproject.elearning.rest.utils.ResponseUtils.successRes;
 
 /**
  * REST controller for courses
@@ -45,8 +43,7 @@ public class CourseController {
     EnrollService enrollService;
     ReviewService reviewService;
     RedisCourseService redisCourseService;
-    DefaultCourseSearcher defaultCourseSearcher;
-    PersonalizedCourseSearcher personalizedCourseSearcher;
+    StrategyFactory strategyFactory;
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
@@ -72,27 +69,13 @@ public class CourseController {
         return successRes("Lấy điểm đánh giá trung bình thành công", avgRating);
     }
 
-    // note
     @ResponseStatus(HttpStatus.OK)
-    @PostMapping("a")
-    public ApiRes<PagedRes<CourseListRes>> getCourses(
-            @Valid @RequestBody CourseFilters filters)
-//            @ModelAttribute CourseSearch searchDTO,
-//            @PageableDefault(size = 10, page = 0, sort = "title", direction = Sort.Direction.ASC) Pageable pageable)
-    {
-//        var courses = courseService.getCourses(searchDTO, pageable);
-        var courses = courseService.getCourses2(filters, defaultCourseSearcher);
-        return successRes("Courses retrieved successfully", courses);
-    }
-
-    @ResponseStatus(HttpStatus.OK)
-    @PostMapping("/personalized")
-    @PreAuthorize("isAuthenticated()")
-    public ApiRes<PagedRes<CourseListRes>> getCourses2(
-            @Valid @RequestBody CourseFilters filters
-    ) {
-        var courses = courseService.getCourses2(filters, personalizedCourseSearcher);
-        return successRes("Courses retrieved successfully", courses);
+    @GetMapping("")
+    public ApiRes<PagedRes<TopicCoursesRes>> getCourses(@Valid @ModelAttribute CourseFilters filters) {
+        CourseSearcher searcher = strategyFactory.getStrategy();
+        var pageRequest = PageBuilder.of(filters, Sort.by("id"));
+        var res = courseService.getCourses(filters, pageRequest, searcher);
+        return successRes("Courses retrieved successfully", res);
     }
 
     @ResponseStatus(HttpStatus.OK)
@@ -107,7 +90,7 @@ public class CourseController {
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{courseId}")
-    @PreAuthorize("isAuthenticated() and (hasRole('ADMIN') or @resourceAccessService.isCourseOwner(#id))")
+    @PreAuthorize("isAuthenticated() and (hasRole('ADMIN') or @resourceAccessService.isCourseOwner(#courseId))")
     public ApiRes<Void> delCourse(@PathVariable(name = "courseId") Long courseId) {
         courseService.delCourse(courseId);
         redisCourseService.invalidateCourseCache(courseId);

@@ -7,19 +7,44 @@ import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.dto.CourseData;
 import com.myproject.elearning.dto.request.course.CourseCreateReq;
 import com.myproject.elearning.dto.request.course.CourseUpdateReq;
-import com.myproject.elearning.dto.response.course.CourseAddRes;
-import com.myproject.elearning.dto.response.course.CourseGetRes;
-import com.myproject.elearning.dto.response.course.CourseListRes;
-import com.myproject.elearning.dto.response.course.CourseUpdateRes;
+import com.myproject.elearning.dto.response.course.*;
 import com.myproject.elearning.mapper.base.MapperConfig;
 import com.myproject.elearning.rest.course.CourseChapterController;
 import com.myproject.elearning.rest.course.CourseController;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 
 @Mapper(config = MapperConfig.class)
 public interface CourseMapper {
     CourseMapper COURSE_MAPPER = Mappers.getMapper(CourseMapper.class);
+
+    TopicCoursesRes.CourseInfo toCourseInfo(Course course);
+
+    default Page<TopicCoursesRes> toTopicCoursesRes(Page<Course> coursePage) {
+        Map<Long, TopicCoursesRes> groupMap = new HashMap<>();
+
+        for (Course course : coursePage) {
+            var topic = course.getTopic();
+
+            TopicCoursesRes group = groupMap.computeIfAbsent(topic.getId(), id -> {
+                TopicCoursesRes newGroup = new TopicCoursesRes();
+                newGroup.setTopicId(id);
+                newGroup.setTopicName(topic.getName());
+                newGroup.setCourses(new ArrayList<>());
+                return newGroup;
+            });
+
+            group.getCourses().add(toCourseInfo(course));
+        }
+
+        return new PageImpl<>(
+                new ArrayList<>(groupMap.values()), coursePage.getPageable(), coursePage.getTotalElements());
+    }
 
     @Mapping(target = "instructorId", source = "instructor.id")
     @Mapping(target = "imageUrl", source = "instructor.imageUrl")

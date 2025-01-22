@@ -1,32 +1,32 @@
 package com.myproject.elearning.service;
 
+import static com.myproject.elearning.mapper.CourseMapper.COURSE_MAPPER;
+
 import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.domain.Topic;
 import com.myproject.elearning.domain.User;
 import com.myproject.elearning.dto.CourseData;
 import com.myproject.elearning.dto.common.PagedRes;
 import com.myproject.elearning.dto.request.course.CourseCreateReq;
-import com.myproject.elearning.dto.request.course.CourseSearch;
 import com.myproject.elearning.dto.request.course.CourseUpdateReq;
 import com.myproject.elearning.dto.response.course.CourseAddRes;
 import com.myproject.elearning.dto.response.course.CourseListRes;
 import com.myproject.elearning.dto.response.course.CourseUpdateRes;
+import com.myproject.elearning.dto.response.course.TopicCoursesRes;
+import com.myproject.elearning.dto.search.CourseFilters;
 import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
 import com.myproject.elearning.repository.CourseRepository;
-import com.myproject.elearning.repository.EnrollmentRepository;
 import com.myproject.elearning.repository.TopicRepository;
 import com.myproject.elearning.repository.UserRepository;
-import com.myproject.elearning.service.test.CourseFilters;
-import com.myproject.elearning.service.test.CourseSearcher;
+import com.myproject.elearning.service.strategy.CourseSearcher;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import static com.myproject.elearning.mapper.CourseMapper.COURSE_MAPPER;
 
 /**
  * Service class for managing courses.
@@ -36,7 +36,6 @@ import static com.myproject.elearning.mapper.CourseMapper.COURSE_MAPPER;
 @Service
 public class CourseService {
     CourseRepository courseRepository;
-    EnrollmentRepository enrollmentRepository;
     UserRepository userRepository;
     TopicRepository topicRepository;
 
@@ -52,14 +51,10 @@ public class CourseService {
     }
 
     @Transactional(readOnly = true)
-    public CourseData getDBCourse(Long courseId) {
+    public CourseData getCourse(Long courseId) {
         Course course =
                 courseRepository.findWithInstructorAndTopicById(courseId).orElseThrow(() -> new InvalidIdEx(courseId));
         return COURSE_MAPPER.toData(course);
-    }
-
-    public int countEnrollments(Long id) {
-        return enrollmentRepository.countEnrollmentByCourseId(id);
     }
 
     // note
@@ -77,26 +72,20 @@ public class CourseService {
     }
 
     @Transactional(readOnly = true)
-    public PagedRes<CourseListRes> getCourses(CourseSearch searchDTO, Pageable pageable) {
-//        Specification<Course> spec = CourseSpec.filterCourses(searchDTO);
-        Page<Course> all = courseRepository.findAllBy(pageable);
-        Page<CourseListRes> map = all.map(COURSE_MAPPER::toListRes);
-        return PagedRes.from(map);
-    }
-
-    @Transactional(readOnly = true)
-    public PagedRes<CourseListRes> getCourses2(CourseFilters filters, CourseSearcher searcher) {
-        Page<Course> courses = searcher.search(filters);
-        return PagedRes.from(courses.map(COURSE_MAPPER::toListRes));
+    public PagedRes<TopicCoursesRes> getCourses(
+            CourseFilters filters, PageRequest pageRequest, CourseSearcher searcher) {
+        Page<Course> courses = searcher.search(filters, pageRequest);
+        var topicCoursesRes = COURSE_MAPPER.toTopicCoursesRes(courses);
+        return PagedRes.of(topicCoursesRes);
     }
 
     public PagedRes<CourseListRes> getCoursesByInstructorId(Long instructorId, Pageable pageable) {
         Page<Course> coursePage = courseRepository.findAllByInstructorId(instructorId, pageable);
-        return PagedRes.from(coursePage.map(COURSE_MAPPER::toListRes));
+        return PagedRes.of(coursePage.map(COURSE_MAPPER::toListRes));
     }
 
     public PagedRes<CourseListRes> getEnrolledCourses(Long userId, Pageable pageable) {
         Page<Course> enrolledCourses = courseRepository.findAllByEnrollmentUserId(userId, pageable);
-        return PagedRes.from(enrolledCourses.map(COURSE_MAPPER::toListRes));
+        return PagedRes.of(enrolledCourses.map(COURSE_MAPPER::toListRes));
     }
 }

@@ -3,6 +3,7 @@ package com.myproject.elearning.repository;
 import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.springframework.data.domain.Page;
@@ -13,14 +14,36 @@ import org.springframework.stereotype.Repository;
 
 /**
  * Spring Data JPA repository for the {@link Course} entity.
+ * <a href="https://vladmihalcea.com/join-fetch-pagination-spring/">...</a>
  */
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecificationExecutor<Course> {
     @EntityGraph(attributePaths = "topic")
     Page<Course> findAllByInstructorId(Long instructorId, Pageable pageable);
 
-    @EntityGraph(attributePaths = "topic")
-    Page<Course> findAllBy(Pageable pageable);
+    @Query(
+            value = """
+			select c.id
+			from Course c
+			where c.topic.id in :topicIds
+			""",
+            countQuery = """
+					select count(c)
+					from Course c
+					where c.topic.id in :topicIds
+					""")
+    Page<Long> findIdsByTopicIds(@Param("topicIds") Set<Long> topicIds, Pageable pageable);
+
+    @Query("""
+			select c
+			from Course c
+			left join fetch c.topic
+			where c.id in :courseIds
+			""")
+    List<Course> findAllWithTopicBy(@Param("courseIds") List<Long> courseIds);
+
+    @Query("SELECT DISTINCT c FROM Course c LEFT JOIN FETCH c.topic")
+    Page<Course> findAllWithTopic(Pageable pageable);
 
     @EntityGraph(attributePaths = "chapters")
     Optional<Course> findWithChaptersById(Long id);
@@ -33,12 +56,12 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
 
     @Query(
             """
-			SELECT c.id as id,
-				c.price as price,
-				c.instructor.id as instructorId
-			FROM Course c
-			WHERE c.id = :courseId
-			""")
+					SELECT c.id as id,
+						c.price as price,
+						c.instructor.id as instructorId
+					FROM Course c
+					WHERE c.id = :courseId
+					""")
     Optional<CourseForValidDiscount> findCourseDetailsForDiscount(@Param("courseId") Long courseId);
 
     @Modifying

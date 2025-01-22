@@ -116,6 +116,6 @@ public class UserService {
 
         Specification<User> spec = UserSpec.filterUsers(searchDTO);
         Page<UserRes> users = userRepository.findAll(spec, pageable).map(USER_MAPPER::toRes);
-        return PagedRes.from(users);
+        return PagedRes.of(users);
     }
 }

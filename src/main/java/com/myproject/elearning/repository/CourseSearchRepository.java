@@ -36,7 +36,7 @@ public class CourseSearchRepository {
                 .map(hit -> objectMapper.convertValue(hit, CourseDocument.class))
                 .toList();
 
-        return PagedRes.from(response, courseDocuments);
+        return PagedRes.of(response, courseDocuments);
     }
 
     public void indexCourse(CourseGetRes course) throws JsonProcessingException {

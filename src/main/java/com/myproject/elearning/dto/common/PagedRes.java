@@ -24,7 +24,7 @@ public class PagedRes<T> {
     int processingTimeMs;
     List<T> content;
 
-    public static <T> PagedRes<T> from(Page<T> page) {
+    public static <T> PagedRes<T> of(Page<T> page) {
         return PagedRes.<T>builder()
                 .page(page.getNumber())
                 .size(page.getSize())
@@ -35,13 +35,24 @@ public class PagedRes<T> {
                 .build();
     }
 
-    public static <T> PagedRes<T> from(SearchResultPaginated response, List<T> data) {
+    public static <T> PagedRes<T> of(SearchResultPaginated response, List<T> data) {
         return PagedRes.<T>builder()
                 .page(response.getPage())
                 .size(response.getHitsPerPage())
                 .totalElements(response.getTotalHits())
                 .totalPages(response.getTotalPages())
                 .processingTimeMs(response.getProcessingTimeMs())
+                .content(data)
+                .build();
+    }
+
+    public static <T> PagedRes<T> of(int page, int size, long totalElements, int totalPages, List<T> data) {
+        return PagedRes.<T>builder()
+                .page(page)
+                .size(size)
+                .totalElements(totalElements)
+                .totalPages(totalPages)
+                .processingTimeMs(0)
                 .content(data)
                 .build();
     }

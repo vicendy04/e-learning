@@ -50,7 +50,7 @@ public class PostService {
 
     public PagedRes<PostListRes> getPostsByUser(Long userId, Pageable pageable) {
         Page<Post> posts = postRepository.findAllByUserId(userId, pageable);
-        return PagedRes.from(posts.map(POST_MAPPER::toListRes));
+        return PagedRes.of(posts.map(POST_MAPPER::toListRes));
     }
 
     @Transactional

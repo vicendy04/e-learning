@@ -50,7 +50,7 @@ public class DiscountService {
     public PagedRes<DiscountRes> getDiscountsForInstructor(Long instructorId, Pageable pageable) {
         Page<DiscountRes> discounts =
                 discountRepository.findAllByInstructorId(instructorId, pageable).map(DISCOUNT_MAPPER::toRes);
-        return PagedRes.from(discounts);
+        return PagedRes.of(discounts);
     }
 
     //    3. Get all product by discount code [User/Student]

@@ -2,14 +2,12 @@ package com.myproject.elearning.repository.specification;
 
 import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.domain.Topic;
-import com.myproject.elearning.service.test.CourseFilters;
+import com.myproject.elearning.dto.search.CourseFilters;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
-import org.springframework.data.jpa.domain.Specification;
-
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Set;
+import org.springframework.data.jpa.domain.Specification;
 
 public class CourseSpec {
     public static Specification<Course> hasTitle(String title) {
@@ -66,23 +64,22 @@ public class CourseSpec {
     }
 
     //    public static Specification<Course> filterCourses(CourseSearch searchDTO) {
-//        return Specification.where(hasTitle(searchDTO.getTitle()))
-//                //                .and(hasCategory(String.valueOf(searchDTO.getCategory())))
-//                .and(hasPriceRange(searchDTO.getMinPrice(), searchDTO.getMaxPrice()))
-//                .and(searchByKeyword(searchDTO.getKeyword()));
-//    }
+    //        return Specification.where(hasTitle(searchDTO.getTitle()))
+    //                //                .and(hasCategory(String.valueOf(searchDTO.getCategory())))
+    //                .and(hasPriceRange(searchDTO.getMinPrice(), searchDTO.getMaxPrice()))
+    //                .and(searchByKeyword(searchDTO.getKeyword()));
+    //    }
     public static Specification<Course> hasTopics(Set<Long> topicIds) {
         return (root, query, criteriaBuilder) -> {
             if (topicIds == null || topicIds.isEmpty()) {
-                return criteriaBuilder.conjunction(); // Không áp dụng điều kiện nếu danh sách rỗng
+                return criteriaBuilder.conjunction();
             }
-            Join<Course, Topic> topicJoin = root.join("topic", JoinType.INNER); // Thực hiện join với Topic
-            return topicJoin.get("id").in(topicIds); // Tìm kiếm các Course có topicId thuộc danh sách
+            Join<Course, Topic> topicJoin = root.join("topic", JoinType.INNER);
+            return topicJoin.get("id").in(topicIds);
         };
     }
 
     public static Specification<Course> filterCourses(CourseFilters filters) {
-        return Specification
-                .where(hasTopics(filters.getTopicIds()));
+        return Specification.where(hasTopics(filters.getTopicIds()));
     }
 }

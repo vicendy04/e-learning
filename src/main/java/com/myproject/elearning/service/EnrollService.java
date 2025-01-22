@@ -60,7 +60,7 @@ public class EnrollService {
     @Transactional(readOnly = true)
     public PagedRes<EnrollmentGetRes> getMyEnrollments(Pageable pageable, Long userId) {
         Page<Enrollment> enrollments = enrollmentRepository.getPagedEnrollmentsByUserId(userId, pageable);
-        return PagedRes.from(enrollments.map(ENROLLMENT_MAPPER::toGetRes));
+        return PagedRes.of(enrollments.map(ENROLLMENT_MAPPER::toGetRes));
     }
 
     @Transactional(readOnly = true)

@@ -58,6 +58,6 @@ public class RoleService {
 
     public PagedRes<RoleDTO> getRoles(Pageable pageable) {
         Page<Role> rolesPage = roleRepository.findAll(pageable);
-        return PagedRes.from(rolesPage.map(ROLE_MAPPER::toDto));
+        return PagedRes.of(rolesPage.map(ROLE_MAPPER::toDto));
     }
 }

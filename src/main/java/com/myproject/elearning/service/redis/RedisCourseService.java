@@ -28,7 +28,7 @@ public class RedisCourseService {
     public CourseData getAside(Long courseId) {
         CourseData data = this.get(courseId);
         if (data != null) return data;
-        data = courseService.getDBCourse(courseId);
+        data = courseService.getCourse(courseId);
         this.set(courseId, data);
         return data;
     }

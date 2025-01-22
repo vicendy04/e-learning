@@ -61,12 +61,12 @@ public class ReviewService {
 
     public PagedRes<ReviewCourseRes> getReviewsByCourse(Long courseId, Pageable pageable) {
         Page<ReviewCourseRes> reviews = reviewRepository.findAllByCourseId(courseId, pageable);
-        return PagedRes.from(reviews);
+        return PagedRes.of(reviews);
     }
 
     public PagedRes<ReviewUserRes> getReviewsByUser(Long userId, Pageable pageable) {
         Page<ReviewUserRes> reviews = reviewRepository.findAllByUserId(userId, pageable);
-        return PagedRes.from(reviews);
+        return PagedRes.of(reviews);
     }
 
     public Double getAverageRating(Long courseId) {
