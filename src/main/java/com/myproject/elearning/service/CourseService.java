@@ -12,7 +12,6 @@ import com.myproject.elearning.dto.request.course.CourseUpdateReq;
 import com.myproject.elearning.dto.response.course.CourseAddRes;
 import com.myproject.elearning.dto.response.course.CourseListRes;
 import com.myproject.elearning.dto.response.course.CourseUpdateRes;
-import com.myproject.elearning.dto.response.course.TopicCoursesRes;
 import com.myproject.elearning.dto.search.CourseFilters;
 import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
 import com.myproject.elearning.repository.CourseRepository;
@@ -72,11 +71,8 @@ public class CourseService {
     }
 
     @Transactional(readOnly = true)
-    public PagedRes<TopicCoursesRes> getCourses(
-            CourseFilters filters, PageRequest pageRequest, CourseSearcher searcher) {
-        Page<Course> courses = searcher.search(filters, pageRequest);
-        var topicCoursesRes = COURSE_MAPPER.toTopicCoursesRes(courses);
-        return PagedRes.of(topicCoursesRes);
+    public Page<CourseData> getCourses(CourseFilters filters, PageRequest pageRequest, CourseSearcher searcher) {
+        return searcher.search(filters, pageRequest);
     }
 
     public PagedRes<CourseListRes> getCoursesByInstructorId(Long instructorId, Pageable pageable) {

@@ -1,6 +1,6 @@
 package com.myproject.elearning.cronjob;
 
-import com.myproject.elearning.service.redis.RedisPostService;
+import com.myproject.elearning.service.redis.PostRedisService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -11,12 +11,12 @@ import org.springframework.stereotype.Component;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Component
 public class PostCleanupJob {
-    RedisPostService redisPostService;
+    PostRedisService postRedisService;
 
     @Scheduled(cron = "0 0 0 * * ?")
     public void cleanUpPosts() {
         System.out.println("Running cron job to clean up posts...");
-        redisPostService.removePostsExceptTopN(100);
+        postRedisService.removePostsExceptTopN(100);
         System.out.println("Clean up completed!");
     }
 }

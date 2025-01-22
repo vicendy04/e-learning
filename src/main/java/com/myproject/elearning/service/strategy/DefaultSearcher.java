@@ -1,6 +1,6 @@
 package com.myproject.elearning.service.strategy;
 
-import com.myproject.elearning.domain.Course;
+import com.myproject.elearning.dto.CourseData;
 import com.myproject.elearning.dto.search.CourseFilters;
 import com.myproject.elearning.repository.CourseRepository;
 import lombok.AccessLevel;
@@ -17,7 +17,7 @@ public class DefaultSearcher implements CourseSearcher {
     CourseRepository courseRepository;
 
     @Override
-    public Page<Course> search(CourseFilters filters, PageRequest request) {
+    public Page<CourseData> search(CourseFilters filters, PageRequest request) {
         // extract filters
         // log ...
         return courseRepository.findAllWithTopic(request);

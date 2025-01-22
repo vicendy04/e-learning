@@ -17,13 +17,14 @@ import com.myproject.elearning.security.SecurityUtils;
 import com.myproject.elearning.service.CourseService;
 import com.myproject.elearning.service.EnrollService;
 import com.myproject.elearning.service.ReviewService;
-import com.myproject.elearning.service.redis.RedisCourseService;
+import com.myproject.elearning.service.redis.CourseRedisService;
 import com.myproject.elearning.service.strategy.CourseSearcher;
 import com.myproject.elearning.service.strategy.StrategyFactory;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -42,8 +43,8 @@ public class CourseController {
     CourseService courseService;
     EnrollService enrollService;
     ReviewService reviewService;
-    RedisCourseService redisCourseService;
     StrategyFactory strategyFactory;
+    CourseRedisService courseRedisService;
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
@@ -57,7 +58,7 @@ public class CourseController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{courseId}")
     public ApiRes<CourseGetRes> getCourse(@PathVariable(name = "courseId") Long courseId) {
-        CourseData data = redisCourseService.getAside(courseId);
+        CourseData data = courseRedisService.getAside(courseId);
         var res = COURSE_MAPPER.toGetRes(data);
         return successRes("Course retrieved successfully", res);
     }
@@ -74,7 +75,9 @@ public class CourseController {
     public ApiRes<PagedRes<TopicCoursesRes>> getCourses(@Valid @ModelAttribute CourseFilters filters) {
         CourseSearcher searcher = strategyFactory.getStrategy();
         var pageRequest = PageBuilder.of(filters, Sort.by("id"));
-        var res = courseService.getCourses(filters, pageRequest, searcher);
+        Page<CourseData> courses = courseService.getCourses(filters, pageRequest, searcher);
+        Page<TopicCoursesRes> topicCoursesRes = COURSE_MAPPER.toTopicCoursesRes(courses);
+        var res = PagedRes.of(topicCoursesRes);
         return successRes("Courses retrieved successfully", res);
     }
 
@@ -84,7 +87,7 @@ public class CourseController {
     public ApiRes<CourseUpdateRes> editCourse(
             @PathVariable(name = "courseId") Long courseId, @RequestBody CourseUpdateReq courseUpdateReq) {
         var editedCourse = courseService.editCourse(courseId, courseUpdateReq);
-        redisCourseService.invalidateCourseCache(courseId);
+        courseRedisService.invalidateCourseCache(courseId);
         return successRes("Course updated successfully", editedCourse);
     }
 
@@ -93,7 +96,7 @@ public class CourseController {
     @PreAuthorize("isAuthenticated() and (hasRole('ADMIN') or @resourceAccessService.isCourseOwner(#courseId))")
     public ApiRes<Void> delCourse(@PathVariable(name = "courseId") Long courseId) {
         courseService.delCourse(courseId);
-        redisCourseService.invalidateCourseCache(courseId);
+        courseRedisService.invalidateCourseCache(courseId);
         return successRes("Course deleted successfully", null);
     }
 

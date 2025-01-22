@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
-public class RedisPostService {
+public class PostRedisService {
     static final long DEFAULT_CACHE_DURATION = 14 * 60 * 60; // 14 hours
     static final long POST_TTL = 3 * 60 * 60;
     static final long COUNT_CACHE_TTL = 300;

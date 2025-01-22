@@ -4,7 +4,7 @@ import static com.myproject.elearning.security.SecurityUtils.JWT_ALGORITHM;
 
 import com.myproject.elearning.exception.problemdetails.TokenEx;
 import com.myproject.elearning.service.TokenService;
-import com.myproject.elearning.service.redis.RedisTokenService;
+import com.myproject.elearning.service.redis.TokenRedisService;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.util.Base64;
 import java.time.Instant;
@@ -27,7 +27,7 @@ public class SecurityJwtConfig {
     private String jwtKey;
 
     private final TokenService tokenService;
-    private final RedisTokenService redisTokenService;
+    private final TokenRedisService tokenRedisService;
 
     @Bean
     public DefaultBearerTokenResolver defaultBearerTokenResolver() {
@@ -54,10 +54,10 @@ public class SecurityJwtConfig {
                 if (jti == null) {
                     throw new JwtException("Missing token identifier (jti)");
                 }
-                if (redisTokenService.isTokenRevoked(jti)) {
+                if (tokenRedisService.isTokenRevoked(jti)) {
                     throw new JwtException("Token has been revoked");
                 } else if (tokenService.isTokenRevoked(jti)) {
-                    redisTokenService.revokeToken(jti, expiresAt);
+                    tokenRedisService.revokeToken(jti, expiresAt);
                     throw new JwtException("Token has been revoked");
                 }
                 return jwt;

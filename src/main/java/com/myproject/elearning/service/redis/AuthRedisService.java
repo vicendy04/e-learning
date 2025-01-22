@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
-public class RedisAuthService {
+public class AuthRedisService {
     static final long DEFAULT_CACHE_DURATION = 3600; // 60 min
     static final long MAX_RANDOM_EXPIRY = 300; // 5 min
     static final long DEFAULT_CACHE_MISS_DURATION = 30;

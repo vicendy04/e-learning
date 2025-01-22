@@ -22,9 +22,8 @@ public class CourseDocument {
     //    Integer enrolledCount;
     //    Integer reviewCount;
 
-    //    Integer totalLessons;
-
     String instructorId;
-    String instructorName;
+    String firstName;
+    String lastName;
     String imageUrl;
 }

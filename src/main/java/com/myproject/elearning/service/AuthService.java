@@ -14,7 +14,7 @@ import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
 import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.security.JwtTokenUtils;
 import com.myproject.elearning.security.SecurityUtils;
-import com.myproject.elearning.service.redis.RedisTokenService;
+import com.myproject.elearning.service.redis.TokenRedisService;
 import com.nimbusds.jwt.SignedJWT;
 import java.text.ParseException;
 import java.time.Instant;
@@ -46,7 +46,7 @@ public class AuthService {
     long refreshTokenValidityInSeconds;
 
     TokenService tokenService;
-    RedisTokenService redisTokenService;
+    TokenRedisService tokenRedisService;
     JwtTokenUtils jwtTokenUtils;
     UserRepository userRepository;
     JwtEncoder jwtEncoder;
@@ -106,7 +106,7 @@ public class AuthService {
         String jti = signedJWT.getJWTClaimsSet().getJWTID();
         Instant expireTime = signedJWT.getJWTClaimsSet().getExpirationTime().toInstant();
         tokenService.revokeToken(jti, expireTime);
-        redisTokenService.revokeToken(jti, expireTime);
+        tokenRedisService.revokeToken(jti, expireTime);
     }
 
     private String generateAccessToken(Authentication authentication) {

@@ -13,7 +13,7 @@ import com.myproject.elearning.dto.response.post.PostUpdateRes;
 import com.myproject.elearning.exception.problemdetails.AnonymousUserEx;
 import com.myproject.elearning.security.SecurityUtils;
 import com.myproject.elearning.service.PostService;
-import com.myproject.elearning.service.redis.RedisPostService;
+import com.myproject.elearning.service.redis.PostRedisService;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Set;
@@ -33,15 +33,15 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class PostController {
     PostService postService;
-    RedisPostService redisPostService;
+    PostRedisService postRedisService;
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/top-like")
     @PreAuthorize("isAnonymous() or isAuthenticated()")
     public ApiRes<List<PostGetRes>> getTopPosts() {
-        Set<Long> topPostIds = redisPostService.getTopPostIds(0, 100);
+        Set<Long> topPostIds = postRedisService.getTopPostIds(0, 100);
         if (topPostIds.isEmpty()) return errorRes("Không có bài viết nào hiện tại", null);
-        var topPosts = redisPostService.getTopPosts(topPostIds);
+        var topPosts = postRedisService.getTopPosts(topPostIds);
         return successRes("Lay bai viet thanh cong", topPosts);
     }
 
@@ -51,7 +51,7 @@ public class PostController {
     public ApiRes<PostGetRes> addPost(@Valid @RequestBody PostCreateReq request) {
         Long userId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
         var res = postService.addPost(userId, request);
-        redisPostService.set(res.getId(), res);
+        postRedisService.set(res.getId(), res);
         return successRes("Tạo bài viết thành công", res);
     }
 
@@ -60,7 +60,7 @@ public class PostController {
     @PreAuthorize("isAuthenticated() and (@resourceAccessService.isPostOwner(#id))")
     public ApiRes<PostUpdateRes> editPost(@PathVariable Long id, @Valid @RequestBody PostUpdateReq request) {
         var editedPost = postService.editPost(id, request);
-        redisPostService.evict(id);
+        postRedisService.evict(id);
         return successRes("Cập nhật bài viết thành công", editedPost);
     }
 
@@ -72,7 +72,7 @@ public class PostController {
     @GetMapping("/{id}")
     @PreAuthorize("isAnonymous() or isAuthenticated()")
     public ApiRes<PostGetRes> getPost(@PathVariable Long id) {
-        var res = redisPostService.getAside(id);
+        var res = postRedisService.getAside(id);
         return successRes("Lấy bài viết thành công", res);
     }
 
@@ -91,7 +91,7 @@ public class PostController {
     @PreAuthorize("isAuthenticated()")
     public ApiRes<Void> likePost(@PathVariable Long id) {
         Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
-        redisPostService.like(id, curUserId);
+        postRedisService.like(id, curUserId);
         return successRes("Đã thích bài viết", null);
     }
 
@@ -100,7 +100,7 @@ public class PostController {
     @PreAuthorize("isAuthenticated()")
     public ApiRes<Void> unlikePost(@PathVariable Long id) {
         Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
-        redisPostService.unlike(id, curUserId);
+        postRedisService.unlike(id, curUserId);
         return successRes("Đã bỏ thích bài viết", null);
     }
 
@@ -109,7 +109,7 @@ public class PostController {
     @PreAuthorize("isAuthenticated() and (@resourceAccessService.isPostOwner(#id))")
     public ApiRes<Void> delPost(@PathVariable Long id) {
         postService.delPost(id);
-        redisPostService.evict(id);
+        postRedisService.evict(id);
         return successRes("Xóa bài viết thành công", null);
     }
 }

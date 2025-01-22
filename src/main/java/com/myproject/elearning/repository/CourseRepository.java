@@ -1,6 +1,7 @@
 package com.myproject.elearning.repository;
 
 import com.myproject.elearning.domain.Course;
+import com.myproject.elearning.dto.CourseData;
 import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
 import java.math.BigDecimal;
 import java.util.List;
@@ -23,10 +24,10 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
 
     @Query(
             value = """
-			select c.id
-			from Course c
-			where c.topic.id in :topicIds
-			""",
+					select c.id
+					from Course c
+					where c.topic.id in :topicIds
+					""",
             countQuery = """
 					select count(c)
 					from Course c
@@ -34,16 +35,39 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
 					""")
     Page<Long> findIdsByTopicIds(@Param("topicIds") Set<Long> topicIds, Pageable pageable);
 
-    @Query("""
-			select c
+    @Query(
+            """
+			SELECT new com.myproject.elearning.dto.CourseData(c.id, c.title,
+			c.description, c.duration,
+			c.price, c.level, c.thumbnailUrl,
+			c.enrolledCount, c.reviewCount,
+			c.instructor.id, c.instructor.firstName, c.instructor.lastName,
+			c.instructor.imageUrl,
+			c.topic.id, c.topic.name)
 			from Course c
-			left join fetch c.topic
+			left join c.topic
+			left join c.instructor
 			where c.id in :courseIds
 			""")
-    List<Course> findAllWithTopicBy(@Param("courseIds") List<Long> courseIds);
+    List<CourseData> findAllWithTopicBy(@Param("courseIds") List<Long> courseIds);
 
-    @Query("SELECT DISTINCT c FROM Course c LEFT JOIN FETCH c.topic")
-    Page<Course> findAllWithTopic(Pageable pageable);
+    @Query(
+            value =
+                    """
+			SELECT new com.myproject.elearning.dto.CourseData(
+				c.id, c.title, c.description, c.duration, c.price, c.level,
+				c.thumbnailUrl, c.enrolledCount, c.reviewCount,
+				c.instructor.id, c.instructor.firstName, c.instructor.lastName, c.instructor.imageUrl,
+				c.topic.id, c.topic.name
+			)
+			FROM Course c
+			LEFT JOIN c.topic
+			LEFT JOIN c.instructor
+			""",
+            countQuery = """
+					SELECT count(c) FROM Course c
+					""")
+    Page<CourseData> findAllWithTopic(Pageable pageable);
 
     @EntityGraph(attributePaths = "chapters")
     Optional<Course> findWithChaptersById(Long id);

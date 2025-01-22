@@ -23,18 +23,16 @@ import org.springframework.data.domain.PageImpl;
 public interface CourseMapper {
     CourseMapper COURSE_MAPPER = Mappers.getMapper(CourseMapper.class);
 
-    TopicCoursesRes.CourseInfo toCourseInfo(Course course);
+    TopicCoursesRes.CourseInfo toCourseInfo(CourseData course);
 
-    default Page<TopicCoursesRes> toTopicCoursesRes(Page<Course> coursePage) {
+    default Page<TopicCoursesRes> toTopicCoursesRes(Page<CourseData> page) {
         Map<Long, TopicCoursesRes> groupMap = new HashMap<>();
 
-        for (Course course : coursePage) {
-            var topic = course.getTopic();
-
-            TopicCoursesRes group = groupMap.computeIfAbsent(topic.getId(), id -> {
+        for (CourseData course : page) {
+            TopicCoursesRes group = groupMap.computeIfAbsent(course.getTopicId(), id -> {
                 TopicCoursesRes newGroup = new TopicCoursesRes();
                 newGroup.setTopicId(id);
-                newGroup.setTopicName(topic.getName());
+                newGroup.setTopicName(course.getTopicName());
                 newGroup.setCourses(new ArrayList<>());
                 return newGroup;
             });
@@ -42,15 +40,11 @@ public interface CourseMapper {
             group.getCourses().add(toCourseInfo(course));
         }
 
-        return new PageImpl<>(
-                new ArrayList<>(groupMap.values()), coursePage.getPageable(), coursePage.getTotalElements());
+        return new PageImpl<>(new ArrayList<>(groupMap.values()), page.getPageable(), page.getTotalElements());
     }
 
     @Mapping(target = "instructorId", source = "instructor.id")
     @Mapping(target = "imageUrl", source = "instructor.imageUrl")
-    @Mapping(
-            target = "instructorName",
-            expression = "java(entity.getInstructor().getFirstName() + \" \" + entity.getInstructor().getLastName())")
     CourseGetRes toGetRes(Course entity);
 
     @Mapping(target = "instructorId", source = "instructor.id")
@@ -61,9 +55,6 @@ public interface CourseMapper {
     @Mapping(target = "imageUrl", source = "instructor.imageUrl")
     @Mapping(target = "topicId", source = "topic.id")
     @Mapping(target = "topicName", source = "topic.name")
-    @Mapping(
-            target = "instructorName",
-            expression = "java(entity.getInstructor().getFirstName() + \" \" + entity.getInstructor().getLastName())")
     CourseData toData(Course entity);
 
     @Mapping(target = "topicId", source = "topic.id")

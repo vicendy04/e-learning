@@ -15,7 +15,7 @@ import com.myproject.elearning.security.SecurityUtils;
 import com.myproject.elearning.service.AuthService;
 import com.myproject.elearning.service.TokenService;
 import com.myproject.elearning.service.UserService;
-import com.myproject.elearning.service.redis.RedisAuthService;
+import com.myproject.elearning.service.redis.AuthRedisService;
 import jakarta.validation.Valid;
 import java.security.Principal;
 import java.text.ParseException;
@@ -43,11 +43,11 @@ public class AuthController {
     TokenService tokenService;
     JwtTokenUtils jwtTokenUtils;
     JwtDecoder refreshTokenDecoder;
-    RedisAuthService redisAuthService;
+    AuthRedisService authRedisService;
 
     @PostMapping("/login")
     public ResponseEntity<ApiRes<String>> authorize(@Valid @RequestBody LoginReq loginReq) {
-        UserAuth userAuth = redisAuthService.getAside(loginReq.getEmail());
+        UserAuth userAuth = authRedisService.getAside(loginReq.getEmail());
         Authentication authentication = authService.authenticate(loginReq, userAuth);
         TokenPair tokenPair = authService.generateTokenPair(authentication);
         ResponseCookie cookie = CookieUtils.addRefreshCookie(tokenPair.getRefreshToken());
@@ -101,7 +101,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorRes("Invalid refresh token", null));
         }
         String email = userService.findEmailById(Long.valueOf(jwt.getSubject()));
-        UserAuth userAuth = redisAuthService.getAside(email);
+        UserAuth userAuth = authRedisService.getAside(email);
         Authentication authentication = SecurityUtils.setAuthContext(userAuth);
         TokenPair tokenPair = authService.generateTokenPairForRefresh(jwt, authentication);
         ResponseCookie cookie = CookieUtils.addRefreshCookie(tokenPair.getRefreshToken());

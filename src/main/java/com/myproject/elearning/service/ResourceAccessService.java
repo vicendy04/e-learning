@@ -5,7 +5,7 @@ import com.myproject.elearning.exception.problemdetails.AnonymousUserEx;
 import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
 import com.myproject.elearning.repository.*;
 import com.myproject.elearning.security.SecurityUtils;
-import com.myproject.elearning.service.redis.RedisResourceAccessService;
+import com.myproject.elearning.service.redis.ResourceAccessRedisService;
 import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class ResourceAccessService {
     DiscountRepository discountRepository;
     ChapterRepository chapterRepository;
     LessonRepository lessonRepository;
-    RedisResourceAccessService redisResourceAccess;
+    ResourceAccessRedisService redisResourceAccess;
 
     private Long getCurrentUserId() {
         return SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);

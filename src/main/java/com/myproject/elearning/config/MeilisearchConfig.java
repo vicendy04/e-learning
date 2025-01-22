@@ -29,7 +29,7 @@ public class MeilisearchConfig {
     @Bean
     public Index courseIndex(Client client) {
         Index index = client.index(COURSE_INDEX);
-        index.updateSearchableAttributesSettings(new String[] {"title", "instructorName"});
+        index.updateSearchableAttributesSettings(new String[] {"title"});
         index.updateFilterableAttributesSettings(new String[] {"category", "level", "duration", "price"});
         return index;
     }
