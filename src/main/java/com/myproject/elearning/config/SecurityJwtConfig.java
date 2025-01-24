@@ -54,10 +54,14 @@ public class SecurityJwtConfig {
                 if (jti == null) {
                     throw new JwtException("Missing token identifier (jti)");
                 }
-                if (tokenRedisService.isTokenRevoked(jti)) {
-                    throw new JwtException("Token has been revoked");
-                } else if (tokenService.isTokenRevoked(jti)) {
-                    tokenRedisService.revokeToken(jti, expiresAt);
+                Boolean isRevoked = tokenRedisService.isTokenRevoked(jti);
+                if (isRevoked == null) {
+                    boolean isRevokedInDb = tokenService.isTokenRevoked(jti);
+                    if (isRevokedInDb) {
+                        tokenRedisService.revokeToken(jti, expiresAt);
+                        throw new JwtException("Token has been revoked");
+                    }
+                } else if (isRevoked) {
                     throw new JwtException("Token has been revoked");
                 }
                 return jwt;

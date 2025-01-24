@@ -20,9 +20,9 @@ public interface ChapterRepository extends JpaRepository<Chapter, Long>, JpaSpec
     Optional<Chapter> findWithLessonsById(Long id);
 
     @Query("""
-				SELECT c.course.instructor.id
-				FROM Chapter c
-				WHERE c.id = :chapterId
+			SELECT c.course.instructor.id
+			FROM Chapter c
+			WHERE c.id = :chapterId
 			""")
     Optional<Long> findInstructorIdById(Long chapterId);
 

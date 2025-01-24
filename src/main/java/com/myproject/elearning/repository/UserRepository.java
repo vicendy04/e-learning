@@ -42,9 +42,6 @@ public interface UserRepository
     @Query("SELECT t.id FROM Topic t JOIN t.interestedUsers u WHERE u.id = :userId")
     Set<Long> getMyPreferencesIds(@Param("userId") Long userId);
 
-    //    @Query("SELECT u.preferences FROM User u WHERE u.id = :userId")
-    //    Set<Topic> getMyPreferences(@Param("userId") Long userId);
-
     default User getReferenceIfExists(Long id) {
         if (!existsById(id)) {
             throw new InvalidIdEx("Entity with ID " + id + " not found");

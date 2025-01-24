@@ -24,16 +24,27 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
 
     @Query(
             value = """
-					select c.id
-					from Course c
-					where c.topic.id in :topicIds
-					""",
+			select c.id
+			from Course c
+			where c.topic.id in :topicIds
+			""",
             countQuery = """
-					select count(c)
-					from Course c
-					where c.topic.id in :topicIds
-					""")
+			select count(c)
+			from Course c
+			where c.topic.id in :topicIds
+			""")
     Page<Long> findIdsByTopicIds(@Param("topicIds") Set<Long> topicIds, Pageable pageable);
+
+    @Query(
+            value = """
+			select c.id
+			from Course c
+			""",
+            countQuery = """
+			select count(c)
+			from Course c
+			""")
+    Page<Long> findIdsBy(Pageable pageable);
 
     @Query(
             """
@@ -55,10 +66,10 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
             value =
                     """
 			SELECT new com.myproject.elearning.dto.CourseData(
-				c.id, c.title, c.description, c.duration, c.price, c.level,
-				c.thumbnailUrl, c.enrolledCount, c.reviewCount,
-				c.instructor.id, c.instructor.firstName, c.instructor.lastName, c.instructor.imageUrl,
-				c.topic.id, c.topic.name
+			c.id, c.title, c.description, c.duration, c.price, c.level,
+			c.thumbnailUrl, c.enrolledCount, c.reviewCount,
+			c.instructor.id, c.instructor.firstName, c.instructor.lastName, c.instructor.imageUrl,
+			c.topic.id, c.topic.name
 			)
 			FROM Course c
 			LEFT JOIN c.topic
@@ -80,12 +91,12 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
 
     @Query(
             """
-					SELECT c.id as id,
-						c.price as price,
-						c.instructor.id as instructorId
-					FROM Course c
-					WHERE c.id = :courseId
-					""")
+			SELECT c.id as id,
+			c.price as price,
+			c.instructor.id as instructorId
+			FROM Course c
+			WHERE c.id = :courseId
+			""")
     Optional<CourseForValidDiscount> findCourseDetailsForDiscount(@Param("courseId") Long courseId);
 
     @Modifying

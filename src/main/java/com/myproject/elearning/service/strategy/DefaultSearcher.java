@@ -3,10 +3,13 @@ package com.myproject.elearning.service.strategy;
 import com.myproject.elearning.dto.CourseData;
 import com.myproject.elearning.dto.search.CourseFilters;
 import com.myproject.elearning.repository.CourseRepository;
+import com.myproject.elearning.service.redis.CourseRedisService;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +18,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class DefaultSearcher implements CourseSearcher {
     CourseRepository courseRepository;
+    CourseRedisService courseRedisService;
 
     @Override
     public Page<CourseData> search(CourseFilters filters, PageRequest request) {
         // extract filters
         // log ...
-        return courseRepository.findAllWithTopic(request);
+
+        Page<Long> courseIds = courseRepository.findIdsBy(request);
+
+        // read cache, set aside
+        List<CourseData> data = courseRedisService.getManyAside(courseIds.getContent());
+
+        return new PageImpl<>(data, courseIds.getPageable(), courseIds.getTotalElements());
     }
 }

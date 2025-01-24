@@ -54,6 +54,7 @@ public class SecurityConfig {
         "/api-docs/**",
         "/chat-test.html",
         "/post-like-test.html",
+        "/homepage.html",
         "/course-search.html",
         "course-detail.html",
         "/api/v1/courses/chat/**",

@@ -4,9 +4,11 @@ import com.myproject.elearning.service.redis.PostRedisService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Component
@@ -15,8 +17,8 @@ public class PostCleanupJob {
 
     @Scheduled(cron = "0 0 0 * * ?")
     public void cleanUpPosts() {
-        System.out.println("Running cron job to clean up posts...");
+        log.info("Running cron job to clean up posts...");
         postRedisService.removePostsExceptTopN(100);
-        System.out.println("Clean up completed!");
+        log.info("Clean up completed!");
     }
 }

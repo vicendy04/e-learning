@@ -100,7 +100,6 @@ public class AuthService {
         revoke(jwt.getTokenValue());
     }
 
-    @Transactional
     public void revoke(String token) throws ParseException {
         SignedJWT signedJWT = jwtTokenUtils.getClaims(token);
         String jti = signedJWT.getJWTClaimsSet().getJWTID();

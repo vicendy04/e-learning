@@ -1,5 +1,9 @@
 package com.myproject.elearning.service.strategy;
 
+import static com.myproject.elearning.constant.UserType.DEFAULT;
+import static com.myproject.elearning.constant.UserType.PERSONALIZED;
+
+import com.myproject.elearning.constant.UserType;
 import com.myproject.elearning.security.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -14,20 +18,17 @@ public class StrategyFactory {
     CourseSearcher personalizedSearcher;
 
     public CourseSearcher getStrategy() {
-        Long type = userType();
-        if (type > 0) {
-            return personalizedSearcher;
-        } else if (type == Long.MIN_VALUE) {
-            return defaultSearcher;
-        } else {
-            throw new IllegalArgumentException("Loi roi");
-        }
+        var userType = userType();
+        return switch (userType) {
+            case PERSONALIZED -> personalizedSearcher;
+            case DEFAULT -> defaultSearcher;
+        };
     }
 
     // custom logic here
     // ex: check if the user is in a special list,
     // and if so, provide some offers
-    private Long userType() {
-        return SecurityUtils.getLoginId().orElse(Long.MIN_VALUE);
+    private static UserType userType() {
+        return SecurityUtils.getLoginId().isPresent() ? PERSONALIZED : DEFAULT;
     }
 }

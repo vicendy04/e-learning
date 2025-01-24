@@ -2,6 +2,7 @@ package com.myproject.elearning.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.myproject.elearning.constant.RegistrationStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -47,6 +48,13 @@ public class User {
 
     @Column(name = "image_url")
     String imageUrl;
+
+    @Column(name = "cv_url")
+    String cvUrl;
+
+    @Column(name = "registration_status")
+    @Enumerated(EnumType.STRING)
+    RegistrationStatus registrationStatus;
 
     @JsonIgnore
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)

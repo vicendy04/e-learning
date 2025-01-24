@@ -42,7 +42,7 @@ public class EnrollService {
         Enrollment enrollment = new Enrollment();
         enrollment.setUser(userRef);
         enrollment.setCourse(courseRef);
-        // đảm bảo tính atomic nhưng có thể gây ra bottleneck khi có nhiều concurrent requests
+        // atomic update
         courseRepository.incrementEnrollmentCount(courseId);
         Enrollment save = enrollmentRepository.save(enrollment);
         return ENROLLMENT_MAPPER.toRes(save);

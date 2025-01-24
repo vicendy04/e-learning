@@ -19,7 +19,6 @@ public class CourseListRes extends RepresentationModel<CourseListRes> {
     String thumbnailUrl;
     Integer enrolledCount;
     Integer reviewCount;
-    Integer totalLessons; // Todo: tạo course, chapter luôn 1 lần
 
     Long topicId;
     String topicName;

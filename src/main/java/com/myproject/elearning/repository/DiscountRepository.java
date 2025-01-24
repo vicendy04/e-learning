@@ -1,15 +1,13 @@
 package com.myproject.elearning.repository;
 
 import com.myproject.elearning.domain.Discount;
+import jakarta.persistence.LockModeType;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.EntityGraph;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -19,8 +17,10 @@ public interface DiscountRepository extends JpaRepository<Discount, Long>, JpaSp
 
     Page<Discount> findAllByInstructorId(Long instructorId, Pageable pageable);
 
-    @EntityGraph(attributePaths = {"specificCourseIds", "instructorId"})
-    Optional<Discount> findByDiscountCode(@Param("discountCode") String discountCode);
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @EntityGraph(attributePaths = {"specificCourseIds"})
+    @Query("SELECT d FROM Discount d WHERE d.discountCode = :discountCode")
+    Optional<Discount> findByDiscountCodeWithLock(@Param("discountCode") String discountCode);
 
     @Query("SELECT d.instructorId FROM Discount d WHERE d.id = :disCountId")
     Optional<Long> findInstructorIdByCourseId(@Param("disCountId") Long disCountId);

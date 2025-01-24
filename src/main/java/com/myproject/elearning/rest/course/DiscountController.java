@@ -53,12 +53,12 @@ public class DiscountController {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @PostMapping("/valid")
+    @PostMapping("/consume")
     @PreAuthorize("isAuthenticated()")
-    public ApiRes<Boolean> validateDiscountForCourse(@RequestBody ApplyDiscountReq request) {
-        var isAccept = discountService.validateDiscountForCourse(request.getDiscountCode(), request.getCourseId());
+    public ApiRes<Boolean> consumeDiscount(@RequestBody ApplyDiscountReq request) {
+        var isAccept = discountService.consumeDiscount(request.getDiscountCode(), request.getCourseId());
         if (!isAccept) {
-            throw new InvalidDiscountEx("Mã giảm giá không áp dụng cho khóa học này");
+            throw new InvalidDiscountEx("Mã giảm giá không thể áp dụng");
         }
         return successRes("Retrieved successfully", true);
     }

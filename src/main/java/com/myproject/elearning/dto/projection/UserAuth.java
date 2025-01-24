@@ -1,6 +1,5 @@
 package com.myproject.elearning.dto.projection;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,7 +14,7 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserAuth implements Serializable {
+public class UserAuth {
     Long id;
     String email;
     String password;

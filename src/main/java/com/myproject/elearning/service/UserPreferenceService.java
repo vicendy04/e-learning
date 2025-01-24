@@ -38,19 +38,6 @@ public class UserPreferenceService {
 
     @Transactional
     public void updatePreferences(Long userId, Set<Long> addTopicIds, Set<Long> delTopicIds) {
-        //        User user = userRepository.findWithPreferencesById(userId)
-        //                .orElseThrow(() -> new InvalidIdEx(("User not found")));
-        //        if (!delTopicIds.isEmpty())
-        //            user.getPreferences()
-        //                    .removeIf(topic -> delTopicIds
-        //                            .contains(topic.getId()));
-        //        if (!addTopicIds.isEmpty()) {
-        //            Set<Topic> addTopics = topicRepository.findAllByIdIn(addTopicIds);
-        //            if (addTopics.size() != addTopicIds.size()) throw new EmailUsedEx("Some topics to add not found");
-        //            user.getPreferences().addAll(addTopics);
-        //        }
-        //        userRepository.save(user);
-
         if (!delTopicIds.isEmpty()) userRepository.delUserPreferences(userId, delTopicIds);
         if (!addTopicIds.isEmpty()) {
             Set<Topic> addTopics = topicRepository.findAllByIdIn(addTopicIds);

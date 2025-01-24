@@ -11,12 +11,14 @@ import java.util.Set;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Component
@@ -28,7 +30,7 @@ public class LikeSyncJob {
     @Scheduled(cron = "0 0 2,14 * * *")
     @Transactional
     public void syncLikesToDatabase() {
-        System.out.println("Syncing likes to database...");
+        log.info("Syncing likes to database...");
         Set<String> likeKeys = redisTemplate.keys("posts:*:likes");
         if (likeKeys == null || likeKeys.isEmpty()) return;
 
@@ -57,6 +59,6 @@ public class LikeSyncJob {
         }
 
         redisTemplate.delete(likeKeys);
-        System.out.println("Sync completed successfully!");
+        log.info("Sync completed successfully!");
     }
 }

@@ -2,9 +2,12 @@ package com.myproject.elearning.repository.specification;
 
 import com.myproject.elearning.domain.User;
 import com.myproject.elearning.dto.request.user.UserSearchDTO;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 
-public class UserSpec {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class UserSpec {
     public static Specification<User> hasRoles(String roles) {
         return (root, query, criteriaBuilder) -> {
             if (roles == null || roles.isEmpty()) {

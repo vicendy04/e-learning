@@ -49,6 +49,9 @@ jwt:
   refresh-token-expiration: 2592000
   token-refresh-threshold: 300000
 
+file:
+  folder_uri: D:/work/temp
+
 management:
   endpoints:
     web:

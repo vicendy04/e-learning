@@ -16,12 +16,12 @@ import org.springframework.stereotype.Service;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
 public class ResourceAccessRedisService {
-    static final long DEFAULT_CACHE_DURATION = 1800; // 30 min
-    static final long MAX_RANDOM_EXPIRY = 300; // 5 min
+    static final long DEFAULT_CACHE_DURATION = 15;
+    static final long MAX_RANDOM_EXPIRY = 2;
 
+    Random random;
     RedisTemplate<String, Object> redisTemplate;
     HashOperations<String, String, Object> hashOps;
-    Random random;
 
     public Boolean getCachedOwnership(ResourceType type, Long resourceId, Long userId) {
         String key = getOwnershipKey(userId, type.value());
@@ -32,7 +32,7 @@ public class ResourceAccessRedisService {
         String key = getOwnershipKey(userId, type.value());
         long randomExpiry = DEFAULT_CACHE_DURATION + random.nextInt((int) MAX_RANDOM_EXPIRY);
         hashOps.put(key, resourceId.toString(), isOwner);
-        redisTemplate.expire(key, randomExpiry, TimeUnit.SECONDS);
+        redisTemplate.expire(key, randomExpiry, TimeUnit.MINUTES);
     }
 
     /**

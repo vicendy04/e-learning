@@ -23,18 +23,18 @@ import org.springframework.stereotype.Service;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
 public class PostRedisService {
-    static final long DEFAULT_CACHE_DURATION = 14 * 60 * 60; // 14 hours
-    static final long POST_TTL = 3 * 60 * 60;
+    static final long DEFAULT_CACHE_DURATION = 14L * 60 * 60; // 14h
+    static final long POST_TTL = 3L * 60 * 60;
     static final long COUNT_CACHE_TTL = 300;
-    static final long MAX_RANDOM_EXPIRY = 300; // 5 min
+    static final long MAX_RANDOM_EXPIRY = 300; // 5m
 
     Random random;
     PostService postService;
     ZSetOperations<String, Object> zSetOps;
     ValueOperations<String, Object> valueOps;
     PostLikeRepositoryCustom postLikeRepository;
-    HashOperations<String, String, Object> hashOps;
     RedisTemplate<String, Object> redisTemplate;
+    HashOperations<String, String, Object> hashOps;
 
     public void like(Long postId, Long userId) {
         String key = getPostLikesKey(postId);
@@ -82,7 +82,12 @@ public class PostRedisService {
         Set<Object> range = zSetOps.range(TOP_LIKE_PREFIX, startRank, endRank);
         if (range != null && !range.isEmpty()) {
             return range.stream()
-                    .map(o -> o instanceof Long ? (Long) o : Long.valueOf(o.toString()))
+                    .map(o -> {
+                        if (o instanceof Long l) {
+                            return l;
+                        }
+                        return Long.valueOf(o.toString());
+                    })
                     .collect(Collectors.toSet());
         }
         return Collections.emptySet();

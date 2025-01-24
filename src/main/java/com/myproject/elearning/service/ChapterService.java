@@ -12,7 +12,6 @@ import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
 import com.myproject.elearning.repository.ChapterRepository;
 import com.myproject.elearning.repository.CourseRepository;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -44,7 +43,7 @@ public class ChapterService {
 
     public List<ChapterRes> getChaptersByCourseId(Long courseId) {
         List<Chapter> contents = chapterRepository.findByCourseId(courseId);
-        return contents.stream().map(CHAPTER_MAPPER::toRes).collect(Collectors.toList());
+        return contents.stream().map(CHAPTER_MAPPER::toRes).toList();
     }
 
     @Transactional
@@ -69,6 +68,6 @@ public class ChapterService {
 
     public List<ExpandedChapterRes> getExpandedChapters(Long courseId) {
         List<Chapter> chapters = chapterRepository.findAllWithLessonsByCourseId(courseId);
-        return chapters.stream().map(CHAPTER_MAPPER::toExpandedChapterRes).collect(Collectors.toList());
+        return chapters.stream().map(CHAPTER_MAPPER::toExpandedChapterRes).toList();
     }
 }

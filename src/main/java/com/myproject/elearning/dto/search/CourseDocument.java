@@ -8,7 +8,6 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-// Todo: link
 public class CourseDocument {
     String id;
     String title;
@@ -18,10 +17,6 @@ public class CourseDocument {
     Integer duration;
     Double price;
     String thumbnailUrl;
-
-    //    Integer enrolledCount;
-    //    Integer reviewCount;
-
     String instructorId;
     String firstName;
     String lastName;

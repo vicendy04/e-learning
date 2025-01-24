@@ -12,9 +12,9 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     List<Lesson> findAllByChapterId(Long chapterId);
 
     @Query("""
-				SELECT l.chapter.course.instructor.id
-				FROM Lesson l
-				WHERE l.id = :lessonId
+			SELECT l.chapter.course.instructor.id
+			FROM Lesson l
+			WHERE l.id = :lessonId
 			""")
     Optional<Long> findInstructorIdById(Long lessonId);
 

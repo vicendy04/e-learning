@@ -37,10 +37,6 @@ public class Course {
     @Column(name = "price", precision = 10, scale = 2)
     BigDecimal price;
 
-    //    @Column(name = "category", length = 50)
-    //    @Enumerated(EnumType.STRING)
-    //    CourseCategory category;
-
     @Column(name = "level")
     @Enumerated(EnumType.STRING)
     Level level;
@@ -85,16 +81,6 @@ public class Course {
 
     @Column(name = "thumbnail_url")
     String thumbnailUrl;
-
-    //    public enum CourseCategory {
-    //        DEVELOPMENT,
-    //        DESIGN,
-    //        BUSINESS,
-    //        MARKETING,
-    //        SECURITY,
-    //        FINANCE,
-    //        COOKING,
-    //    }
 
     public enum Level {
         BEGINNER,

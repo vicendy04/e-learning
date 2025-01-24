@@ -4,7 +4,9 @@ import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.domain.User;
 import com.myproject.elearning.dto.request.auth.RegisterReq;
 import com.myproject.elearning.dto.request.course.CourseCreateReq;
+import com.myproject.elearning.dto.request.user.RegInstructorReq;
 import com.myproject.elearning.dto.request.user.UserUpdateReq;
+import com.myproject.elearning.dto.response.user.RegInstructorRes;
 import com.myproject.elearning.dto.response.user.UserRes;
 import com.myproject.elearning.mapper.base.MapperConfig;
 import org.mapstruct.*;
@@ -19,6 +21,12 @@ public interface UserMapper {
     User toEntity(RegisterReq request);
 
     UserRes toRes(User entity);
+
+    RegInstructorRes toRegTeacherRes(User entity);
+
+    @Named("partialUpdate")
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void partialUpdate(@MappingTarget User entity, RegInstructorReq request);
 
     @Named("partialUpdate")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

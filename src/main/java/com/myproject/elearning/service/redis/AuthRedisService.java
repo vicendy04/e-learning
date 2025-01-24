@@ -17,9 +17,8 @@ import org.springframework.stereotype.Service;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
 public class AuthRedisService {
-    static final long DEFAULT_CACHE_DURATION = 3600; // 60 min
-    static final long MAX_RANDOM_EXPIRY = 300; // 5 min
-    static final long DEFAULT_CACHE_MISS_DURATION = 30;
+    static final long DEFAULT_CACHE_DURATION = 30;
+    static final long MAX_RANDOM_EXPIRY = 5;
 
     Random random;
     UserService userService;
@@ -40,11 +39,7 @@ public class AuthRedisService {
 
     public void set(String username, Object userAuthDTO) {
         long randomExpiry = DEFAULT_CACHE_DURATION + random.nextInt((int) MAX_RANDOM_EXPIRY);
-        valueOps.set(getUserAuthKey(username), userAuthDTO, randomExpiry, TimeUnit.SECONDS);
-    }
-
-    private void setEmptyCache(String username) {
-        valueOps.set(getUserAuthKey(username), "empty", DEFAULT_CACHE_MISS_DURATION, TimeUnit.SECONDS);
+        valueOps.set(getUserAuthKey(username), userAuthDTO, randomExpiry, TimeUnit.MINUTES);
     }
 
     public void invalidateUserCache(String username) {

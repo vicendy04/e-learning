@@ -53,7 +53,6 @@ public class CourseSearchRepository {
         List<CourseDocument> documents =
                 courses.stream().map(COURSE_SEARCH_MAPPER::toCourseDocument).toList();
 
-        var task = courseIndex.addDocuments(objectMapper.writeValueAsString(documents), "id");
-        System.out.println("TaskUID: " + task.getTaskUid());
+        courseIndex.addDocuments(objectMapper.writeValueAsString(documents), "id");
     }
 }

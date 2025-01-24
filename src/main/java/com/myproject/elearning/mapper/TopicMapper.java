@@ -21,7 +21,4 @@ public interface TopicMapper {
         preferenceRes.setMyTopics(myTopics);
         return preferenceRes;
     }
-
-    //    @Mapping(target = "myTopics", source = "topics")
-    //    PreferenceRes toRes(Integer dummy, Set<Topic> topics);
 }
