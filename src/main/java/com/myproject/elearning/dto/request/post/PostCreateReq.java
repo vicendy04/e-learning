@@ -1,7 +1,9 @@
 package com.myproject.elearning.dto.request.post;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
 @Getter

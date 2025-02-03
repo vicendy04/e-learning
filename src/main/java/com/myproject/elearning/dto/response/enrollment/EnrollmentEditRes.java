@@ -1,6 +1,6 @@
 package com.myproject.elearning.dto.response.enrollment;
 
-import com.myproject.elearning.domain.Enrollment;
+import com.myproject.elearning.domain.enums.EnrollmentStatus;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +11,6 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class EnrollmentEditRes {
     Long id;
-    Enrollment.EnrollmentStatus status;
+    EnrollmentStatus status;
     String reasonForDropping;
 }

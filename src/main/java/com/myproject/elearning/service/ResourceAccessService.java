@@ -1,6 +1,6 @@
 package com.myproject.elearning.service;
 
-import com.myproject.elearning.constant.ResourceType;
+import com.myproject.elearning.constant.enums.ResourceType;
 import com.myproject.elearning.exception.problemdetails.AnonymousUserEx;
 import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
 import com.myproject.elearning.repository.*;

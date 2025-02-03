@@ -1,4 +1,4 @@
-package com.myproject.elearning.constant;
+package com.myproject.elearning.constant.enums;
 
 public enum UserType {
     PERSONALIZED,

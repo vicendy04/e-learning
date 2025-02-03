@@ -1,6 +1,6 @@
 package com.myproject.elearning.dto.response.user;
 
-import com.myproject.elearning.constant.RegistrationStatus;
+import com.myproject.elearning.domain.enums.RegistrationStatus;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;

@@ -14,7 +14,4 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
 
     @Query("SELECT COUNT(t) FROM Topic t WHERE t.id IN :ids")
     long countByIdIn(@Param("ids") Collection<Long> ids);
-
-    @Query(value = "SELECT COUNT(*) FROM user_preferences up WHERE up.user_id= :userId", nativeQuery = true)
-    Long countUserPreferences(@Param("userId") Long userId);
 }

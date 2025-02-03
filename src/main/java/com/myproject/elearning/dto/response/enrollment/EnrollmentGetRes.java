@@ -1,7 +1,7 @@
 package com.myproject.elearning.dto.response.enrollment;
 
 import com.myproject.elearning.domain.Course;
-import com.myproject.elearning.domain.Enrollment;
+import com.myproject.elearning.domain.enums.EnrollmentStatus;
 import java.math.BigDecimal;
 import java.time.Instant;
 import lombok.AccessLevel;
@@ -15,7 +15,7 @@ import lombok.experimental.FieldDefaults;
 public class EnrollmentGetRes {
     Long id;
     Instant enrolledAt;
-    Enrollment.EnrollmentStatus status;
+    EnrollmentStatus status;
     CourseInfo course;
 
     @Getter

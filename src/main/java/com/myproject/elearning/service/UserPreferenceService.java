@@ -25,15 +25,18 @@ public class UserPreferenceService {
 
     @Transactional
     public void setInitialPreferences(Long userId, Set<Long> topicIds) {
-        long userPrefCount = topicRepository.countUserPreferences(userId);
-        if (userPrefCount > 0) {
-            throw new EmailUsedEx("Preferences already set for this user");
-        }
-        long topicCount = topicRepository.countByIdIn(topicIds);
-        if (topicCount != topicIds.size()) {
-            throw new InvalidIdEx("Some topics not found");
-        }
+        validateUserPreferencesNotSet(userId);
+        validateAllTopicsExist(topicIds);
         userRepository.bulkAddPref(new UserPreferencesData(userId, topicIds));
+    }
+
+    private void validateUserPreferencesNotSet(Long userId) {
+        if (userRepository.countUserPreferences(userId) > 0)
+            throw new EmailUsedEx("Preferences already set for this user");
+    }
+
+    private void validateAllTopicsExist(Set<Long> topicIds) {
+        if (topicRepository.countByIdIn(topicIds) != topicIds.size()) throw new InvalidIdEx("Some topics not found");
     }
 
     @Transactional

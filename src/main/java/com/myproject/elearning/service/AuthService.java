@@ -8,10 +8,8 @@ import com.myproject.elearning.dto.common.TokenPair;
 import com.myproject.elearning.dto.projection.UserAuth;
 import com.myproject.elearning.dto.request.auth.ChangePasswordReq;
 import com.myproject.elearning.dto.request.auth.LoginReq;
-import com.myproject.elearning.exception.problemdetails.AnonymousUserEx;
 import com.myproject.elearning.exception.problemdetails.InvalidCredentialsEx;
 import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
-import com.myproject.elearning.repository.UserRepository;
 import com.myproject.elearning.security.JwtTokenUtils;
 import com.myproject.elearning.security.SecurityUtils;
 import com.myproject.elearning.service.redis.TokenRedisService;
@@ -45,13 +43,12 @@ public class AuthService {
     @Value("${jwt.refresh-token-expiration}")
     long refreshTokenValidityInSeconds;
 
-    TokenService tokenService;
-    TokenRedisService tokenRedisService;
-    JwtTokenUtils jwtTokenUtils;
-    UserRepository userRepository;
     JwtEncoder jwtEncoder;
     UserService userService;
+    TokenService tokenService;
+    JwtTokenUtils jwtTokenUtils;
     PasswordEncoder passwordEncoder;
+    TokenRedisService tokenRedisService;
 
     @Transactional
     public TokenPair generateTokenPair(Authentication authentication) {
@@ -64,9 +61,13 @@ public class AuthService {
     }
 
     @Transactional
-    public void changePassword(ChangePasswordReq request) {
-        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
-        User user = userRepository.findById(curUserId).orElseThrow(() -> new InvalidIdEx(curUserId));
+    public void changePassword(ChangePasswordReq request, Long curUserId) {
+        User user = userService.findById(curUserId);
+        validatePasswordChange(request, user);
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+    }
+
+    private void validatePasswordChange(ChangePasswordReq request, User user) {
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword()))
             throw new InvalidIdEx(ErrorMessageConstants.CURRENT_PASSWORD_INVALID);
         if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
@@ -74,7 +75,6 @@ public class AuthService {
         }
         if (!Objects.equals(request.getNewPassword(), request.getConfirmPassword()))
             throw new InvalidIdEx(ErrorMessageConstants.CONFIRM_PASSWORD_INVALID);
-        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
     }
 
     @Transactional

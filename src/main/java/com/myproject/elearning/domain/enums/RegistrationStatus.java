@@ -1,4 +1,4 @@
-package com.myproject.elearning.constant;
+package com.myproject.elearning.domain.enums;
 
 public enum RegistrationStatus {
     PENDING,

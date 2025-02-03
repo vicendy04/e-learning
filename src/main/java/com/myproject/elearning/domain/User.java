@@ -2,7 +2,7 @@ package com.myproject.elearning.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.myproject.elearning.constant.RegistrationStatus;
+import com.myproject.elearning.domain.enums.RegistrationStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

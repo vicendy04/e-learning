@@ -60,7 +60,8 @@ public class AuthController {
     @PostMapping("/change-password")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiRes<Object>> changePassword(@RequestBody @Valid ChangePasswordReq request) {
-        authService.changePassword(request);
+        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
+        authService.changePassword(request, curUserId);
         var res = successRes("Change password successfully", null);
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }

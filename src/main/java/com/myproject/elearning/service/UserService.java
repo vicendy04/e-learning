@@ -41,9 +41,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class UserService {
     UserRepository userRepository;
-    RefreshTokenRepository refreshTokenRepository;
     RoleRepository roleRepository;
     PasswordEncoder passwordEncoder;
+    RefreshTokenRepository refreshTokenRepository;
 
     @Transactional
     public UserRes addUser(RegisterReq registerReq) {
@@ -65,6 +65,10 @@ public class UserService {
     public UserRes getUser(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new InvalidIdEx(id));
         return USER_MAPPER.toRes(user);
+    }
+
+    public User findById(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new InvalidIdEx(id));
     }
 
     @Transactional

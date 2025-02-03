@@ -2,7 +2,7 @@ package com.myproject.elearning.service.redis;
 
 import static com.myproject.elearning.constant.RedisKeyConstants.getOwnershipKey;
 
-import com.myproject.elearning.constant.ResourceType;
+import com.myproject.elearning.constant.enums.ResourceType;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import lombok.AccessLevel;

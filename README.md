@@ -73,6 +73,87 @@ public Page<CourseData> getCourses(
 
 This allows us to insert our custom logic into the common logic.
 
+## Cyclomatic Complexity & Testing
+
+To be honest, this project is not complex enough to require an analysis of Cyclomatic Complexity. However, I’ll briefly mention it below for completeness. It might not be entirely accurate.
+
+Here's a simple demonstration:
+
+```java
+// Service.java
+@Transactional
+public void setInitialPreferences(Long userId, Set<Long> topicIds) {
+    long userPrefCount = userRepository.countUserPreferences(userId);
+    if (userPrefCount > 0) {
+        throw new EmailUsedEx("Preferences already set for this user");
+    }
+    long topicCount = topicRepository.countByIdIn(topicIds);
+    if (topicCount != topicIds.size()) {
+        throw new InvalidIdEx("Some topics not found");
+    }
+    userRepository.bulkAddPref(new UserPreferencesData(userId, topicIds));
+}
+```
+
+```java
+// Test.java
+@Test
+void setInitialPreferences_ShouldThrowIfTopicsNotFound() {
+    // setup
+    when(userRepository.countUserPreferences(any())).thenReturn(0L);
+    when(topicRepository.countByIdIn(Set.of(1L, 99L))).thenReturn(1L); // only 1 found out of 2 
+
+    // act & assert
+    assertThrows(InvalidIdEx.class, () -> service.setInitialPreferences(1L, Set.of(1L, 99L)));
+}
+```
+
+- Test case depends on both repos, even though only one condition is tested.
+
+- Test case could fail due to incorrect mocking of unrelated dependencies.
+
+- When the validation logic changes, test cases related to this method are affected.
+
+### Refactored version
+
+```java
+@Transactional
+public void setInitialPreferences(Long userId, Set<Long> topicIds) {
+    validateUserPreferencesNotSet(userId);
+    validateAllTopicsExist(topicIds);
+    userRepository.bulkAddPref(new UserPreferencesData(userId, topicIds));
+}
+```
+
+```java
+@Test
+void validateUserPreferencesNotSet_ShouldThrowWhenPreferencesExist() {
+    when(userRepository.countUserPreferences(1L)).thenReturn(1L);
+    assertThrows(EmailUsedEx.class, () -> service.validateUserPreferencesNotSet(1L));
+}
+
+@Test
+void validateUserPreferencesNotSet_ShouldPassWhenNoPreferences() {
+    when(userRepository.countUserPreferences(1L)).thenReturn(0L);
+    assertDoesNotThrow(() -> service.validateUserPreferencesNotSet(1L));
+}
+
+@Test
+void validateAllTopicsExist_ShouldThrowWhenTopicsMissing() {
+    when(topicRepository.countByIdIn(Set.of(1L, 99L))).thenReturn(1L);
+    assertThrows(InvalidIdEx.class, () -> service.validateAllTopicsExist(Set.of(1L, 99L)));
+}
+
+@Test
+void validateAllTopicsExist_ShouldPassWhenAllTopicsExist() {
+    ...
+}
+```
+
+- Each validation is tested separately, without being affected by other logic.
+
+todo: edit
+
 ## Group Chat Using Pub/Sub
 
 Redis is used as the channel layer to broadcast messages to all users in a chat room, enabling real-time group chat functionality.

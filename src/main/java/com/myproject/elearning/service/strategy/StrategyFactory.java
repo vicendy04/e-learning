@@ -1,9 +1,9 @@
 package com.myproject.elearning.service.strategy;
 
-import static com.myproject.elearning.constant.UserType.DEFAULT;
-import static com.myproject.elearning.constant.UserType.PERSONALIZED;
+import static com.myproject.elearning.constant.enums.UserType.DEFAULT;
+import static com.myproject.elearning.constant.enums.UserType.PERSONALIZED;
 
-import com.myproject.elearning.constant.UserType;
+import com.myproject.elearning.constant.enums.UserType;
 import com.myproject.elearning.security.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

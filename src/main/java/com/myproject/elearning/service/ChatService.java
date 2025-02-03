@@ -3,6 +3,7 @@ package com.myproject.elearning.service;
 import com.myproject.elearning.constant.AuthConstants;
 import java.security.Principal;
 import java.util.Collection;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,28 +14,31 @@ import org.springframework.stereotype.Service;
 public class ChatService {
 
     public boolean hasAccessToRoom(Principal principal, String roomId) {
-        if (principal == null) {
+        if (!isValidAuthentication(principal)) {
             return false;
         }
 
-        if (!(principal instanceof Authentication authentication)) {
-            return false;
-        }
+        Authentication authentication = (Authentication) principal;
+        Collection<String> userAuthorities = extractAuthorities(authentication);
 
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        return hasAdminAccess(userAuthorities) || hasUserOrInstructorAccess(userAuthorities);
+    }
 
-        // Kiểm tra nếu user là ADMIN
-        boolean isAdmin =
-                authorities.stream().map(GrantedAuthority::getAuthority).anyMatch(AuthConstants.ADMIN::equals);
+    private boolean isValidAuthentication(Principal principal) {
+        return principal instanceof Authentication;
+    }
 
-        if (isAdmin) {
-            return true;
-        }
-
-        // Kiểm tra nếu user là USER hoặc INSTRUCTOR
-        return authorities.stream()
+    private Collection<String> extractAuthorities(Authentication authentication) {
+        return authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .anyMatch(authority ->
-                        AuthConstants.USER.equals(authority) || AuthConstants.INSTRUCTOR.equals(authority));
+                .collect(Collectors.toSet());
+    }
+
+    private boolean hasAdminAccess(Collection<String> authorities) {
+        return authorities.contains(AuthConstants.ADMIN);
+    }
+
+    private boolean hasUserOrInstructorAccess(Collection<String> authorities) {
+        return authorities.contains(AuthConstants.USER) || authorities.contains(AuthConstants.INSTRUCTOR);
     }
 }

@@ -30,6 +30,9 @@ public interface UserRepository
     @Query("DELETE FROM User u WHERE u.id = :id")
     void deleteByUserId(@Param("id") Long id);
 
+    @Query(value = "SELECT COUNT(*) FROM user_preferences up WHERE up.user_id= :userId", nativeQuery = true)
+    Long countUserPreferences(@Param("userId") Long userId);
+
     @Modifying
     @Query(
             value = "DELETE FROM user_preferences WHERE user_id = :userId AND topic_id IN (:topicIds)",

@@ -5,6 +5,8 @@ import static com.myproject.elearning.rest.utils.ResponseUtils.successRes;
 import com.myproject.elearning.dto.common.ApiRes;
 import com.myproject.elearning.dto.request.user.RegInstructorReq;
 import com.myproject.elearning.dto.response.user.RegInstructorRes;
+import com.myproject.elearning.exception.problemdetails.AnonymousUserEx;
+import com.myproject.elearning.security.SecurityUtils;
 import com.myproject.elearning.service.InstructorService;
 import java.io.IOException;
 import lombok.AccessLevel;
@@ -27,7 +29,8 @@ public class InstructorController {
     @PreAuthorize("isAuthenticated() and (hasRole('USER'))")
     public ApiRes<RegInstructorRes> registerTeacher(
             @RequestPart("request") RegInstructorReq request, @RequestPart("cv") MultipartFile cv) throws IOException {
-        var res = instructorService.registerTeacher(request, cv);
+        Long userId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
+        var res = instructorService.registerTeacher(request, cv, userId);
         return successRes("User created successfully", res);
     }
 

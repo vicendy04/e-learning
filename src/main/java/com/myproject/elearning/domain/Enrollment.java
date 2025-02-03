@@ -1,6 +1,7 @@
 package com.myproject.elearning.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.myproject.elearning.domain.enums.EnrollmentStatus;
 import jakarta.persistence.*;
 import java.time.Instant;
 import lombok.AccessLevel;
@@ -37,14 +38,6 @@ public class Enrollment {
 
     @Column(name = "reason_for_dropping")
     String reasonForDropping;
-
-    public enum EnrollmentStatus {
-        ACTIVE,
-        COMPLETED,
-        DROPPED,
-        REFUNDED,
-        EXPIRED
-    }
 
     @PrePersist
     public void prePersist() {

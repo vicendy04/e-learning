@@ -1,11 +1,11 @@
 package com.myproject.elearning.service;
 
-import static com.myproject.elearning.domain.Enrollment.EnrollmentStatus;
 import static com.myproject.elearning.mapper.EnrollmentMapper.ENROLLMENT_MAPPER;
 
 import com.myproject.elearning.domain.Course;
 import com.myproject.elearning.domain.Enrollment;
 import com.myproject.elearning.domain.User;
+import com.myproject.elearning.domain.enums.EnrollmentStatus;
 import com.myproject.elearning.dto.common.PagedRes;
 import com.myproject.elearning.dto.request.enrollment.EnrollStatusUpdateReq;
 import com.myproject.elearning.dto.response.enrollment.EnrollmentEditRes;
@@ -83,13 +83,10 @@ public class EnrollService {
     private void validateStatusTransition(Enrollment enrollment, EnrollStatusUpdateReq input) {
         EnrollmentStatus currentStatus = enrollment.getStatus();
         EnrollmentStatus newStatus = input.getStatus();
-        if (currentStatus == EnrollmentStatus.COMPLETED && newStatus == EnrollmentStatus.ACTIVE) {
-            throw new IllegalStateException("Cannot change status from COMPLETED to ACTIVE");
-        }
 
-        if ((currentStatus == EnrollmentStatus.DROPPED)
-                && ((newStatus == EnrollmentStatus.ACTIVE) || (newStatus == EnrollmentStatus.COMPLETED))) {
-            throw new IllegalStateException("Cannot change status from DROPPED to " + newStatus);
+        if (currentStatus.getInvalidTransitions().contains(newStatus)) {
+            throw new IllegalStateException(
+                    String.format("Invalid transition from %s to %s", currentStatus, newStatus));
         }
     }
 }
