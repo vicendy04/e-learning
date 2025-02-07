@@ -1,6 +1,6 @@
 package com.myproject.elearning.cronjob;
 
-import com.myproject.elearning.service.redis.PostRedisService;
+import com.myproject.elearning.service.cache.PostRedisService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

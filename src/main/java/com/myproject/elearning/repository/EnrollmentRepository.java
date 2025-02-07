@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
-    boolean existsByUserIdAndCourseId(Long id, Long courseId);
+    boolean existsByUserIdAndCourseId(Long userId, Long courseId);
 
     int countEnrollmentByCourseId(@Param("courseId") Long courseId);
 

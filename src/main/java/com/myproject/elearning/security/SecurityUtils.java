@@ -2,6 +2,7 @@ package com.myproject.elearning.security;
 
 import com.myproject.elearning.constant.AuthConstants;
 import com.myproject.elearning.dto.projection.UserAuth;
+import com.myproject.elearning.exception.problemdetails.AnonymousUserEx;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -31,16 +32,6 @@ public final class SecurityUtils {
     private SecurityUtils() {}
 
     /**
-     * Get the login of the current user.
-     *
-     * @return the login of the current user.
-     */
-    public static Optional<String> getCurrentUserLogin() {
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        return Optional.ofNullable(extractPrincipal(securityContext.getAuthentication()));
-    }
-
-    /**
      * Sets up the security context for the current user.
      *
      * @param userAuth Data transfer object containing user authentication information (user ID and role names)
@@ -57,18 +48,24 @@ public final class SecurityUtils {
     }
 
     /**
+     * Gets the current authenticated user's ID
+     * @return The user ID of the currently authenticated user
+     * @throws AnonymousUserEx if no user is authenticated
+     */
+    public static Long getCurrentUserId() {
+        return getLoginId().orElseThrow(AnonymousUserEx::new);
+    }
+
+    /**
      * Get the login of the current user.
-     *
      * @return the login of the current user.
      */
     public static Optional<Long> getLoginId() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         String userLogin = extractPrincipal(securityContext.getAuthentication());
-
         if (userLogin == null) {
             return Optional.empty();
         }
-
         try {
             return Optional.of(Long.valueOf(userLogin));
         } catch (NumberFormatException e) {

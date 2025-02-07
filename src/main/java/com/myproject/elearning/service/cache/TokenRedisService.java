@@ -1,4 +1,4 @@
-package com.myproject.elearning.service.redis;
+package com.myproject.elearning.service.cache;
 
 import static com.myproject.elearning.constant.RedisKeyConstants.getBlacklistKey;
 

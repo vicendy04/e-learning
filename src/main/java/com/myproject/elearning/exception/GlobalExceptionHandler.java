@@ -6,6 +6,8 @@ import com.myproject.elearning.dto.common.ApiRes;
 import com.myproject.elearning.exception.problemdetails.*;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -26,29 +28,51 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    private static final Map<Class<? extends Throwable>, Function<Throwable, ProblemDetail>> EXCEPTION_HANDLERS =
+            Map.of(
+                    TokenEx.class, ex -> ((TokenEx) ex).getBody(),
+                    InvalidIdEx.class, ex -> ((InvalidIdEx) ex).getBody(),
+                    EmailUsedEx.class, ex -> ((EmailUsedEx) ex).getBody(),
+                    InvalidCredentialsEx.class, ex -> ((InvalidCredentialsEx) ex).getBody(),
+                    InvalidDiscountEx.class, ex -> ((InvalidDiscountEx) ex).getBody(),
+                    MethodArgumentNotValidException.class,
+                            ex -> {
+                                MethodArgumentNotValidException manve = (MethodArgumentNotValidException) ex;
+                                ProblemDetail pd = manve.getBody();
+                                pd.setProperty("errors", getFieldErrors(manve));
+                                return pd;
+                            });
+
+    private ProblemDetail getProblemDetail(Throwable ex) {
+        return EXCEPTION_HANDLERS
+                .getOrDefault(ex.getClass(), this::getDefaultProblemDetail)
+                .apply(ex);
+    }
+
+    /*
+    	private ProblemDetail getProblemDetail(Throwable ex) {
+    		if (ex instanceof TokenEx te) {
+    			return te.getBody();
+    		} else if (ex instanceof InvalidIdEx iie) {
+    			return iie.getBody();
+    		} else if (ex instanceof EmailUsedEx eaue) {
+    			return eaue.getBody();
+    		} else if (ex instanceof InvalidCredentialsEx ice) {
+    			return ice.getBody();
+    		} else if (ex instanceof InvalidDiscountEx ide) {
+    			return ide.getBody();
+    		} else if (ex instanceof MethodArgumentNotValidException manve) {
+    			manve.getBody().setProperty("errors", getFieldErrors(manve));
+    			return manve.getBody();
+    		}
+    		return getDefaultProblemDetail(ex);
+    	}
+    */
 
     @ExceptionHandler(value = Exception.class)
     public ResponseEntity<ProblemDetail> handleAnyException(Exception ex) {
         ProblemDetail problemDetail = getProblemDetail(ex);
         return ResponseEntity.status(problemDetail.getStatus()).body(problemDetail);
-    }
-
-    private ProblemDetail getProblemDetail(Throwable ex) {
-        if (ex instanceof TokenEx te) {
-            return te.getBody();
-        } else if (ex instanceof InvalidIdEx iie) {
-            return iie.getBody();
-        } else if (ex instanceof EmailUsedEx eaue) {
-            return eaue.getBody();
-        } else if (ex instanceof InvalidCredentialsEx ice) {
-            return ice.getBody();
-        } else if (ex instanceof InvalidDiscountEx ide) {
-            return ide.getBody();
-        } else if (ex instanceof MethodArgumentNotValidException manve) {
-            manve.getBody().setProperty("errors", getFieldErrors(manve));
-            return manve.getBody();
-        }
-        return getDefaultProblemDetail(ex);
     }
 
     @ExceptionHandler({AccessDeniedException.class, AuthorizationDeniedException.class})
@@ -68,7 +92,7 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    private List<String> getFieldErrors(MethodArgumentNotValidException ex) {
+    private static List<String> getFieldErrors(MethodArgumentNotValidException ex) {
         return ex.getBindingResult().getFieldErrors().stream()
                 .map(f -> f.getField() + ": " + f.getDefaultMessage())
                 .toList();

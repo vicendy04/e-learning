@@ -1,10 +1,9 @@
-package com.myproject.elearning.service.redis;
+package com.myproject.elearning.service.cache;
 
 import static com.myproject.elearning.constant.RedisKeyConstants.getUserAuthKey;
 
 import com.myproject.elearning.dto.projection.UserAuth;
 import com.myproject.elearning.service.UserService;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +16,8 @@ import org.springframework.stereotype.Service;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
 public class AuthRedisService {
-    static final long DEFAULT_CACHE_DURATION = 30;
-    static final long MAX_RANDOM_EXPIRY = 5;
+    static final long DEFAULT_CACHE_DURATION = 5;
 
-    Random random;
     UserService userService;
     ValueOperations<String, Object> valueOps;
     RedisTemplate<String, Object> redisTemplate;
@@ -38,8 +35,7 @@ public class AuthRedisService {
     }
 
     public void set(String username, Object userAuthDTO) {
-        long randomExpiry = DEFAULT_CACHE_DURATION + random.nextInt((int) MAX_RANDOM_EXPIRY);
-        valueOps.set(getUserAuthKey(username), userAuthDTO, randomExpiry, TimeUnit.MINUTES);
+        valueOps.set(getUserAuthKey(username), userAuthDTO, DEFAULT_CACHE_DURATION, TimeUnit.MINUTES);
     }
 
     public void invalidateUserCache(String username) {

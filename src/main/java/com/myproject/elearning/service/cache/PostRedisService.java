@@ -1,4 +1,4 @@
-package com.myproject.elearning.service.redis;
+package com.myproject.elearning.service.cache;
 
 import static com.myproject.elearning.constant.RedisKeyConstants.*;
 
@@ -23,10 +23,10 @@ import org.springframework.stereotype.Service;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
 public class PostRedisService {
-    static final long DEFAULT_CACHE_DURATION = 14L * 60 * 60; // 14h
-    static final long POST_TTL = 3L * 60 * 60;
-    static final long COUNT_CACHE_TTL = 300;
-    static final long MAX_RANDOM_EXPIRY = 300; // 5m
+    static final long DEFAULT_CACHE_DURATION = 30;
+    static final long POST_TTL = 5;
+    static final long COUNT_CACHE_TTL = 5;
+    static final long MAX_RANDOM_EXPIRY = 2;
 
     Random random;
     PostService postService;
@@ -39,18 +39,18 @@ public class PostRedisService {
     public void like(Long postId, Long userId) {
         String key = getPostLikesKey(postId);
         hashOps.put(key, userId.toString(), LIKE_STATUS);
-        redisTemplate.expire(key, DEFAULT_CACHE_DURATION, TimeUnit.SECONDS);
+        redisTemplate.expire(key, DEFAULT_CACHE_DURATION, TimeUnit.MINUTES);
     }
 
     public void unlike(Long postId, Long userId) {
         String key = getPostLikesKey(postId);
         hashOps.put(key, userId.toString(), UNLIKE_STATUS);
-        redisTemplate.expire(key, DEFAULT_CACHE_DURATION, TimeUnit.SECONDS);
+        redisTemplate.expire(key, DEFAULT_CACHE_DURATION, TimeUnit.MINUTES);
     }
 
     public void set(Long id, PostGetRes post) {
         long randomExpiry = POST_TTL + random.nextInt((int) MAX_RANDOM_EXPIRY);
-        valueOps.set(getPostKey(id), post, randomExpiry, TimeUnit.SECONDS);
+        valueOps.set(getPostKey(id), post, randomExpiry, TimeUnit.MINUTES);
     }
 
     public PostGetRes get(Long id) {
@@ -137,7 +137,7 @@ public class PostRedisService {
         if (count == null) {
             Long dbCount = postLikeRepository.countById(postId);
             long randomExpiry = COUNT_CACHE_TTL + random.nextInt((int) MAX_RANDOM_EXPIRY);
-            valueOps.set(countKey, dbCount.toString(), randomExpiry, TimeUnit.SECONDS);
+            valueOps.set(countKey, dbCount.toString(), randomExpiry, TimeUnit.MINUTES);
             // Add to the top likes ZSet
             addPostToSortedSet(String.valueOf(postId), dbCount);
             return dbCount;

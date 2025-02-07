@@ -2,6 +2,7 @@ package com.myproject.elearning.rest.auth;
 
 import static com.myproject.elearning.rest.utils.ResponseUtils.errorRes;
 import static com.myproject.elearning.rest.utils.ResponseUtils.successRes;
+import static com.myproject.elearning.security.SecurityUtils.getCurrentUserId;
 
 import com.myproject.elearning.dto.common.ApiRes;
 import com.myproject.elearning.dto.common.TokenPair;
@@ -15,7 +16,7 @@ import com.myproject.elearning.security.SecurityUtils;
 import com.myproject.elearning.service.AuthService;
 import com.myproject.elearning.service.TokenService;
 import com.myproject.elearning.service.UserService;
-import com.myproject.elearning.service.redis.AuthRedisService;
+import com.myproject.elearning.service.cache.AuthRedisService;
 import jakarta.validation.Valid;
 import java.security.Principal;
 import java.text.ParseException;
@@ -60,8 +61,8 @@ public class AuthController {
     @PostMapping("/change-password")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiRes<Object>> changePassword(@RequestBody @Valid ChangePasswordReq request) {
-        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
-        authService.changePassword(request, curUserId);
+        Long userId = getCurrentUserId();
+        authService.changePassword(request, userId);
         var res = successRes("Change password successfully", null);
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }

@@ -3,6 +3,7 @@ package com.myproject.elearning.mapper;
 import com.myproject.elearning.domain.Lesson;
 import com.myproject.elearning.dto.request.lesson.LessonCreateReq;
 import com.myproject.elearning.dto.request.lesson.LessonUpdateReq;
+import com.myproject.elearning.dto.response.lesson.LessonContentRes;
 import com.myproject.elearning.dto.response.lesson.LessonRes;
 import com.myproject.elearning.mapper.base.MapperConfig;
 import org.mapstruct.*;
@@ -14,6 +15,9 @@ public interface LessonMapper {
 
     @Mapping(target = "chapterId", source = "chapter.id")
     LessonRes toRes(Lesson entity);
+
+    @Mapping(target = "chapterId", source = "chapter.id")
+    LessonContentRes toContentRes(Lesson entity);
 
     Lesson toEntity(LessonCreateReq request);
 

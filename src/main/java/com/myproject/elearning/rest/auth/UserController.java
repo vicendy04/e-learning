@@ -1,6 +1,7 @@
 package com.myproject.elearning.rest.auth;
 
 import static com.myproject.elearning.rest.utils.ResponseUtils.successRes;
+import static com.myproject.elearning.security.SecurityUtils.getCurrentUserId;
 
 import com.myproject.elearning.dto.common.ApiRes;
 import com.myproject.elearning.dto.common.PagedRes;
@@ -12,8 +13,6 @@ import com.myproject.elearning.dto.request.user.UserUpdateReq;
 import com.myproject.elearning.dto.response.enrollment.EnrollmentGetRes;
 import com.myproject.elearning.dto.response.user.PreferenceRes;
 import com.myproject.elearning.dto.response.user.UserRes;
-import com.myproject.elearning.exception.problemdetails.AnonymousUserEx;
-import com.myproject.elearning.security.SecurityUtils;
 import com.myproject.elearning.service.EnrollService;
 import com.myproject.elearning.service.UserPreferenceService;
 import com.myproject.elearning.service.UserService;
@@ -78,7 +77,7 @@ public class UserController {
 
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{userId}")
-    @PreAuthorize("isAuthenticated() and (hasRole('ADMIN') or @resourceAccessService.isUserOwner(#id))")
+    @PreAuthorize("isAuthenticated() and (hasRole('ADMIN') or @resourceAccessService.isUserOwner(#userId))")
     public ApiRes<UserRes> editUser(
             @PathVariable(name = "userId") Long userId, @RequestBody UserUpdateReq userUpdateReq) {
         var editedUser = userService.editUser(userId, userUpdateReq);
@@ -89,8 +88,8 @@ public class UserController {
     @GetMapping("/enrollments")
     @PreAuthorize("isAuthenticated() and hasAnyRole('USER', 'ADMIN')")
     public ApiRes<PagedRes<EnrollmentGetRes>> getMyEnrollments(@PageableDefault(size = 5, page = 0) Pageable pageable) {
-        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
-        var enrollments = enrollService.getMyEnrollments(pageable, curUserId);
+        Long userId = getCurrentUserId();
+        var enrollments = enrollService.getMyEnrollments(pageable, userId);
         return successRes("User enrollments retrieved successfully", enrollments);
     }
 
@@ -106,8 +105,8 @@ public class UserController {
     @PutMapping("/initial-preferences")
     @PreAuthorize("isAuthenticated()")
     public ApiRes<Void> setInitialPreferences(@Valid @RequestBody SetPreferencesReq request) {
-        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
-        userPreferenceService.setInitialPreferences(curUserId, request.getTopicIds());
+        Long userId = getCurrentUserId();
+        userPreferenceService.setInitialPreferences(userId, request.getTopicIds());
         return successRes("Preferences set successfully", null);
     }
 
@@ -115,8 +114,8 @@ public class UserController {
     @PutMapping("/preferences")
     @PreAuthorize("isAuthenticated()")
     public ApiRes<UserRes> updatePreferences(@Valid @RequestBody EditPreferencesReq request) {
-        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
-        userPreferenceService.updatePreferences(curUserId, request.getAddTopicIds(), request.getDelTopicIds());
+        Long userId = getCurrentUserId();
+        userPreferenceService.updatePreferences(userId, request.getAddTopicIds(), request.getDelTopicIds());
         return successRes("Preferences updated successfully", null);
     }
 
@@ -124,8 +123,8 @@ public class UserController {
     @GetMapping("/my-preferences")
     @PreAuthorize("isAuthenticated() and hasAnyRole('USER', 'ADMIN')")
     public ApiRes<PreferenceRes> getMyPreferences() {
-        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
-        var res = userPreferenceService.getMyPreferences(curUserId);
+        Long userId = getCurrentUserId();
+        var res = userPreferenceService.getMyPreferences(userId);
         return successRes("User perferences retrieved successfully", res);
     }
 }

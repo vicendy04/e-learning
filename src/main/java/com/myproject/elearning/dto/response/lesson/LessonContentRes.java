@@ -9,9 +9,10 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class LessonRes {
+public class LessonContentRes {
     Long id;
     String title;
+    String contentUrl;
     Integer orderIndex;
     LessonType contentType;
     Boolean isFreePreview;

@@ -6,5 +6,5 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 public interface CourseSearcher {
-    Page<CourseData> search(CourseFilters filters, PageRequest request);
+    Page<CourseData> search(CourseFilters filters, PageRequest page);
 }

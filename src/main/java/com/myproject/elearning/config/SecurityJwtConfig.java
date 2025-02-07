@@ -4,7 +4,7 @@ import static com.myproject.elearning.security.SecurityUtils.JWT_ALGORITHM;
 
 import com.myproject.elearning.exception.problemdetails.TokenEx;
 import com.myproject.elearning.service.TokenService;
-import com.myproject.elearning.service.redis.TokenRedisService;
+import com.myproject.elearning.service.cache.TokenRedisService;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.util.Base64;
 import java.time.Instant;

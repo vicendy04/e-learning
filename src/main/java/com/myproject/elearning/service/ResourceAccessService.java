@@ -1,11 +1,11 @@
 package com.myproject.elearning.service;
 
+import static com.myproject.elearning.security.SecurityUtils.getCurrentUserId;
+
 import com.myproject.elearning.constant.enums.ResourceType;
-import com.myproject.elearning.exception.problemdetails.AnonymousUserEx;
 import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
 import com.myproject.elearning.repository.*;
-import com.myproject.elearning.security.SecurityUtils;
-import com.myproject.elearning.service.redis.ResourceAccessRedisService;
+import com.myproject.elearning.service.cache.ResourceAccessRedisService;
 import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -24,10 +24,6 @@ public class ResourceAccessService {
     ChapterRepository chapterRepository;
     LessonRepository lessonRepository;
     ResourceAccessRedisService redisResourceAccess;
-
-    private Long getCurrentUserId() {
-        return SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
-    }
 
     private boolean isOwner(Long owner) {
         return Objects.equals(getCurrentUserId(), owner);

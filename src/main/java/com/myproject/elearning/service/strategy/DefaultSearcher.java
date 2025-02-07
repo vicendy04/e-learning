@@ -3,7 +3,7 @@ package com.myproject.elearning.service.strategy;
 import com.myproject.elearning.dto.CourseData;
 import com.myproject.elearning.dto.search.CourseFilters;
 import com.myproject.elearning.repository.CourseRepository;
-import com.myproject.elearning.service.redis.CourseRedisService;
+import com.myproject.elearning.service.cache.CourseRedisService;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -21,11 +21,11 @@ public class DefaultSearcher implements CourseSearcher {
     CourseRedisService courseRedisService;
 
     @Override
-    public Page<CourseData> search(CourseFilters filters, PageRequest request) {
+    public Page<CourseData> search(CourseFilters filters, PageRequest page) {
         // extract filters
         // log ...
 
-        Page<Long> courseIds = courseRepository.findIdsBy(request);
+        Page<Long> courseIds = courseRepository.findIdsBy(page);
 
         // read cache, set aside
         List<CourseData> data = courseRedisService.getManyAside(courseIds.getContent());

@@ -2,6 +2,7 @@ package com.myproject.elearning.rest.course;
 
 import static com.myproject.elearning.mapper.CourseMapper.COURSE_MAPPER;
 import static com.myproject.elearning.rest.utils.ResponseUtils.successRes;
+import static com.myproject.elearning.security.SecurityUtils.getCurrentUserId;
 
 import com.myproject.elearning.dto.CourseData;
 import com.myproject.elearning.dto.common.ApiRes;
@@ -10,14 +11,14 @@ import com.myproject.elearning.dto.request.course.CourseCreateReq;
 import com.myproject.elearning.dto.request.course.CourseUpdateReq;
 import com.myproject.elearning.dto.response.course.*;
 import com.myproject.elearning.dto.response.enrollment.EnrollmentRes;
+import com.myproject.elearning.dto.response.lesson.LessonContentRes;
 import com.myproject.elearning.dto.search.CourseFilters;
-import com.myproject.elearning.exception.problemdetails.AnonymousUserEx;
 import com.myproject.elearning.rest.utils.PageBuilder;
-import com.myproject.elearning.security.SecurityUtils;
 import com.myproject.elearning.service.CourseService;
 import com.myproject.elearning.service.EnrollService;
+import com.myproject.elearning.service.LessonService;
 import com.myproject.elearning.service.ReviewService;
-import com.myproject.elearning.service.redis.CourseRedisService;
+import com.myproject.elearning.service.cache.CourseRedisService;
 import com.myproject.elearning.service.strategy.CourseSearcher;
 import com.myproject.elearning.service.strategy.StrategyFactory;
 import jakarta.validation.Valid;
@@ -40,6 +41,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/courses")
 @RestController
 public class CourseController {
+    LessonService lessonService;
     CourseService courseService;
     EnrollService enrollService;
     ReviewService reviewService;
@@ -50,8 +52,8 @@ public class CourseController {
     @PostMapping("")
     @PreAuthorize("isAuthenticated() and hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ApiRes<CourseAddRes> addCourse(@Valid @RequestBody CourseCreateReq courseCreateReq) {
-        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
-        var newCourse = courseService.addCourse(curUserId, courseCreateReq);
+        Long userId = getCurrentUserId();
+        var newCourse = courseService.addCourse(userId, courseCreateReq);
         return successRes("Course created successfully", newCourse);
     }
 
@@ -82,6 +84,14 @@ public class CourseController {
     }
 
     @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/{courseId}/{lessonId}")
+    public ApiRes<LessonContentRes> getLessonContent(
+            @PathVariable(name = "courseId") Long courseId, @PathVariable Long lessonId) {
+        var lesson = lessonService.getLessonContent(lessonId);
+        return successRes("Content retrieved", lesson);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{courseId}")
     @PreAuthorize("isAuthenticated() and (hasRole('ADMIN') or @resourceAccessService.isCourseOwner(#courseId))")
     public ApiRes<CourseUpdateRes> editCourse(
@@ -104,8 +114,8 @@ public class CourseController {
     @PostMapping("/{courseId}/enroll")
     @PreAuthorize("isAuthenticated() and hasAnyRole('USER')")
     public ApiRes<EnrollmentRes> enrollCourse(@PathVariable Long courseId) {
-        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
-        var enrollment = enrollService.enrollCourse(courseId, curUserId);
+        Long userId = getCurrentUserId();
+        var enrollment = enrollService.enrollCourse(courseId, userId);
         return successRes("Enrolled successfully", enrollment);
     }
 
@@ -113,8 +123,8 @@ public class CourseController {
     @DeleteMapping("/{courseId}/unroll")
     @PreAuthorize("isAuthenticated() and hasAnyRole('USER')")
     public ApiRes<Void> unrollCourse(@PathVariable Long courseId) {
-        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
-        enrollService.unrollCourse(courseId, curUserId);
+        Long userId = getCurrentUserId();
+        enrollService.unrollCourse(courseId, userId);
         return successRes("Unrolled successfully", null);
     }
 
@@ -124,8 +134,8 @@ public class CourseController {
     @PreAuthorize("isAuthenticated() and hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ApiRes<PagedRes<CourseListRes>> getMyCourses(
             @PageableDefault(size = 10, page = 0, sort = "title", direction = Sort.Direction.ASC) Pageable pageable) {
-        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
-        var courses = courseService.getCoursesByInstructorId(curUserId, pageable);
+        Long userId = getCurrentUserId();
+        var courses = courseService.getCoursesByInstructorId(userId, pageable);
         return successRes("Lấy danh sách khóa học thành công", courses);
     }
 
@@ -135,8 +145,8 @@ public class CourseController {
     @PreAuthorize("isAuthenticated()")
     public ApiRes<PagedRes<CourseListRes>> getEnrolledCourses(
             @PageableDefault(size = 10, page = 0, sort = "title", direction = Sort.Direction.ASC) Pageable pageable) {
-        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
-        var enrolledCourses = courseService.getEnrolledCourses(curUserId, pageable);
+        Long userId = getCurrentUserId();
+        var enrolledCourses = courseService.getEnrolledCourses(userId, pageable);
         return successRes("Lấy danh sách khóa học đã đăng ký thành công", enrolledCourses);
     }
 }

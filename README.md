@@ -44,18 +44,19 @@ private static UserType userType() {
 
 ```java
 // PersonalizedSearcher.java
-public Page<CourseData> search(CourseFilters filters, PageRequest request) {
+public Page<CourseData> search(CourseFilters filters, PageRequest page) {
     // apply special offers
-    // log ...
+    // log
 
     // custom logic
-    var userId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
+    var userId = getCurrentUserId();
     Set<Long> ids = userRepository.getMyPreferencesIds(userId);
-    // find course ids based on user interests
-    Page<Long> courseIds = courseRepository.findIdsByTopicIds(ids, request);
+    // find ids based on interests
+    // ignore last seen ID for simplicity
+    Page<Long> courseIds = courseRepository.findIdsByTopicIds(ids, page);
 
     // read cache
-    // fetch from database and be aware of the 1 + N problem
+    // fetch from db and be aware of the 1 + N problem
 }
 ```
 
@@ -71,11 +72,11 @@ public Page<CourseData> getCourses(
 }
 ```
 
-This allows us to insert our custom logic into the common logic.
+> The technique has many great advantages. For one, it allows us to add custom logic in the middle. In addition, `getCourses` doesn’t need to be concerned with that logic at all.
 
 ## Cyclomatic Complexity & Testing
 
-To be honest, this project is not complex enough to require an analysis of Cyclomatic Complexity. However, I’ll briefly mention it below for completeness. It might not be entirely accurate.
+To be honest, this project is not complex enough to require an analysis of Cyclomatic Complexity. However, I’ll briefly mention it below for completeness, though it may not be accurate.
 
 Here's a simple demonstration:
 

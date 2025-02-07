@@ -27,7 +27,7 @@ public class LikeSyncJob {
     RedisTemplate<String, Object> redisTemplate;
     HashOperations<String, String, Object> hashOps;
 
-    @Scheduled(cron = "0 0 2,14 * * *")
+    @Scheduled(cron = "0 */15 * * * *")
     @Transactional
     public void syncLikesToDatabase() {
         log.info("Syncing likes to database...");

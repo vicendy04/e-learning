@@ -51,8 +51,8 @@ public class ChapterController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/lessons")
-    public ApiRes<List<LessonRes>> getLessonsByChapterId(@PathVariable Long chapterId) {
-        var lessons = lessonService.getLessonsByChapterId(chapterId);
+    public ApiRes<List<LessonRes>> getLessonsByChapter(@PathVariable Long chapterId) {
+        var lessons = lessonService.getLessonsByChapter(chapterId);
         return successRes("Danh sách bài học", lessons);
     }
 

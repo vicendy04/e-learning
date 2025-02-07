@@ -47,6 +47,7 @@ public class SecurityConfig {
         "/api/v1/courses/{courseId}/chapters/expanded"
     };
 
+    private static final String[] PUBLIC_POST_ENDPOINTS = {"/api/v1/users"};
     private static final String[] PUBLIC_URLS = {
         "/swagger-ui/**",
         "/swagger-ui.html",
@@ -82,7 +83,7 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, PUBLIC_GET_ENDPOINTS)
                         .permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/users")
+                        .requestMatchers(HttpMethod.POST, PUBLIC_POST_ENDPOINTS)
                         .permitAll()
                         .anyRequest()
                         .authenticated())

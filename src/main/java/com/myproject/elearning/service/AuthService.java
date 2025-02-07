@@ -12,7 +12,7 @@ import com.myproject.elearning.exception.problemdetails.InvalidCredentialsEx;
 import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
 import com.myproject.elearning.security.JwtTokenUtils;
 import com.myproject.elearning.security.SecurityUtils;
-import com.myproject.elearning.service.redis.TokenRedisService;
+import com.myproject.elearning.service.cache.TokenRedisService;
 import com.nimbusds.jwt.SignedJWT;
 import java.text.ParseException;
 import java.time.Instant;

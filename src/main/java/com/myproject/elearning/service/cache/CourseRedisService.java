@@ -1,4 +1,4 @@
-package com.myproject.elearning.service.redis;
+package com.myproject.elearning.service.cache;
 
 import static com.myproject.elearning.constant.RedisKeyConstants.getCourseKey;
 
@@ -21,8 +21,8 @@ import org.springframework.stereotype.Service;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
 public class CourseRedisService {
-    static final long DEFAULT_CACHE_DURATION = 30;
-    static final long MAX_RANDOM_EXPIRY = 5;
+    static final long DEFAULT_CACHE_DURATION = 5;
+    static final long MAX_RANDOM_EXPIRY = 2;
 
     Random random;
     CourseService courseService;

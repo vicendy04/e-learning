@@ -18,6 +18,13 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
 			""")
     Optional<Long> findInstructorIdById(Long lessonId);
 
+    @Query("""
+			SELECT l.chapter.course.id
+			FROM Lesson l
+			WHERE l.id = :lessonId
+			""")
+    Long findCourseIdById(Long lessonId);
+
     @Query("SELECT l FROM Lesson l LEFT JOIN FETCH l.chapter WHERE l.id = :id")
     Optional<Lesson> findWithChapterById(Long id);
 

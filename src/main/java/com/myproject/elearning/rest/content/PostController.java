@@ -2,6 +2,7 @@ package com.myproject.elearning.rest.content;
 
 import static com.myproject.elearning.rest.utils.ResponseUtils.errorRes;
 import static com.myproject.elearning.rest.utils.ResponseUtils.successRes;
+import static com.myproject.elearning.security.SecurityUtils.getCurrentUserId;
 
 import com.myproject.elearning.dto.common.ApiRes;
 import com.myproject.elearning.dto.common.PagedRes;
@@ -10,10 +11,8 @@ import com.myproject.elearning.dto.request.post.PostUpdateReq;
 import com.myproject.elearning.dto.response.post.PostGetRes;
 import com.myproject.elearning.dto.response.post.PostListRes;
 import com.myproject.elearning.dto.response.post.PostUpdateRes;
-import com.myproject.elearning.exception.problemdetails.AnonymousUserEx;
-import com.myproject.elearning.security.SecurityUtils;
 import com.myproject.elearning.service.PostService;
-import com.myproject.elearning.service.redis.PostRedisService;
+import com.myproject.elearning.service.cache.PostRedisService;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Set;
@@ -49,7 +48,7 @@ public class PostController {
     @PostMapping("")
     @PreAuthorize("isAuthenticated()")
     public ApiRes<PostGetRes> addPost(@Valid @RequestBody PostCreateReq request) {
-        Long userId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
+        Long userId = getCurrentUserId();
         var res = postService.addPost(userId, request);
         postRedisService.set(res.getId(), res);
         return successRes("Tạo bài viết thành công", res);
@@ -90,8 +89,8 @@ public class PostController {
     @PostMapping("/{id}/like")
     @PreAuthorize("isAuthenticated()")
     public ApiRes<Void> likePost(@PathVariable Long id) {
-        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
-        postRedisService.like(id, curUserId);
+        Long userId = getCurrentUserId();
+        postRedisService.like(id, userId);
         return successRes("Đã thích bài viết", null);
     }
 
@@ -99,8 +98,8 @@ public class PostController {
     @PostMapping("/{id}/unlike")
     @PreAuthorize("isAuthenticated()")
     public ApiRes<Void> unlikePost(@PathVariable Long id) {
-        Long curUserId = SecurityUtils.getLoginId().orElseThrow(AnonymousUserEx::new);
-        postRedisService.unlike(id, curUserId);
+        Long userId = getCurrentUserId();
+        postRedisService.unlike(id, userId);
         return successRes("Đã bỏ thích bài viết", null);
     }
 

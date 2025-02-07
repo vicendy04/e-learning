@@ -1,19 +1,23 @@
 package com.myproject.elearning.service;
 
 import static com.myproject.elearning.mapper.LessonMapper.LESSON_MAPPER;
+import static com.myproject.elearning.security.SecurityUtils.getCurrentUserId;
 
 import com.myproject.elearning.domain.Chapter;
 import com.myproject.elearning.domain.Lesson;
 import com.myproject.elearning.dto.request.lesson.LessonCreateReq;
 import com.myproject.elearning.dto.request.lesson.LessonUpdateReq;
+import com.myproject.elearning.dto.response.lesson.LessonContentRes;
 import com.myproject.elearning.dto.response.lesson.LessonRes;
 import com.myproject.elearning.exception.problemdetails.InvalidIdEx;
 import com.myproject.elearning.repository.ChapterRepository;
+import com.myproject.elearning.repository.EnrollmentRepository;
 import com.myproject.elearning.repository.LessonRepository;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class LessonService {
     LessonRepository lessonRepository;
     ChapterRepository chapterRepository;
+    EnrollmentRepository enrollmentRepository;
 
     @Transactional
     public LessonRes addLessonToChapter(Long chapterId, LessonCreateReq request) {
@@ -34,13 +39,23 @@ public class LessonService {
         return LESSON_MAPPER.toRes(lessonRepository.save(lesson));
     }
 
-    public LessonRes getLesson(Long id) {
-        return LESSON_MAPPER.toRes(lessonRepository.findWithChapterById(id).orElseThrow(() -> new InvalidIdEx(id)));
+    @Transactional(readOnly = true)
+    public LessonContentRes getLessonContent(Long id) {
+        Lesson lesson = lessonRepository.findById(id).orElseThrow(() -> new InvalidIdEx("Lesson not found"));
+        if (!lesson.getIsFreePreview()) {
+            Long userId = getCurrentUserId();
+            Long courseId = lessonRepository.findCourseIdById(id);
+            boolean isEnrolled = enrollmentRepository.existsByUserIdAndCourseId(userId, courseId);
+            if (!isEnrolled) {
+                throw new AccessDeniedException("User is not enrolled in this course");
+            }
+        }
+        return LESSON_MAPPER.toContentRes(lesson);
     }
 
     @Transactional
     public LessonRes editLesson(Long id, LessonUpdateReq request) {
-        Lesson lesson = lessonRepository.findById(id).orElseThrow(() -> new InvalidIdEx("Bài học không tồn tại"));
+        Lesson lesson = lessonRepository.findById(id).orElseThrow(() -> new InvalidIdEx("Lesson not found"));
         LESSON_MAPPER.partialUpdate(lesson, request);
         return LESSON_MAPPER.toRes(lessonRepository.save(lesson));
     }
@@ -50,7 +65,7 @@ public class LessonService {
         lessonRepository.deleteById(id);
     }
 
-    public List<LessonRes> getLessonsByChapterId(Long chapterId) {
+    public List<LessonRes> getLessonsByChapter(Long chapterId) {
         List<Lesson> lessons = lessonRepository.findAllByChapterId(chapterId);
         return lessons.stream().map(LESSON_MAPPER::toRes).toList();
     }
